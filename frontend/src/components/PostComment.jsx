@@ -4,8 +4,9 @@ import { FaRegHeart } from "react-icons/fa";
 import { IoChatbubbleOutline } from "react-icons/io5";
 import { FiSend } from "react-icons/fi";
 import { GoBookmark } from "react-icons/go";
+import { GoBookmarkFill } from "react-icons/go";
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedPost } from '../features/userDetail/userDetailsSlice';
+import { setSavedPosts, setSelectedPost } from '../features/userDetail/userDetailsSlice';
 import { FaHeart } from "react-icons/fa";
 import { IoAddSharp } from "react-icons/io5";
 import axios from 'axios';
@@ -16,6 +17,7 @@ function Comment({ open, setOpen }) {
     const [commentsArr, setCommentsArr] = useState([]);
     const PostDetails = useSelector((state) => state.counter.selectedPost);
     const userDetails = useSelector((state) => state.counter.userDetails);
+    const savedPosts = useSelector((state) => state.counter.savedPosts);
     const [liked, setLiked] = useState(PostDetails?.likes || []);
 
 
@@ -71,6 +73,24 @@ function Comment({ open, setOpen }) {
             console.error('Error liking/unliking the post:', error);
         }
     };
+    const handleSavePost = async (e, postId) => {
+        e.preventDefault();
+        const userId = userDetails.id;
+        try {
+            const response = await axios.put(`/api/posts/${userId}/save`, {
+                postId,
+            });
+            const savedPosts = response.data.savedPosts
+            dispatch(setSavedPosts(savedPosts))
+            //   setSavedPost([...savedPosts])
+            // Handle the response data if needed
+            // console.log('Post liked/unliked successfully:', response.data);
+
+            // Optionally, you might want to update the local state or trigger a re-render
+        } catch (error) {
+            console.error('Error liking/unliking the post:', error);
+        }
+    };
 
     // Update `liked` state when `PostDetails` changes
     useEffect(() => {
@@ -91,12 +111,12 @@ function Comment({ open, setOpen }) {
 
     return (
         <div className={`main z-10 text-white ${open ? "flex" : "hidden"} justify-center items-center fixed bg-black/75 w-screen h-screen`}>
-            <button 
-        className="absolute top-4 right-16 text-2xl"
-        onClick={handleClose} // Assuming you have a handleClose function to close the modal
-    >
-        <IoAddSharp size={40} style = {{transform: 'rotate(45deg)' }} />
-    </button>
+            <button
+                className="absolute top-4 right-16 text-2xl"
+                onClick={handleClose} // Assuming you have a handleClose function to close the modal
+            >
+                <IoAddSharp size={40} style={{ transform: 'rotate(45deg)' }} />
+            </button>
             <div className="w-[1198px] h-[580px] flex justify-center items-center">
                 <div className="content flex justify-center h-full w-full">
                     {/* Left Image Section */}
@@ -166,7 +186,10 @@ function Comment({ open, setOpen }) {
                                     </button>
                                 </div>
                                 <div>
-                                    <GoBookmark size={25} className="hover:text-zinc-500 transition-colors duration-100" aria-label="Save" />
+                                    <button onClick={(e) => handleSavePost(e, PostDetails?._id)}>
+                                        {savedPosts?.includes(PostDetails?._id) ? <GoBookmarkFill size={25} className="text-white" aria-label="Save" /> : <GoBookmark size={25} className="hover:text-zinc-500 transition-colors duration-100" aria-label="Save" />}
+
+                                    </button>
                                 </div>
                             </div>
                             <div className="my-3 text-sm font-semibold">

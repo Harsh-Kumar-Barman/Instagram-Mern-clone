@@ -208,6 +208,62 @@ app.put('/api/posts/:id/like', async (req, res) => {
   }
 });
 
+app.put('/api/user/:id/following', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    const followingUser= await User.findById(req.body.followingID);
+    if (!user.following.includes(req.body.followingID)) {
+      user.following.push(req.body.followingID);
+    } else {
+      user.following.pull(req.body.followingID);
+    }
+    if (!followingUser.followers.includes(req.params.id)) {
+      followingUser.followers.push(req.params.id);
+    } else {
+      followingUser.followers.pull(req.params.id);
+    }
+    await user.save();
+    await followingUser.save();
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/user/:id/following', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+     
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/posts/:id/save', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user.savedPosts.includes(req.body.postId)) {
+      user.savedPosts.push(req.body.postId);
+    } else {
+      user.savedPosts.pull(req.body.postId);
+    }
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/posts/:id/save', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.post('/api/posts/:id/comment', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);

@@ -45,6 +45,9 @@ const initialState = {
     id: null,
   },
   selectedPost: null,
+  savedPosts:null,
+  following:null,
+  followers:null
 };
 
 export const userDetailsSlice = createSlice({
@@ -62,8 +65,17 @@ export const userDetailsSlice = createSlice({
     setSelectedPost: (state, action) => {
       state.selectedPost = action.payload;  // No need to access selectedPost within the payload
     },
+    setSavedPosts: (state, action) => {
+      state.savedPosts = action.payload;  // No need to access selectedPost within the payload
+    },
+    setFollowing: (state, action) => {
+      state.following = action.payload;  // No need to access selectedPost within the payload
+    },
+    setFollower: (state, action) => {
+      state.followers = action.payload;  // No need to access selectedPost within the payload
+    },
   },
 });
 
-export const { addUser, setSelectedPost } = userDetailsSlice.actions;
+export const { addUser, setSelectedPost, setSavedPosts,setFollower,setFollowing } = userDetailsSlice.actions;
 export default userDetailsSlice.reducer;
