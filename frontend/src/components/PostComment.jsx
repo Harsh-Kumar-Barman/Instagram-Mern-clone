@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import myPic from '../assets/myPic.jpeg';
 import { FaRegHeart } from "react-icons/fa";
 import { IoChatbubbleOutline } from "react-icons/io5";
@@ -7,6 +7,7 @@ import { GoBookmark } from "react-icons/go";
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedPost } from '../features/userDetail/userDetailsSlice';
 import { FaHeart } from "react-icons/fa";
+import { IoAddSharp } from "react-icons/io5";
 import axios from 'axios';
 
 function Comment({ open, setOpen }) {
@@ -15,8 +16,9 @@ function Comment({ open, setOpen }) {
     const [commentsArr, setCommentsArr] = useState([]);
     const PostDetails = useSelector((state) => state.counter.selectedPost);
     const userDetails = useSelector((state) => state.counter.userDetails);
+    const [liked, setLiked] = useState(PostDetails?.likes || []);
 
-    console.log(PostDetails)
+
     // Close the modal and reset selected post
     const handleClose = (e) => {
         e.preventDefault();
@@ -39,11 +41,11 @@ function Comment({ open, setOpen }) {
         e.preventDefault();
         if (!comment.trim()) return;
         try {
-            const response = await axios.post(`/api/posts/${postId}/comment`, {
+            await axios.post(`/api/posts/${postId}/comment`, {
                 userId: userDetails.id,
                 text: comment,
             });
-            fetchComments()
+            fetchComments();
             setComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
@@ -51,35 +53,54 @@ function Comment({ open, setOpen }) {
         }
     };
 
+    // Handle like/unlike
     const handleLike = async (e, postId) => {
         e.preventDefault();
         const userId = userDetails.id;
         try {
-            const response = await axios.put(`/api/posts/${postId}/like`, {
-                userId,
+            await axios.put(`/api/posts/${postId}/like`, { userId });
+            setLiked(prevLiked => {
+                const userHasLiked = prevLiked.includes(userId);
+                if (userHasLiked) {
+                    return prevLiked.filter(id => id !== userId);
+                } else {
+                    return [...prevLiked, userId];
+                }
             });
-
-            // Handle the response data if needed
-            // console.log('Post liked/unliked successfully:', response.data);
-
-            // Optionally, you might want to update the local state or trigger a re-render
         } catch (error) {
             console.error('Error liking/unliking the post:', error);
-        }  
+        }
     };
 
+    // Update `liked` state when `PostDetails` changes
     useEffect(() => {
-        if (PostDetails?._id) {
-            fetchComments();
+        if (PostDetails?.likes) {
+            setLiked(PostDetails.likes);
         }
     }, [PostDetails]);
 
+    useEffect(() => {
+
+        if (PostDetails?._id) {
+            fetchComments();
+        }
+
+    }, [PostDetails, liked]);
+
+
+
     return (
         <div className={`main z-10 text-white ${open ? "flex" : "hidden"} justify-center items-center fixed bg-black/75 w-screen h-screen`}>
+            <button 
+        className="absolute top-4 right-16 text-2xl"
+        onClick={handleClose} // Assuming you have a handleClose function to close the modal
+    >
+        <IoAddSharp size={40} style = {{transform: 'rotate(45deg)' }} />
+    </button>
             <div className="w-[1198px] h-[580px] flex justify-center items-center">
                 <div className="content flex justify-center h-full w-full">
                     {/* Left Image Section */}
-                    <div onClick={handleClose} className="right w-full md:w-auto h-full border-r-[.1px] border-zinc-800">
+                    <div className="right w-full md:w-auto h-full border-r-[.1px] border-zinc-800">
                         <div className="image w-auto h-full overflow-hidden">
                             <img
                                 className="max-w-[500px] w-auto h-full object-cover"
@@ -135,7 +156,7 @@ function Comment({ open, setOpen }) {
                             <div className="flex justify-between items-center">
                                 <div className="flex gap-3">
                                     <button onClick={(e) => handleLike(e, PostDetails?._id)}>
-                                    {PostDetails?.likes?.includes(userDetails.id) ?<FaHeart size={25} className="text-red-500" />  : <FaRegHeart size={25} className="hover:text-zinc-500 transition-colors duration-100" />}
+                                        {liked.includes(userDetails.id) ? <FaHeart size={25} className="text-red-500" /> : <FaRegHeart size={25} className="hover:text-zinc-500 transition-colors duration-100" />}
                                     </button>
                                     <button>
                                         <IoChatbubbleOutline size={25} className="hover:text-zinc-500 transition-colors duration-100" style={{ transform: 'scaleX(-1)' }} aria-label="Comment" />
@@ -149,7 +170,7 @@ function Comment({ open, setOpen }) {
                                 </div>
                             </div>
                             <div className="my-3 text-sm font-semibold">
-                                <p>{PostDetails?.likes?.length || 0} likes</p>
+                                <p>{liked.length || 0} likes</p>
                             </div>
                         </div>
 
