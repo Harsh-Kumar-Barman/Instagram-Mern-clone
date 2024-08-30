@@ -11,7 +11,7 @@ import { FaHeart } from "react-icons/fa";
 import { IoAddSharp } from "react-icons/io5";
 import axios from 'axios';
 
-function Comment({ open, setOpen }) {
+function PostComment({ open, setOpen }) {
     const dispatch = useDispatch();
     const [comment, setComment] = useState('');
     const [commentsArr, setCommentsArr] = useState([]);
@@ -121,9 +121,9 @@ function Comment({ open, setOpen }) {
                 <div className="content flex justify-center h-full w-full">
                     {/* Left Image Section */}
                     <div className="right w-full md:w-auto h-full border-r-[.1px] border-zinc-800">
-                        <div className="image w-auto h-full overflow-hidden">
+                        <div className="image w-auto h-full overflow-hidden flex justify-center items-center">
                             <img
-                                className="max-w-[500px] w-auto h-full object-cover"
+                                className="max-w-[500px] w-auto h-auto object-cover"
                                 src={`http://localhost:5000/${PostDetails?.image}`}
                                 alt="Post Image"
                                 loading="lazy"
@@ -224,4 +224,4 @@ function Comment({ open, setOpen }) {
     );
 }
 
-export default Comment;
+export default PostComment;

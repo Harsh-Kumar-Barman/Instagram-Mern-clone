@@ -124,8 +124,8 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
     user.posts.push(newPost._id);
     await user.save();
     await newPost.save();
-    console.log("width :: ",width)
-    console.log("height :: ",height)
+    // console.log("width :: ",width)
+    // console.log("height :: ",height)
     res.status(201).json({newPost,width,height});
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -288,7 +288,7 @@ app.get('/api/posts/:id/comment', async (req, res) => {
 app.get('/api/posts', async (req, res) => {
   try {
     const posts = await Post.find().populate('author', 'username profilePicture').populate('comments.user', 'username');
-    console.log(posts)
+    // console.log(posts)
     res.json(posts);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
