@@ -5,8 +5,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path')
-const expressSession= require('express-session')
-const passport=require('passport')
+const expressSession = require('express-session')
+const passport = require('passport')
 require('dotenv').config();
 const cookieParser = require('cookie-parser')
 const sizeOf = require('image-size');
@@ -21,9 +21,9 @@ app.use(cors());
 app.use(cookieParser())
 app.use(express.json());
 app.use(expressSession({
-  resave:false,
-  saveUninitialized:false,
-  secret:"shhhh"
+  resave: false,
+  saveUninitialized: false,
+  secret: "shhhh"
 }))
 app.use(passport.initialize())
 app.use(passport.session())
@@ -32,23 +32,23 @@ passport.deserializeUser(User.deserializeUser())
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('MongoDB connected'))
-.catch((err) => console.log(err));
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.log(err));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname), 
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
 });
 const upload = multer({ storage });
 
 
 app.post('/api/register', async (req, res) => {
   try {
-    const { username, email, password,fullName } = req.body;
+    const { username, email, password, fullName } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ fullName, username, email, password: hashedPassword });
     await newUser.save();
-    
+
     res.status(201).json({ message: 'User registered' });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -60,7 +60,7 @@ app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: 'Invalid email or password' });
-    
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid email or password' });
 
@@ -101,7 +101,7 @@ app.get('/api/logout', async (req, res) => {
 //     user.posts.push(newPost._id)
 //     await user.save()
 //     await newPost.save();
-    
+
 //     res.status(201).json(newPost);
 //   } catch (error) {
 //     res.status(500).json({ error: 'Server error' });
@@ -113,12 +113,12 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
     const dimensions = sizeOf(req.file.path);
     const width = dimensions.width;
     const height = dimensions.height;
-    const newPost = new Post({ 
-      caption, 
-      image: req.file.path, 
+    const newPost = new Post({
+      caption,
+      image: req.file.path,
       author,
       imageWidth: width,
-      imageHeight: height   
+      imageHeight: height
     });
     const user = await User.findOne({ _id: author });
     user.posts.push(newPost._id);
@@ -126,7 +126,7 @@ app.post('/api/posts', upload.single('image'), async (req, res) => {
     await newPost.save();
     // console.log("width :: ",width)
     // console.log("height :: ",height)
-    res.status(201).json({newPost,width,height});
+    res.status(201).json({ newPost, width, height });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -136,7 +136,7 @@ app.get('/api/:username/posts', async (req, res) => {
   try {
     const { username } = req.params;
     const user = await User.findOne({ username }).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -144,8 +144,8 @@ app.get('/api/:username/posts', async (req, res) => {
     const posts = await Post.find({ author: user._id })
       .populate('author', 'username profilePicture')
       .populate('comments.user', 'username');
-      // console.log(posts)
-    res.json({user,posts});
+    // console.log(posts)
+    res.json({ user, posts });
   } catch (error) {
     console.error('Error fetching posts:', error.message);
     res.status(500).json({ error: 'Server error' });
@@ -153,45 +153,45 @@ app.get('/api/:username/posts', async (req, res) => {
 });
 
 app.get('/api/users/:username', async (req, res) => {
-    try {
-      const { username } = req.params;
-  
-      // Find the user by username
-      const user = await User.findOne({ username }).select('-password'); // Exclude the password field
-  
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-  
-      // Find posts by the user's ID
-      const posts = await Post.find({ author: user._id })
-        .populate('author', 'username profilePicture')
-        .populate('comments.user', 'username');
-  
-      res.json({ user, posts });
-    } catch (error) {
-      console.error('Error fetching user data:', error.message);
-      res.status(500).json({ error: 'Server error' });
+  try {
+    const { username } = req.params;
+
+    // Find the user by username
+    const user = await User.findOne({ username }).select('-password'); // Exclude the password field
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
-  });
+
+    // Find posts by the user's ID
+    const posts = await Post.find({ author: user._id })
+      .populate('author', 'username profilePicture')
+      .populate('comments.user', 'username');
+
+    res.json({ user, posts });
+  } catch (error) {
+    console.error('Error fetching user data:', error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 app.get('/api/userss/:email', async (req, res) => {
-    try {
-      const { email } = req.params;
-      
-      // Find the user by username
-      const user = await User.findOne({ email }).select('-password'); // Exclude the password field
-  
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      res.json({ user,  });
-    } catch (error) {
-      console.error('Error fetching user data:', error.message);
-      res.status(500).json({ error: 'Server error' });
+  try {
+    const { email } = req.params;
+
+    // Find the user by username
+    const user = await User.findOne({ email }).select('-password'); // Exclude the password field
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
-  });
-  
+    res.json({ user, });
+  } catch (error) {
+    console.error('Error fetching user data:', error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 app.put('/api/posts/:id/like', async (req, res) => {
   try {
@@ -211,7 +211,7 @@ app.put('/api/posts/:id/like', async (req, res) => {
 app.put('/api/user/:id/following', async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
-    const followingUser= await User.findById(req.body.followingID);
+    const followingUser = await User.findById(req.body.followingID);
     if (!user.following.includes(req.body.followingID)) {
       user.following.push(req.body.followingID);
     } else {
@@ -233,7 +233,7 @@ app.put('/api/user/:id/following', async (req, res) => {
 app.get('/api/user/:id/following', async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
-     
+
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -273,28 +273,46 @@ app.post('/api/posts/:id/comment', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
-}); 
+});
 
 app.get('/api/posts/:id/comment', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id).populate('author', 'username profilePicture').populate('comments.user', 'username');
-   
+
     res.json(post);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
-}); 
+});
 
 app.get('/api/posts', async (req, res) => {
   try {
     const posts = await Post.find().populate('author', 'username profilePicture').populate('comments.user', 'username');
-    // console.log(posts)
+    console.log(posts)
     res.json(posts);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
 });
- 
+
+app.get('/api/search', async (req, res) => {
+  try {
+    console.log(req.query.query);
+    const query = req.query.query
+    const results = await User.find({ username: { $regex: query, $options: 'i' } }).select(['username','fullName','profilePicture']);
+    console.log('user found  :  :  :  ', results)
+
+    if (results) {
+      res.json(results);
+    } else {
+      res.json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

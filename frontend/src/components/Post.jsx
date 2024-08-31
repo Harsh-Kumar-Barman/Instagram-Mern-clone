@@ -5,6 +5,7 @@ import { FiSend } from "react-icons/fi";
 import { GoBookmark, GoBookmarkFill } from "react-icons/go";
 import myPic from '../assets/myPic.jpeg';
 import CommentForm from "./CommentForm";
+import { Link } from "react-router-dom";
 
 const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handleSavePosts, showComments, handleFollowing, handleCommentSubmit }) => {
   return (
@@ -13,7 +14,9 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
         <div className="w-[42px] h-[42px] border border-zinc-500 rounded-full overflow-hidden p-0.5">
           <img className="w-full h-full rounded-full object-cover" src={myPic} alt={post.author.username} />
         </div>
+        <Link to={`/profile/${userDetails.username}`}>
         <h2 className="text-sm font-bold flex items-center">{post.author.username}.</h2>
+        </Link>
         <button onClick={(e) => handleFollowing(e, post.author._id)}>
           <h2 className="text-sm font-bold text-sky-500">
             {userDetails.id === post.author._id ? "" : followingUserss?.includes(post.author._id) ? "Unfollow" : "Follow"}
@@ -23,7 +26,7 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
 
       <figure className="mt-2 w-full h-[90vh] sm:h-[400px] md:h-[500px] lg:h-[585px] border-[.1px] border-zinc-800 flex justify-center items-center sm:rounded-md overflow-hidden">
         {/* <img onDoubleClick={(e) => handleLike(e, post._id)} src={`http://localhost:5000/${post.image}`} alt={post.caption} className={`object-cover ${post.imageWidth > 468 ? 'w-full' : `w-[${post.imageWidth}px]`} ${post.imageHeight > 585 ? 'h-full' : `h-[${post.imageHeight}px]`} hover:scale-110 duration-300`} /> */}
-        <img onDoubleClick={(e) => handleLike(e, post._id)} src={`http://localhost:5000/${post.image}`} alt={post.caption} className={`object-fill ${post.imageWidth > 468 ? `w-[${post.imageWidth}px]` : `w-[${post.imageWidth}px]`} ${post.imageHeight > 585 ? `h-[${post.imageHeight}px]` : `h-[${post.imageHeight}px]`} hover:scale-105 duration-300 `} />       
+        <img onDoubleClick={(e) => handleLike(e, post._id)} src={`http://localhost:5000/${post.image}`} alt={post.caption} className={`object-cover ${post.imageWidth > 468 ? `w-[${post.imageWidth}px]` : `w-[${post.imageWidth}px]`} ${post.imageHeight > 585 ? `h-[${post.imageHeight}px]` : `h-[${post.imageHeight}px]`} hover:scale-105 duration-300 `} />       
 
       </figure>
 

@@ -132,6 +132,8 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSavedPosts, setFollowing, setFollower, setSelectedPost } from '../features/userDetail/userDetailsSlice'; // Adjust paths as necessary
 import PostComment from './PostComment';
+import Search from './Search';
+import SlidingSearchBar from './SlidingSearchBar';
 
 const Home = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -140,7 +142,7 @@ const Home = () => {
   const savedPosts = useSelector((state) => state.counter.savedPosts);
   const followingUsers = useSelector((state) => state.counter.following);
   const [followingUserss, setFollowingUserss] = useState([...followingUsers]);
-  
+  const [searchResults, setSearchResults] = useState([]);
   const userDetails = useSelector((state) => state.counter.userDetails);
   const dispatch = useDispatch();
 
@@ -228,12 +230,25 @@ const Home = () => {
     }
   };
  
+  // const handleSearch = (query) => {
+  //   console.log(query )
+  //   if (query === '') {
+  //     setSearchResults([]);
+  //   } else {
+  //     const filteredPosts = allPosts.filter((post) =>
+  //       post?.title?.toLowerCase().includes(query.toLowerCase())
+  //     );
+  //     setSearchResults(filteredPosts);
+  //   }
+  // };
 
   return (
     <div className="relative flex gap-8 text-white">
       <Sidebar />
       <PostComment open={open} setOpen={setOpen} func={fetchPosts} />
       <div className="w-[100%] md:w-[60%] lg:w-[50%] flex flex-col gap-6 lg:ml-[18.8%] mt-16 sm:mt-5">
+      {/* <Search /> */}
+      {/* <SlidingSearchBar/> */}
         <Reels />
         <PostList
           allPosts={allPosts}
@@ -257,3 +272,5 @@ const Home = () => {
 };
 
 export default Home;
+
+
