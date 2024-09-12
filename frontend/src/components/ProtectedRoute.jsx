@@ -1,21 +1,3 @@
-// import { Navigate } from 'react-router-dom';
-
-// const ProtectedRoute = ({ children }) => {
-//   const token = localStorage.getItem('token');
-//   // console.log(token)
-
-//   if (!token) {
-//     return <Navigate to="/login" />;
-//   }
-
-//   return children;
-// };
-
-// export default ProtectedRoute;
-
-
-
-
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
@@ -26,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get('/api/isLoggin');
+        const res = await axios.get('/api/auth/isLoggedIn');
         if (res.status === 200) {
           setIsAuthenticated(true);
         }

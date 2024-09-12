@@ -13,13 +13,13 @@ const Reels = () => {
   };
 
   return (
-    <section className="relative flex items-center justify-center w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[45vw] mx-auto">
+    <section className="relative ml-9 mt-2 flex items-center justify-center w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[47vw] mx-auto">
       <div
         ref={containerRef}
-        className="flex w-full gap-4 sm:px-2 overflow-x-auto"
+        className="flex w-full gap-5 sm:px-2 overflow-x-auto"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map((num) => (
+        {[1, 2, 3].map((num) => (
           <div key={num} className="flex-shrink-0 flex items-center justify-center w-[60px] h-[60px] rounded-full bg-zinc-500">
             {num}
           </div>

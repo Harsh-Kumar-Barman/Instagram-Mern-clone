@@ -1,22 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addUser } from '../features/userDetail/userDetailsSlice';
 import Sidebar from './Sidebar';
 import CreatePost from './CreatePost';
 import { IoSettingsOutline } from "react-icons/io5";
 import { MdKeyboardArrowRight, MdKeyboardArrowLeft } from "react-icons/md";
-import myPic from '../assets/myPic.jpeg';
 
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { username } = useParams();
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
-  const containerRef = useRef(null);
-
+  const containerRef = useRef(null); 
   const scrollLeft = () => {
     if (containerRef.current) {
       containerRef.current.scrollBy({ left: -250, behavior: 'smooth' });
@@ -32,13 +31,16 @@ const Profile = () => {
   const fetchUserData = async () => {
     try {
       const { data } = await axios.get(`/api/users/${username}`);
+      setProfile(data?.user?.profilePicture)
       setUser(data.user);
       setPosts(data.posts);
+      const profilePic= data?.user?.profilePicture
       dispatch(addUser({
-        fullName: data.user.fullName,
-        username: data.user.username,
-        email: data.user.email,
-        id: data.user._id
+        fullName: data?.user?.fullName,
+        username: data?.user?.username,
+        email: data?.user?.email,
+        id: data?.user?._id,
+        profilePic:profilePic
       }));
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -47,7 +49,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      const { status } = await axios.get('/api/logout');
+      const { status } = await axios.get('/api/auth/logout');
       if (status === 200) {
         console.log('Logged out successfully');
         navigate('/login');
@@ -72,7 +74,7 @@ const Profile = () => {
             <div className="user-Pic">
               <div className="image w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-zinc-600 rounded-full flex items-center justify-center">
                 <img
-                  src={myPic} // Replace with default profile picture path
+                  src={`http://localhost:5000/${profile}`} // Replace with default profile picture path
                   alt={user.username}
                   className="w-full h-full rounded-full object-top object-cover"
                 />
@@ -82,9 +84,11 @@ const Profile = () => {
               <div className="flex flex-col gap-3 items-center lg:items-start">
                 <div className="flex items-center space-x-2 sm:space-x-4">
                   <h2 className="text-xl sm:text-2xl font-bold cursor-pointer">{user.username}</h2>
+                  <Link to={`/accounts/edit/${user?._id}`}>
                   <button className="px-4 py-1 bg-zinc-800 rounded-md text-sm font-semibold">
                     Edit Profile
                   </button>
+                  </Link>
                   <button className="px-4 py-1 bg-zinc-800 rounded-md text-sm font-semibold">
                     View Archive
                   </button>
@@ -105,7 +109,7 @@ const Profile = () => {
                 </div>
                 <div className="mt-4 text-center lg:text-left">
                   <p className="font-semibold">{user.fullName}</p>
-                  <p className="text-gray-600">{user.bio}</p>
+                  <p className="text-zinc-200">{user.bio}</p>
                 </div>
               </div>
             </div>
@@ -127,7 +131,7 @@ const Profile = () => {
                   {posts.map(post => (
                     <div key={post._id} className='rounded-full p-[.5px] border border-zinc-800 flex items-center justify-center flex-shrink-0'>
                       <img
-                        src={`http://localhost:5000/${post.image}`}
+                        src={`http://localhost:5000/${post.mediaPath}`}
                         alt={post.caption}
                         className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-full"
                       />

@@ -29,7 +29,7 @@ function Sidebar() {
         setQuery(searchQuery);
         if (searchQuery) {
             try {
-                const response = await axios.get(`/api/search?query=${searchQuery}`);
+                const response = await axios.get(`/api/search/users?query=${searchQuery}`);
                 setResults(response.data);
             } catch (error) {
                 console.error('Error fetching search results:', error);
@@ -42,9 +42,9 @@ function Sidebar() {
     const links = [
         { id: 1, icon: <GoHomeFill size={25} />, label: "Home", link: '/' },
         { id: 2, icon: <IoSearchOutline size={25} />, label: "Search", link: '#', onClick: handleSearchClick },
-        { id: 3, icon: <MdOutlineExplore size={25} />, label: "Explore", link: '/' },
-        { id: 4, icon: <BiSolidMoviePlay size={25} />, label: "Reels", link: '/' },
-        { id: 5, icon: <FiSend size={25} />, label: "Messages", link: '/' },
+        { id: 3, icon: <MdOutlineExplore size={25} />, label: "Explore", link: '/explore/' },
+        { id: 4, icon: <BiSolidMoviePlay size={25} />, label: "Reels", link: '/reels/' },
+        { id: 5, icon: <FiSend size={25} />, label: "Messages", link: '/direct/inbox' },
         { id: 6, icon: <FaRegHeart size={25} />, label: "Notification", link: '/' },
         { id: 7, icon: <CiSquarePlus size={25} />, label: "Create", link: '/' },
         {
