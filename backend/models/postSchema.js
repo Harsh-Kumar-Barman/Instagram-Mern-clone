@@ -10,6 +10,7 @@ const postSchema = mongoose.Schema({
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    profilePicture: { type: String, default: 'uploads/defaultProfilePic.png' },
     text: { type: String },
   }],
 }, { timestamps: true });

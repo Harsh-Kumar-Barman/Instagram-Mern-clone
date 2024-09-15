@@ -13,7 +13,6 @@ function EditProfile() {
     const [profileImage, setProfileImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const navigate = useNavigate();
-console.log(id)
 
     const handleSubmit = async (e) => {
         e.preventDefault();

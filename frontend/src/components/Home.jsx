@@ -31,8 +31,9 @@ const Home = () => {
 
   useEffect(() => {
     fetchPosts();
-    getFollowing()
-  }, [setAllPosts,setFollowingUserss]);
+    getFollowing();
+    getSavePosts();
+  }, [setAllPosts, setFollowingUserss, setSavedPost, open]);
 
   const handleLike = async (e, postId) => {
     e.preventDefault();
@@ -62,17 +63,31 @@ const Home = () => {
     }
   };
 
+  const getSavePosts = async () => {
+    const userId = userDetails.id;
+
+    try {
+      const { data: { savedPosts } } = await axios.get(`/api/posts/${userId}/save`);
+      dispatch(setSavedPosts(savedPosts));
+      setSavedPost(savedPosts);
+    } catch (error) {
+      console.error('Error saving the post:', error);
+    } finally {
+      fetchPosts();
+    }
+  };
+
   const showComments = (e, post) => {
     e.preventDefault();
     setOpen(true)
     dispatch(setSelectedPost(post));
   };
 
-  const getFollowing=async()=>{
-   const response=await axios.get(`/api/users/${userDetails.id}/following`)
-   const following=response.data.following
-   dispatch(setFollowing([...following]));
-   setFollowingUserss(following)
+  const getFollowing = async () => {
+    const response = await axios.get(`/api/users/${userDetails.id}/following`)
+    const following = response.data.following
+    dispatch(setFollowing([...following]));
+    setFollowingUserss(following)
   }
 
   const handleFollowing = async (e, followingID) => {
@@ -134,5 +149,5 @@ const Home = () => {
     </div>
   );
 };
- 
+
 export default Home;

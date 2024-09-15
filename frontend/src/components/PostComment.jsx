@@ -6,10 +6,11 @@ import { FiSend } from "react-icons/fi";
 import { GoBookmark } from "react-icons/go";
 import { GoBookmarkFill } from "react-icons/go";
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedPost } from '../features/userDetail/userDetailsSlice';
+import { setSavedPosts, setSelectedPost } from '../features/userDetail/userDetailsSlice';
 import { FaHeart } from "react-icons/fa";
 import { IoAddSharp } from "react-icons/io5";
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function PostComment({ open, setOpen }) {
     const dispatch = useDispatch();
@@ -19,7 +20,7 @@ function PostComment({ open, setOpen }) {
     const userDetails = useSelector((state) => state.counter.userDetails);
     const savedPosts = useSelector((state) => state.counter.savedPosts);
     const [liked, setLiked] = useState(PostDetails?.likes || []);
-
+    console.log(PostDetails?.comments)
     // Close the modal and reset selected post
     const handleClose = (e) => {
         e.preventDefault();
@@ -59,7 +60,7 @@ function PostComment({ open, setOpen }) {
         e.preventDefault();
         const userId = userDetails.id;
         try {
-            await axios.put(`/api/posts/${postId}/like`, { userId });
+            const response = await axios.put(`/api/posts/${postId}/like`, { userId });
             setLiked(prevLiked => {
                 const userHasLiked = prevLiked.includes(userId);
                 if (userHasLiked) {
@@ -115,24 +116,24 @@ function PostComment({ open, setOpen }) {
                 <div className="content flex justify-center h-full w-full">
                     {/* Left Image Section */}
                     <div className="right w-full md:w-auto h-full border-r-[.1px]  border-zinc-800">
-                        <div className="image w-auto h-full overflow-hidden flex justify-center items-center"> 
-                            {PostDetails?.mediaType==='image'?<img
+                        <div className="image w-auto h-full overflow-hidden flex justify-center items-center">
+                            {PostDetails?.mediaType === 'image' ? <img
                                 className="max-w-[500px] w-auto h-auto object-cover object-top"
                                 src={`http://localhost:5000/${PostDetails?.mediaPath}`}
                                 alt="Post Image"
                                 loading="lazy"
-                            />:<video
-                            // ref={videoRef}
-                            // onClick={handleVideoClick}
-                            autoPlay
-                            muted
-                            controls
-                            src={`http://localhost:5000/${PostDetails?.mediaPath}`}
-                            loop
-                            // className={`object-cover ${PostDetails?.imageWidth > 468 ? `w-[${PostDetails?.imageWidth}px]` : `w-[${PostDetails?.imageWidth}px]`} ${PostDetails?.imageHeight > 585 ? `h-[${PostDetails?.imageHeight}px]` : `h-[${PostDetails?.imageHeight}px]`} duration-300`}
-                            className={`object-cover max-w-[800px] w-full h-full duration-300`}
-                          />}
-                            
+                            /> : <video
+                                // ref={videoRef}
+                                // onClick={handleVideoClick}
+                                autoPlay
+                                muted
+                                controls
+                                src={`http://localhost:5000/${PostDetails?.mediaPath}`}
+                                loop
+                                // className={`object-cover ${PostDetails?.imageWidth > 468 ? `w-[${PostDetails?.imageWidth}px]` : `w-[${PostDetails?.imageWidth}px]`} ${PostDetails?.imageHeight > 585 ? `h-[${PostDetails?.imageHeight}px]` : `h-[${PostDetails?.imageHeight}px]`} duration-300`}
+                                className={`object-cover max-w-[800px] w-full h-full duration-300`}
+                            />}
+
                         </div>
                     </div>
 
@@ -150,8 +151,7 @@ function PostComment({ open, setOpen }) {
                                     />
                                 </div>
                                 <div className="authorDetail">
-                                    <p className="text-sm font-semibold">{userDetails?.username}</p>
-                                    <p className="text-sm text-zinc-500">{userDetails?.fullName}</p>
+                                    <p className="text-sm font-semibold">{PostDetails?.author?.username}</p>
                                 </div>
                             </div>
                             <div className="ml-auto">
@@ -163,11 +163,13 @@ function PostComment({ open, setOpen }) {
                         <div className={`comments-section flex-1 overflow-y-auto p-4 ${commentsArr.length === 0 ? 'flex justify-center items-center' : ''}`}>
                             {commentsArr.length > 0 ? (
                                 commentsArr.map((comment) => (
-                                    <div key={comment._id} className="mb-2">
-                                        <p>
-                                            <strong>{comment?.user?.username}: </strong>
-                                            {comment.text}
+                                    <div key={comment._id} className="mb-4">
+                                        <Link to={`/profile/${comment?.user?.username}`}>
+                                        <p className='flex justify-start items-center gap-3'>
+                                            <img className='rounded-full w-8 h-8 object-cover object-top' src={`http://localhost:5000/${comment?.profilePicture}`} alt="" />
+                                            <p className='flex justify-center items-center gap-1'> <strong className='hover:text-zinc-400 duration-150'>{comment?.user?.username} : </strong><p className='font-light'>{comment.text}</p></p>
                                         </p>
+                                        </Link>
                                     </div>
                                 ))
                             ) : (

@@ -71,8 +71,11 @@ const like = async (req, res) => {
 
 const getComment = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate('author', 'username profilePicture').populate('comments.user', 'username');
+    const post = await Post.findById(req.params.id)
+      .populate('author', 'username profilePicture')
+      .populate('comments.user', 'username profilePicture'); // Include profilePicture
 
+    // console.log(post);
     res.json(post);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -107,7 +110,8 @@ const getSavedPosts = async (req, res) => {
 const writeComment = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    post.comments.push({ user: req.body.userId, text: req.body.text });
+    const user = await User.findById(req.body.userId);
+    post.comments.push({ user: req.body.userId, text: req.body.text, profilePicture: user.profilePicture });
     await post.save();
     res.json(post);
   } catch (error) {
