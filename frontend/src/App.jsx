@@ -6,14 +6,14 @@ import Register from './components/Register';
 import Login from './components/Login';
 import BottomNavigation from './components/BottomNavigation';
 import Navbar from './components/Navbar';
-import Messenger from './components/Messenger';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { setOnlineUsers } from './features/userDetail/userDetailsSlice';
 import Explore from './components/Explore';
 import ReelSection from './components/ReelSection';
-import EditProfile from './components/EditProfile';
+import { ProfileEdit } from './components/profile-edit';
+import { ChatComponent } from './components/instagram-chat';
 
 function App() {
   const userDetails = useSelector((state) => state.counter.userDetails);
@@ -48,10 +48,11 @@ function App() {
       <Routes>
         <Route path="/" element={<ProtectedRoute><Home socketRef={socketRef} /></ProtectedRoute>} />
         <Route path="/profile/:username" element={<ProtectedRoute><Profile socketRef={socketRef} /></ProtectedRoute>} />
-        <Route path="/direct/inbox" element={<ProtectedRoute><Messenger socketRef={socketRef} /></ProtectedRoute>} />
+        <Route path="/profile/:username/:reelId" element={<ProtectedRoute><Profile socketRef={socketRef} /></ProtectedRoute>} />
+        <Route path="/direct/inbox" element={<ProtectedRoute><ChatComponent socketRef={socketRef} /></ProtectedRoute>} />
         <Route path="/explore/" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
         <Route path="/reels/" element={<ProtectedRoute><ReelSection /></ProtectedRoute>} />
-        <Route path="/accounts/edit/:id" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+        <Route path="/accounts/edit/:id" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

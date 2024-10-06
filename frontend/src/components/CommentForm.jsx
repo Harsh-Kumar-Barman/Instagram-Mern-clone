@@ -11,7 +11,7 @@ const CommentForm = ({ postId, handleCommentSubmit }) => {
   };
 
   return (
-    <form onSubmit={onSubmit} className="flex items-center pt-2 px-2 pb-4">
+    <form onSubmit={onSubmit} className="flex items-center pt-2 px-1 pb-4">
       <input
         type="text"
         placeholder="Add a comment..."

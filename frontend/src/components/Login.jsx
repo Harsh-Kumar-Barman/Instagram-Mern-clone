@@ -1,16 +1,28 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { addUser } from '@/features/userDetail/userDetailsSlice';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response =await axios.post('/api/auth/login', { email, password });
+      const profilePic = response?.data?.user?.profilePicture
+      dispatch(addUser({
+        fullName: response?.data?.user?.fullName,
+        username: response?.data?.user?.username,
+        email: response?.data?.user?.email,
+        id: response?.data?.user?._id,
+        profilePic: profilePic
+      }));
       navigate(`/profile/${response?.data?.user?.username}`);
     } catch (err) {
       console.error('Login error:', err);

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { addUser } from '@/features/userDetail/userDetailsSlice';
 
 
 const Register = () => {
@@ -9,12 +11,24 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('/api/auth/register', { fullName, username, email, password });
-            navigate(`/profile/${username}`);
+            const response = await axios.post('/api/auth/register', { fullName, username, email, password });
+            const profilePic = response?.data?.newUser?.profilePicture
+            dispatch(addUser({
+                fullName: response?.data?.newUser?.fullName,
+                username: response?.data?.newUser?.username,
+                email: response?.data?.newUser?.email,
+                id: response?.data?.newUser?._id,
+                profilePic: profilePic
+            }));
+            // navigate(`/profile/${username}`);
+            navigate(`/profile/${response?.data?.newUser?.username}`);
+
         } catch (err) {
             console.error(err);
         }

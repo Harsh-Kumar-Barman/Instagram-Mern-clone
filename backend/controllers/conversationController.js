@@ -43,10 +43,9 @@ const sendMessage = async (req, res) => {
 
 
 
-const getFriends= async (req, res) => {
+const getFriends = async (req, res) => {
   try {
     const { username } = req.params;
-
     // Find the user by username and exclude the password field
     const user = await User.findOne({ username })
       .populate({
@@ -69,7 +68,7 @@ const getFriends= async (req, res) => {
 
 
 
-const getAllMessages= async (req, res) => {
+const getAllMessages = async (req, res) => {
   try {
     const senderId = req.query.senderId
     const reciverId = req.params.id

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { Input } from './ui/input';
 
 const CreatePost = () => {
   const userDetails = useSelector((state) => state.counter.userDetails);
@@ -35,7 +36,7 @@ const CreatePost = () => {
         <label htmlFor="caption" className="block text-sm font-medium text-gray-700 mb-2">
           Caption
         </label>
-        <input
+        <Input
           id="caption"
           type="text"
           placeholder="Enter your caption here"
@@ -48,10 +49,10 @@ const CreatePost = () => {
         <label htmlFor="media" className="block text-sm font-medium text-gray-700 mb-2">
           Image or Video
         </label>
-        <input
+        <Input
           id="media"
           type="file"
-          className="mb-4 w-full p-3 border rounded-lg"
+          className="mb-4 w-full border rounded-lg"
           name="media"
           onChange={(e) => setMedia(e.target.files[0])}
           accept="image/*,video/*" // Accept both images and videos

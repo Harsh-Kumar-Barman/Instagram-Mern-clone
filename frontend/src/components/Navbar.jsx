@@ -13,7 +13,7 @@ function Navbar() {
     ];
     return (
         <>
-            <aside className="z-50 fixed block sm:hidden top-0 w-full h-16 bg-black border-r border-zinc-800">
+            <aside className="z-50 fixed hidden top-0 w-full h-16 bg-black border-r border-zinc-800">
                 <div className="flex w-screen items-center justify-between">
                     <div className=" ml-5 flex items-center mt-4">
                         <img className="w-20" src={InstaLogo} alt="Instagram Logo" />

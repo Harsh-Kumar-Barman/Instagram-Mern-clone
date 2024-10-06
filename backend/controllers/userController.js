@@ -86,6 +86,31 @@ const updateProfile = async (req, res) => {
 };
 
 
+const addToReelHistory = async (req, res) => {
+  try {
+    const { userId, postId } = req.params; // Get userId and postId from request params
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.reelHistory.push({
+      postId,
+      watchedAt: new Date()
+    });
+
+    // Save the updated user document
+    await user.save();
+
+    res.status(200).json({ message: 'Reel added to history successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
 // Define other controller methods here...
 
-module.exports = { getUserAndPosts, getFollowing, following, updateProfile };
+module.exports = { getUserAndPosts, getFollowing, following, updateProfile, addToReelHistory };

@@ -72,7 +72,7 @@ const ExploreGrid = () => {
     return (
         <>
         <PostComment open={open} setOpen={setOpen} func={fetchPosts} />
-        <div className="w-[81.8%] bg-black h-screen grid grid-cols-3 gap-1 px-20 py-12 ml-auto">
+        <div className="w-[81.8%] dark:bg-neutral-950 min-h-screen grid grid-cols-3 gap-1 px-20 py-12 ml-auto">
             {allPosts?.map((post, index) => {
                 if (index === 2) {
                     // The third item will span both rows

@@ -10,7 +10,7 @@ const register = async (req, res) => {
     await newUser.save();
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.cookie('token', token);
-    res.status(201).json({ message: 'User registered' });
+    res.status(201).json({ message: 'User registered', newUser });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -27,7 +27,7 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.cookie('token', token);
-    res.json({ token, user: { id: user._id, username: user.username } });
+    res.json({ token, user });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }

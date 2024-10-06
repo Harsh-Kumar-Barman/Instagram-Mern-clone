@@ -32,7 +32,7 @@ function BottomNavigation() {
     ];
 
     return (
-        <aside className="fixed block sm:hidden bottom-0 w-full h-10 bg-black border-r border-zinc-800">
+        <aside className="fixed  hidden bottom-0 w-full h-10 bg-black border-r border-zinc-800">
             <div className="flex w-full items-center">
                 <nav className="flex gap-1 w-full items-center">
                     {links.map((link) => (

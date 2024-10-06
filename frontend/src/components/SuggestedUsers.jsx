@@ -1,28 +1,57 @@
+import { useSelector } from "react-redux";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import { Link } from "react-router-dom";
+
 // SuggestedUsers.js
-const SuggestedUsers = ({ allPosts }) => {
-    return (
-      <div className="accounts flex flex-col gap-5">
-         <div className="suggest flex justify-evenly items-center gap-20">
-                    <p className="font-semibold text-zinc-300 text-xs">Suggested for you</p>
-                    <p className="font-semibold text-xs cursor-pointer">See All</p>
-                  </div>
-        {allPosts.map((post, index) => (
-          <div key={index} className="acc flex justify-evenly items-center gap-5">
-            <div className="imgAbout flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full overflow-hidden">
-                <img className="w-full h-full object-cover object-top" src={`http://localhost:5000/${post.mediaPath}`} alt={post.author.username} />
-              </div>
-              <div className="about">
-                <h2 className="text-xs font-semibold">{post.author.username}</h2>
-                <p className="text-xs text-zinc-400">Suggested for you</p>
-              </div>
+const SuggestedUsers = () => {
+  const userDetails = useSelector((state) => state.counter.userDetails);
+  return (
+    <aside className="w-80 p-4 hidden lg:block mt-2  dark:bg-neutral-950 dark:text-white">
+      <div className="flex items-center mb-6 justify-between">
+        <Link to={`/profile/${userDetails.username}`} >
+          <Avatar className="w-12 h-12">
+            <AvatarImage src={`http://localhost:5000/${userDetails.profilePic}`} className="object-cover object-top" />
+            <AvatarFallback>ME</AvatarFallback>
+          </Avatar>
+        </Link>
+        <div className="ml-2">
+          <Link to={`/profile/${userDetails.username}`} >
+            <p className="text-sm font-semibold">{userDetails.username}</p>
+          </Link>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">{userDetails.fullName}</p>
+        </div>
+        <Button variant="link" size="sm" className="ml-auto text-[#0f9bf7]">Switch</Button>
+      </div>
+      <div className="mb-4">
+        <div className="flex justify-between">
+          <h2
+            className="text-sm font-semibold text-neutral-500 mb-4 dark:text-neutral-400">Suggestions for you</h2>
+          <p className="text-sm mr-2 font-medium">See All</p>
+        </div>
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center space-x-4 mb-4">
+             <Link to={`/profile/${userDetails.username}`} >
+            <Avatar className="w-8 h-8">
+              <AvatarImage src={`https://i.pravatar.cc/32?img=${i + 20}`} />
+              <AvatarFallback>S{i + 1}</AvatarFallback>
+            </Avatar>
+             </Link>
+            <div className="flex-grow">
+            <Link to={`/profile/${userDetails.username}`} >
+              <p className="text-sm font-semibold">suggested_user{i + 1}</p>
+            </Link>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Followed by user{i + 5}</p>
             </div>
-            <button className="text-xs font-semibold text-sky-500">Follow</button>
+            <Button variant="link" size="sm" className="text-[#0f9bf7] no-underline">Follow</Button>
           </div>
         ))}
       </div>
-    );
-  };
-  
-  export default SuggestedUsers;
-  
+      <footer className="text-xs text-neutral-500 dark:text-neutral-400">
+        © 2023 Instagram Clone
+      </footer>
+    </aside>
+  );
+};
+
+export default SuggestedUsers;

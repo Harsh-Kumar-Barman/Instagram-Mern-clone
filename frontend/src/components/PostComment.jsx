@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import myPic from '../assets/myPic.jpeg';
 import { FaRegHeart } from "react-icons/fa";
 import { IoChatbubbleOutline } from "react-icons/io5";
 import { FiSend } from "react-icons/fi";
@@ -20,7 +19,6 @@ function PostComment({ open, setOpen }) {
     const userDetails = useSelector((state) => state.counter.userDetails);
     const savedPosts = useSelector((state) => state.counter.savedPosts);
     const [liked, setLiked] = useState(PostDetails?.likes || []);
-    console.log(PostDetails?.comments)
     // Close the modal and reset selected post
     const handleClose = (e) => {
         e.preventDefault();
@@ -166,7 +164,7 @@ function PostComment({ open, setOpen }) {
                                     <div key={comment._id} className="mb-4">
                                         <Link to={`/profile/${comment?.user?.username}`}>
                                         <p className='flex justify-start items-center gap-3'>
-                                            <img className='rounded-full w-8 h-8 object-cover object-top' src={`http://localhost:5000/${comment?.profilePicture}`} alt="" />
+                                            <img className='rounded-full w-8 h-8 object-cover object-top aspect-auto' src={`http://localhost:5000/${comment?.profilePicture}`} alt="" />
                                             <p className='flex justify-center items-center gap-1'> <strong className='hover:text-zinc-400 duration-150'>{comment?.user?.username} : </strong><p className='font-light'>{comment.text}</p></p>
                                         </p>
                                         </Link>

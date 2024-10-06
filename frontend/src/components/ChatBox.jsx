@@ -1,15 +1,13 @@
 import React, { useState } from 'react'
-import { BsCameraVideo } from 'react-icons/bs';
-import { IoCallOutline, IoInformationCircleOutline } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { FiSmile } from 'react-icons/fi';
-import { TiMicrophoneOutline } from 'react-icons/ti';
-import { CiImageOn } from 'react-icons/ci';
-import { FaRegHeart } from 'react-icons/fa';
 import { setMessages } from '../features/userDetail/userDetailsSlice';
 import axios from 'axios';
-import { AiOutlineMessage } from 'react-icons/ai'; 
+import { AiOutlineMessage } from 'react-icons/ai';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Button } from './ui/button';
+import { Camera, Heart, Info, Mic, Phone, Smile, Video } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
 
 function ChatBox() {
 
@@ -35,105 +33,102 @@ function ChatBox() {
 
     return (
         <>
-            {suggestedUser ? (
-                <div className="w-[65.5%] ml-auto bg-black flex flex-col"> 
-                    <div className="w-full h-[75px] px-3 bg-black border-b-[.1px] border-zinc-800 flex items-center">
-                        <div className="flex justify-between w-full">
-                            <div className="chatUser flex items-center gap-2">
-                                <div className="image w-14 h-14">
-                                    <img
-                                        src={`http://localhost:5000/${suggestedUser?.profilePicture}`}
-                                        alt="Profile"
-                                        className="w-full h-full object-cover rounded-full"
-                                    />
-                                </div>
+            {suggestedUser ?
+                (<div className="flex-grow flex flex-col bg-white dark:bg-neutral-950 dark:text-white">
+                    <div
+                        className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                            <Avatar>
+                                <AvatarImage className="object-cover object-top" src={`http://localhost:5000/${suggestedUser?.profilePicture}`} />
+                                <AvatarFallback>{suggestedUser?.username}</AvatarFallback>
+                            </Avatar>
+                            <div>
                                 <Link to={`/profile/${suggestedUser?.username}`}>
-                                    <p className="font-semibold text-start">{suggestedUser?.username}</p>
-                                    <p className="text-xs text-gray-400">Active 3m ago</p>
+                                    <p className="font-semibold text-sm dark:text-white">{suggestedUser?.username}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Active 1h ago</p>
                                 </Link>
                             </div>
-                            <div className="contact flex items-center gap-3">
-                                <IoCallOutline size={28} />
-                                <BsCameraVideo size={28} />
-                                <IoInformationCircleOutline size={28} />
-                            </div>
+                        </div>
+                        <div className="flex">
+                            <Button variant="ghost" size="sm" className="text-black dark:text-white">
+                                <Phone className="h-6 w-6" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="text-black dark:text-white">
+                                <Video className="h-7 w-7" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="text-black dark:text-white">
+                                <Info className="h-6 w-6" />
+                            </Button>
                         </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-4">
+                    <ScrollArea className="flex-grow py-4 px-6">
                         <div className="flex justify-center">
-                            <img
-                                src={`http://localhost:5000/${suggestedUser?.profilePicture}`}
-                                alt="Story"
-                                className="rounded-full w-20 h-20 object-cover object-top"
-                            />
+                            <Avatar className="w-20 h-20">
+                                <AvatarImage className="object-cover object-top w-full h-full" src={`http://localhost:5000/${suggestedUser?.profilePicture}`} />
+                                <AvatarFallback>{suggestedUser?.username}</AvatarFallback>
+                            </Avatar>
                         </div>
                         <div className='flex flex-col justify-center items-center'>
-                            <p className="text-center mt-2">{suggestedUser?.fullName}</p>
-                            <p className="text-center mb-2">{suggestedUser?.username}</p>
+                            <p className="text-center mt-2 font-semibold">{suggestedUser?.username}</p>
+                            <p className="text-center mb-2">{suggestedUser?.fullName}</p>
                             <Link to={`/profile/${suggestedUser?.username}`}>
-                                <button className='px-4 py-2 bg-[#363636] hover:bg-[#272727] duration-150 rounded-lg text-sm font-semibold'>View profile</button>
+                                <Button className='text-sm'>View profile</Button>
                             </Link>
                         </div>
-                        <div className='w-full h-full'>
-                            {messages && Array.isArray(messages) && messages?.map((message, index) => (
-                                <div key={index} className={`flex ${message.senderId === userDetails.id ? "justify-end" : "justify-start"} my-1`}>
-                                    <div className={`px-3 py-2 rounded-full break-words max-w-sm text-sm ${message.senderId === userDetails.id ? "bg-blue-500" : "bg-zinc-800"}`}>{message?.message}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="flex items-center p-4">
-
-                        <form className='flex items-center bg-transparent border-[0.1px] border-zinc-800 rounded-full p-2 w-full' onSubmit={(e) => sendMessageHandle(e, suggestedUser._id)}>
-
-
-                            <button className="ml-2">
-                                <FiSmile className="w-6 h-6" />
-                            </button>
+                        {messages && Array.isArray(messages) && messages?.map((message, index) => (
+                            <div key={index} className={`flex ${message.senderId === userDetails.id ? "justify-end" : "justify-start"} my-1`}>
+                                <div className={`px-3 py-2 rounded-full break-words max-w-sm text-sm ${message.senderId === userDetails.id ? "bg-blue-400 text-white" : "bg-neutral-100 dark:bg-zinc-800 dark:text-white "}`}>{message?.message}</div>
+                            </div>
+                        ))}
+                    </ScrollArea>
+                    <div className="p-4">
+                        <form onSubmit={(e) => sendMessageHandle(e, suggestedUser._id)}
+                            className="flex items-center space-x-4 border-[.2px] border-zinc-800 bg-transparent rounded-full px-4 py-2">
+                            <Smile className="h-6 w-6 text-black dark:text-white" />
                             <input
-                                type="text"
                                 value={textMessage}
                                 onChange={e => setTextMessage(e.target.value)}
-                                className="flex-grow bg-transparent text-white px-3 py-1 rounded-full outline-none placeholder-zinc-400"
-                                placeholder="Message..."
-                            />
+                                className="flex-grow bg-transparent border-none outline-none text-sm dark:text-white"
+                                placeholder="Message..." />
                             {textMessage.trim() === '' ? (
                                 <div className="flex items-center space-x-4 mr-4">
                                     <button>
-                                        <TiMicrophoneOutline className="w-6 h-6" />
+                                        <Mic className="h-6 w-6 text-black dark:text-white" />
                                     </button>
                                     <button>
-                                        <CiImageOn className="w-6 h-6" />
+                                        <Camera className="h-6 w-6 text-black dark:text-white" />
                                     </button>
                                     <button>
-                                        <FaRegHeart className="w-6 h-6" />
+                                        <Heart className="h-6 w-6 text-black dark:text-white" />
                                     </button>
                                 </div>
                             ) : (
-                                <button onClick={(e) => sendMessageHandle(e, suggestedUser._id)} className="mr-4 text-blue-500 font-semibold">
+                                <button type='submit' className="mr-4 text-blue-400 font-semibold">
                                     Send
                                 </button>
                             )}
+
+
+
                         </form>
-
                     </div>
-
-                </div>) : (
-                <div className="w-[65.5%] ml-auto h-screen bg-black flex items-center justify-center">
-                    <div className="emptyField flex flex-col justify-center items-center">
-                        <div>
-                            <AiOutlineMessage size={100} />
-                        </div>
-                        <div className="flex flex-col justify-center items-center my-2">
-                            <p className='text-xl'>Your messages</p>
-                            <p className='text-zinc-500 text-sm'>Send a message to start a chat.</p>
-                        </div>
-                        <div className="flex justify-center items-center my-2">
-                            <button className='bg-blue-500 text-sm font-semibold text-white px-3 py-2 rounded-md'> send message</button>
+                </div>)
+                : (
+                    <div className="flex-grow flex flex-col justify-center items-center bg-white dark:bg-neutral-950 dark:text-white">
+                        <div className="emptyField flex flex-col justify-center items-center">
+                            <div>
+                                <AiOutlineMessage size={100} />
+                            </div>
+                            <div className="flex flex-col justify-center items-center my-2">
+                                <p className='text-xl'>Your messages</p>
+                                <p className='text-zinc-500 text-sm'>Send a message to start a chat.</p>
+                            </div>
+                            <div className="flex justify-center items-center my-2">
+                                <button className='bg-blue-500 text-sm font-semibold text-white px-3 py-2 rounded-md'> send message</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
         </>
     )
 }

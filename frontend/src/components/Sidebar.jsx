@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
-import InstaLogo from '../assets/InstaLogo.png';
-import { GoHomeFill } from "react-icons/go";
-import { IoSearchOutline } from "react-icons/io5";
-import { MdOutlineExplore } from "react-icons/md";
 import { BiSolidMoviePlay } from "react-icons/bi";
 import { FiSend } from "react-icons/fi";
-import { FaInstagram } from "react-icons/fa";
-import { FaRegHeart } from "react-icons/fa";
 import { CiSquarePlus } from "react-icons/ci";
-import { RxHamburgerMenu } from "react-icons/rx";
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
-import myPic from '../assets/myPic.jpeg';
+import axios from 'axios';;
+import { Button } from './ui/button';
+import { Compass, Heart, Home, Menu, Search } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 function Sidebar() {
     const userDetails = useSelector((state) => state.counter.userDetails);
@@ -40,78 +35,48 @@ function Sidebar() {
     };
 
     const links = [
-        { id: 1, icon: <GoHomeFill size={25} />, label: "Home", link: '/' },
-        { id: 2, icon: <IoSearchOutline size={25} />, label: "Search", link: '#', onClick: handleSearchClick },
-        { id: 3, icon: <MdOutlineExplore size={25} />, label: "Explore", link: '/explore/' },
-        { id: 4, icon: <BiSolidMoviePlay size={25} />, label: "Reels", link: '/reels/' },
-        { id: 5, icon: <FiSend size={25} />, label: "Messages", link: '/direct/inbox' },
-        { id: 6, icon: <FaRegHeart size={25} />, label: "Notification", link: '/' },
-        { id: 7, icon: <CiSquarePlus size={25} />, label: "Create", link: '/' },
+        { id: 1, icon: <Home className="mr-2 h-6 w-6" />, label: "Home", link: '/' },
+        { id: 2, icon: <Search className="mr-2 h-6 w-6" />, label: "Search", link: '#', onClick: handleSearchClick },
+        { id: 3, icon: <Compass className="mr-2 h-6 w-6" />, label: "Explore", link: '/explore/' },
+        { id: 4, icon: <BiSolidMoviePlay className='mr-2 h-6 w-6'  />, label: "Reels", link: '/reels/' },
+        { id: 5, icon:  <FiSend className="mr-2 h-6 w-6" />, label: "Messages", link: '/direct/inbox' },
+        { id: 6, icon: <Heart className="mr-2 h-6 w-6" />, label: "Notification", link: '/' },
+        { id: 7, icon: <CiSquarePlus className='mr-2 h-6 w-6' />, label: "Create", link: '/' },
         {
             id: 8,
             icon: (
-                <img
-                    className="w-[30px] h-[30px] rounded-full object-cover"
-                    src={myPic}
-                    alt={userDetails.username}
-                />
+                <Avatar className="w-6 h-6 mr-2">
+                            <AvatarImage src={`http://localhost:5000/${userDetails.profilePic}`} alt={`${userDetails.username}`} className="object-cover object-top" />
+                            <AvatarFallback>{userDetails.username}</AvatarFallback>
+                        </Avatar>
             ),
             label: "Profile",
             link: `/profile/${userDetails.username}`,
-        },
-        { id: 9, icon: <RxHamburgerMenu size={25} />, label: "More", link: '/' },
+        }
     ];
 
     return (
-        <aside className={`fixed hidden z-10 sm:block top-0 ${isSearchOpen ? "w-[35.2%]" : "w-[18.2%]"} duration-150 h-screen p-2 bg-black border-r border-zinc-800`}>
-            <div className="flex">
-                <div className={`flex ${isSearchOpen ? "w-8" : "w-full"} flex-col items-start`}>
-                    <div className="w-44 ml-3 mb-5 mt-8 h-16">
-                        {isSearchOpen?<FaInstagram size={25} className=''/>:<img className="w-28 -ml-2" src={InstaLogo} alt="Instagram Logo" />}                        
-                    </div>
-
-                    <nav className={`flex flex-col gap-1 ${isSearchOpen ? "" : "w-full"}`}>
-                        {links.map((link) => (
-                            <Link key={link.id} to={link.link} className={`${isSearchOpen ? "w-[20%]" : "w-[90%]"}`}>
-                                <div onClick={link.onClick} className={`${isSearchOpen?" w-[50px]":"w-full"} flex items-center gap-4 p-3 rounded-md cursor-pointer hover:scale-105 duration-150 hover:bg-[#272727]`}>
-                                    <span className="text-white">{link.icon}</span>
-                                    <span className={`text-white ${isSearchOpen && "hidden"}`}>{link.label}</span>
-                                </div>
+        <aside
+            className="fixed left-0 top-0 bottom-0 w-64 border-r border-zinc-300 dark:border-zinc-800 p-4 lg:flex flex-col bg-white z-10 dark:bg-neutral-950 dark:text-white">
+            <h1 className="text-xl font-semibold mb-8 mt-8 ml-5">Instagram</h1>
+            <nav className="space-y-5 flex-grow">
+                {links.map((link) => (
+                    <div key={link.id}>
+                        <Button variant="ghost" className="w-full justify-start" asChild>
+                            <Link to={link.link}>
+                                {link.icon}
+                                {link.label}
                             </Link>
-                        ))}
-                    </nav>
-                </div>
-                {isSearchOpen && (
-                    <div className="w-full ml-6 mt-36 relative">
-                        <input
-                            type="text"
-                            className="w-96 px-4 py-2 outline-none bg-zinc-900 rounded-lg"
-                            placeholder="Search..."
-                            value={query}
-                            onChange={handleSearchChange}
-                        />
-                        {results.length > 0 && (
-                            <div className="absolute border-t-[.1px] border-zinc-900 z-10 mt-5 w-full bg-black rounded-lg shadow-lg">
-                                <p className='p-5'>Recent</p>
-                                <ul>
-                                    {results.map((result, index) => (
-                                        <Link key={result._id} to={`/profile/${result.username}`}>
-                                            <li className="w-96 px-4 py-2 cursor-pointer hover:bg-zinc-800">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-[42px] h-[42px] border border-zinc-500 rounded-full overflow-hidden p-0.5">
-                                                        <img className="w-full h-full rounded-full object-cover" src={myPic} alt={result.username} />
-                                                    </div>
-                                                    <span>{result.username}</span>
-                                                </div>
-                                            </li>
-                                        </Link>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
+                        </Button>
                     </div>
-                )}
-            </div>
+                ))}
+            </nav>
+            <Button variant="ghost" className="w-full justify-start mt-auto" asChild>
+                <Link to='/'>
+                    <Menu className="mr-2 h-6 w-6" />
+                    More
+                </Link>
+            </Button>
         </aside>
     );
 }

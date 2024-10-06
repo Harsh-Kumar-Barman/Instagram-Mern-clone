@@ -1,30 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
-import PostList from './PostList';
-import Reels from './Reels';
 import SuggestedUsers from './SuggestedUsers';
-import AccountInfo from './AccountInfo';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { setSavedPosts, setFollowing, setFollower, setSelectedPost } from '../features/userDetail/userDetailsSlice'; // Adjust paths as necessary
 import PostComment from './PostComment';
-
+import Post from './Post';
+import Stories from './Stories';
+import { InstagramSkeletonComponent } from './instagram-skeleton';
 
 const Home = () => {
   const [allPosts, setAllPosts] = useState([]);
   const [open, setOpen] = useState(false)
-  const [savedPost, setSavedPost] = useState([]);
   const savedPosts = useSelector((state) => state.counter.savedPosts);
-  const followingUsers = useSelector((state) => state.counter.following) || [];
   const [followingUserss, setFollowingUserss] = useState();
+  const [isLoading, setIsLoading] = useState(false)
   const userDetails = useSelector((state) => state.counter.userDetails);
   const dispatch = useDispatch();
+
+
   const fetchPosts = async () => {
     try {
+      setIsLoading(true)
       const { data: posts } = await axios.get('/api/posts/getPosts');
       setAllPosts(posts.reverse());
+      setIsLoading(false)
     } catch (error) {
       console.error('Error fetching posts:', error);
+      setIsLoading(false)
     }
 
   };
@@ -33,7 +36,7 @@ const Home = () => {
     fetchPosts();
     getFollowing();
     getSavePosts();
-  }, [setAllPosts, setFollowingUserss, setSavedPost, open]);
+  }, [setAllPosts, setFollowingUserss, open]);
 
   const handleLike = async (e, postId) => {
     e.preventDefault();
@@ -55,7 +58,6 @@ const Home = () => {
     try {
       const { data: { savedPosts } } = await axios.put(`/api/posts/${userId}/save`, { postId });
       dispatch(setSavedPosts(savedPosts));
-      setSavedPost(savedPosts);
     } catch (error) {
       console.error('Error saving the post:', error);
     } finally {
@@ -69,7 +71,6 @@ const Home = () => {
     try {
       const { data: { savedPosts } } = await axios.get(`/api/posts/${userId}/save`);
       dispatch(setSavedPosts(savedPosts));
-      setSavedPost(savedPosts);
     } catch (error) {
       console.error('Error saving the post:', error);
     } finally {
@@ -93,7 +94,6 @@ const Home = () => {
   const handleFollowing = async (e, followingID) => {
     e.preventDefault();
     const userId = userDetails.id;
-
     try {
       const { data: { following, followers } } = await axios.put(`/api/users/${userId}/following`, { followingID });
       dispatch(setFollowing(following));
@@ -122,31 +122,39 @@ const Home = () => {
     }
   };
 
-  return (
-    <div className="relative flex gap-12 text-white">
-      <Sidebar />
-      <PostComment open={open} setOpen={setOpen} func={fetchPosts} />
-      <div className="w-[100%] md:w-[60%] lg:w-[50%] flex flex-col gap-6 lg:ml-[18.8%] mt-16 sm:mt-5">
+  return (<div className='dark:bg-neutral-950 dark:text-white'>
+    
+    { isLoading && <InstagramSkeletonComponent/> }
 
-        <Reels />
-        <PostList
-          allPosts={allPosts}
-          userDetails={userDetails}
-          savedPost={savedPosts}
-          followingUserss={followingUserss}
-          handleLike={handleLike}
-          handleSavePosts={handleSavePosts}
-          showComments={showComments}
-          handleFollowing={handleFollowing}
-          handleCommentSubmit={handleCommentSubmit}
-        />
-      </div>
+     <div className="flex bg-white dark:bg-neutral-950">
+       <Sidebar />
+       <PostComment open={open} setOpen={setOpen} func={fetchPosts} />
+       <main className="flex-1 ml-64 flex justify-center">
+         <div className="max-w-2xl w-full py-3 px-4">
+           <Stories />
+           {/* Posts */}
+           <section className="mt-2 mx-auto w-[100vw] sm:w-[80vw] md:w-[60vw] lg:w-[468px]">
+             {allPosts.map((post) => (
+               <Post
+                 key={post._id}
+                 post={post}
+                 userDetails={userDetails}
+                 savedPost={savedPosts}
+                 followingUserss={followingUserss}
+                 handleLike={handleLike}
+                 handleSavePosts={handleSavePosts}
+                 showComments={showComments}
+                 handleFollowing={handleFollowing}
+                 handleCommentSubmit={handleCommentSubmit}
+               />
+             ))}
+           </section>
+         </div>
+         <SuggestedUsers />
+       </main>
+     </div>
+  </div>
 
-      <div className="hidden lg:flex flex-col gap-6 w-[25%] mt-8">
-        <AccountInfo userDetails={userDetails} />
-        <SuggestedUsers allPosts={allPosts} />
-      </div>
-    </div>
   );
 };
 

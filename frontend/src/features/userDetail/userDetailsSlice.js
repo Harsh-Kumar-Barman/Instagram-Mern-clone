@@ -15,6 +15,7 @@ const initialState = {
   socket: null,
   onlineUsers:[],
   followingUsers:[],
+  watchHistory:[],
   messages:[],
   suggestedUser:null
 };
@@ -59,8 +60,11 @@ export const userDetailsSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload;
     },
+    setWatchHistory: (state, action) => {
+      state.watchHistory = action.payload;
+    },
   },
 });
 
-export const { addUser, setSelectedPost, setSavedPosts, setFollower, setFollowing, setSocket,setOnlineUsers,setFollowingUsers,setSuggestedUser, setMessages } = userDetailsSlice.actions;
+export const { addUser, setSelectedPost, setSavedPosts, setFollower, setFollowing, setSocket,setOnlineUsers,setFollowingUsers,setSuggestedUser, setMessages,setWatchHistory } = userDetailsSlice.actions;
 export default userDetailsSlice.reducer;
