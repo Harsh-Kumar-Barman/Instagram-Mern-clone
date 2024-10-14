@@ -13,21 +13,26 @@ const CreatePost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
+    formData.append('media', media); // File input
     formData.append('caption', caption);
-    formData.append('media', media); // Update to handle both images and videos
-    formData.append('author', userDetails.id);
+    formData.append('author', userDetails.id); // Assuming you have author/user info
 
     try {
-      await axios.post('/api/posts/create', formData, {
+      const response = await axios.post('/api/posts/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      console.log(response.data)
       navigate('/');
-    } catch (err) {
-      console.error('Error creating post:', err);
+
+    } catch (error) {
+      console.error('Error creating post:', error);
     }
   };
+
+
+
 
   return (
     <section aria-labelledby="create-post-title" className="max-w-md mx-auto p-4 text-black bg-white rounded-lg shadow-lg">
@@ -45,7 +50,7 @@ const CreatePost = () => {
           onChange={(e) => setCaption(e.target.value)}
           required
         />
-        
+
         <label htmlFor="media" className="block text-sm font-medium text-gray-700 mb-2">
           Image or Video
         </label>
@@ -58,7 +63,7 @@ const CreatePost = () => {
           accept="image/*,video/*" // Accept both images and videos
           required
         />
-        
+
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"

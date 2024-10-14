@@ -10,7 +10,7 @@ const register = async (req, res) => {
     await newUser.save();
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.cookie('token', token);
-    res.status(201).json({ message: 'User registered', newUser });
+    res.status(201).json({ message: 'User registered',newUser });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }

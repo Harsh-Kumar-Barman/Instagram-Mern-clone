@@ -9,7 +9,10 @@ import { setSavedPosts, setSelectedPost } from '../features/userDetail/userDetai
 import { FaHeart } from "react-icons/fa";
 import { IoAddSharp } from "react-icons/io5";
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { Button } from './ui/button';
+import { MoreHorizontal } from 'lucide-react';
 
 function PostComment({ open, setOpen }) {
     const dispatch = useDispatch();
@@ -19,6 +22,7 @@ function PostComment({ open, setOpen }) {
     const userDetails = useSelector((state) => state.counter.userDetails);
     const savedPosts = useSelector((state) => state.counter.savedPosts);
     const [liked, setLiked] = useState(PostDetails?.likes || []);
+    const navigate = useNavigate()
     // Close the modal and reset selected post
     const handleClose = (e) => {
         e.preventDefault();
@@ -32,6 +36,7 @@ function PostComment({ open, setOpen }) {
             const response = await axios.get(`/api/posts/${PostDetails?._id}/comment`);
             setCommentsArr(response.data.comments);
         } catch (error) {
+            if (error.response.statusText === "Unauthorized") navigate('/login')
             console.error('Error fetching comments:', error);
         }
     };
@@ -49,9 +54,26 @@ function PostComment({ open, setOpen }) {
             setComment('');
         } catch (error) {
             console.error('Error adding comment:', error);
+            if (error.response.statusText === "Unauthorized") navigate('/login')
             setComment(''); // Clear the input in case of an error
         }
     };
+
+
+    const handleRemoveComment = async (e, postId, commentId) => {
+        e.preventDefault()
+        try {
+            const response = await axios.delete(`/api/posts/${postId}/comment/${commentId}`);
+
+            if (response.status === 200) {
+                setCommentsArr(response?.data?.post?.comments);
+                // Dispatch an action to update the post in the Redux store if necessary
+            }
+        } catch (error) {
+            console.error('Error removing comment:', error);
+        }
+    };
+
 
     // Handle like/unlike
     const handleLike = async (e, postId) => {
@@ -69,8 +91,12 @@ function PostComment({ open, setOpen }) {
             });
         } catch (error) {
             console.error('Error liking/unliking the post:', error);
+            if (error.response.statusText === "Unauthorized") navigate('/login')
+
         }
     };
+
+
     const handleSavePost = async (e, postId) => {
         e.preventDefault();
         const userId = userDetails.id;
@@ -81,6 +107,7 @@ function PostComment({ open, setOpen }) {
             const savedPosts = response.data.savedPosts
             dispatch(setSavedPosts(savedPosts))
         } catch (error) {
+            if (error.response.statusText === "Unauthorized") navigate('/login')
             console.error('Error liking/unliking the post:', error);
         }
     };
@@ -158,15 +185,37 @@ function PostComment({ open, setOpen }) {
                         </div>
 
                         {/* Comments Section */}
-                        <div className={`comments-section flex-1 overflow-y-auto p-4 ${commentsArr.length === 0 ? 'flex justify-center items-center' : ''}`}>
+                        <div className={`comments-section flex-1 overflow-y-auto p-4 ${commentsArr.length  === 0 ? 'flex justify-center items-center' : ''}`}>
                             {commentsArr.length > 0 ? (
                                 commentsArr.map((comment) => (
                                     <div key={comment._id} className="mb-4">
                                         <Link to={`/profile/${comment?.user?.username}`}>
-                                        <p className='flex justify-start items-center gap-3'>
-                                            <img className='rounded-full w-8 h-8 object-cover object-top aspect-auto' src={`http://localhost:5000/${comment?.profilePicture}`} alt="" />
-                                            <p className='flex justify-center items-center gap-1'> <strong className='hover:text-zinc-400 duration-150'>{comment?.user?.username} : </strong><p className='font-light'>{comment.text}</p></p>
-                                        </p>
+                                            <div className="flex justify-between items-center">
+                                                <p className='flex justify-start items-center gap-3'>
+                                                    <img className='rounded-full w-8 h-8 object-cover object-top aspect-auto' src={`http://localhost:5000/${comment?.profilePicture}`} alt="" />
+                                                    <div className="flex gap-2 items-center">
+                                                        <p className='flex justify-center items-center gap-1'> <strong className='hover:text-zinc-400 text-sm duration-150'>{comment?.user?.username} : </strong><p className='font-light text-sm'>{comment.text}</p></p>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon" className="p-0">
+                                                                    <MoreHorizontal className="w-5 h-5" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="w-60">
+                                                                <DropdownMenuItem className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Report</DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onClick={(e) => handleRemoveComment(e,PostDetails?._id,comment?._id)} className="justify-center cursor-pointer text-red-600 font-semibold focus:text-red-600">Delete Message</DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem className="justify-center cursor-pointer">Cancel</DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                </p>
+
+                                                <div className="icon">
+                                                    <FaRegHeart size={10} className="hover:text-zinc-500 transition-colors duration-100" />
+                                                </div>
+                                            </div>
                                         </Link>
                                     </div>
                                 ))

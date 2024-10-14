@@ -12,6 +12,8 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useState } from "react"
 import axios from "axios"
 import Sidebar from "./Sidebar"
+import { addUser } from "@/features/userDetail/userDetailsSlice"
+import { useDispatch } from "react-redux"
 
 export function ProfileEdit() {
   const { id } = useParams();
@@ -21,6 +23,7 @@ export function ProfileEdit() {
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const navigate = useNavigate();
+  const dispatch=useDispatch()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,10 +36,21 @@ export function ProfileEdit() {
     }
 
     try {
-      await axios.post(`/api/users/edit/${id}`, formData, { withCredentials: true });
+      const response=await axios.post(`/api/users/edit/${id}`, formData, { withCredentials: true });
+      console.log(response)
+      const profilePic = response?.data?.user?.profilePicture
+      dispatch(addUser({
+        fullName: response?.data?.user?.fullName,
+        username: response?.data?.user?.username,
+        email: response?.data?.user?.email,
+        id: response?.data?.user?._id,
+        profilePic: profilePic
+      }));
       navigate(`/profile/${username}`);
     } catch (error) {
       console.error('Error updating profile:', error.message);
+      if (error.response.statusText === "Unauthorized") navigate('/login')
+
     }
   };
 

@@ -8,6 +8,7 @@ import PostComment from './PostComment';
 import Post from './Post';
 import Stories from './Stories';
 import { InstagramSkeletonComponent } from './instagram-skeleton';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -17,7 +18,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false)
   const userDetails = useSelector((state) => state.counter.userDetails);
   const dispatch = useDispatch();
-
+  const navigate = useNavigate()
 
   const fetchPosts = async () => {
     try {
@@ -27,6 +28,7 @@ const Home = () => {
       setIsLoading(false)
     } catch (error) {
       console.error('Error fetching posts:', error);
+      if (error.response.statusText === "Unauthorized") navigate('/login')
       setIsLoading(false)
     }
 
@@ -46,6 +48,7 @@ const Home = () => {
       await axios.put(`/api/posts/${postId}/like`, { userId });
     } catch (error) {
       console.error('Error liking the post:', error);
+      if (error.response.statusText === "Unauthorized") navigate('/login')
     } finally {
       fetchPosts();
     }
@@ -60,6 +63,8 @@ const Home = () => {
       dispatch(setSavedPosts(savedPosts));
     } catch (error) {
       console.error('Error saving the post:', error);
+      if (error.response.statusText === "Unauthorized") navigate('/login')
+
     } finally {
       fetchPosts();
     }
@@ -73,6 +78,8 @@ const Home = () => {
       dispatch(setSavedPosts(savedPosts));
     } catch (error) {
       console.error('Error saving the post:', error);
+      if (error.response.statusText === "Unauthorized") navigate('/login')
+
     } finally {
       fetchPosts();
     }
@@ -101,6 +108,8 @@ const Home = () => {
       setFollowingUserss(following);
     } catch (error) {
       console.error('Error following/unfollowing the user:', error);
+      if (error.response.statusText === "Unauthorized") navigate('/login')
+
     } finally {
       fetchPosts();
     }
@@ -118,41 +127,41 @@ const Home = () => {
       fetchPosts(); // Refresh posts to show the new comment
     } catch (error) {
       console.error('Error adding comment:', error);
-
+      if (error.response.statusText === "Unauthorized") navigate('/login')
     }
   };
 
   return (<div className='dark:bg-neutral-950 dark:text-white'>
-    
-    { isLoading && <InstagramSkeletonComponent/> }
 
-     <div className="flex bg-white dark:bg-neutral-950">
-       <Sidebar />
-       <PostComment open={open} setOpen={setOpen} func={fetchPosts} />
-       <main className="flex-1 ml-64 flex justify-center">
-         <div className="max-w-2xl w-full py-3 px-4">
-           <Stories />
-           {/* Posts */}
-           <section className="mt-2 mx-auto w-[100vw] sm:w-[80vw] md:w-[60vw] lg:w-[468px]">
-             {allPosts.map((post) => (
-               <Post
-                 key={post._id}
-                 post={post}
-                 userDetails={userDetails}
-                 savedPost={savedPosts}
-                 followingUserss={followingUserss}
-                 handleLike={handleLike}
-                 handleSavePosts={handleSavePosts}
-                 showComments={showComments}
-                 handleFollowing={handleFollowing}
-                 handleCommentSubmit={handleCommentSubmit}
-               />
-             ))}
-           </section>
-         </div>
-         <SuggestedUsers />
-       </main>
-     </div>
+    {/* { isLoading && <InstagramSkeletonComponent/> } */}
+
+    <div className="flex bg-white dark:bg-neutral-950">
+      <Sidebar />
+      <PostComment open={open} setOpen={setOpen} func={fetchPosts} />
+      <main className="flex-1 ml-64 flex justify-center">
+        <div className="max-w-2xl w-full py-3 px-4">
+          <Stories />
+          {/* Posts */}
+          <section className="mt-2 mx-auto w-[100vw] sm:w-[80vw] md:w-[60vw] lg:w-[468px]">
+            {allPosts.map((post) => (
+              <Post
+                key={post._id}
+                post={post}
+                userDetails={userDetails}
+                savedPost={savedPosts}
+                followingUserss={followingUserss}
+                handleLike={handleLike}
+                handleSavePosts={handleSavePosts}
+                showComments={showComments}
+                handleFollowing={handleFollowing}
+                handleCommentSubmit={handleCommentSubmit}
+              />
+            ))}
+          </section>
+        </div>
+        <SuggestedUsers />
+      </main>
+    </div>
   </div>
 
   );

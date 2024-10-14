@@ -106,8 +106,8 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
               )}
               <DropdownMenuItem className="justify-center cursor-pointer">Add to favorites</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <Link to={`/profile/${post?.author?.username}`}>
-              <DropdownMenuItem className="justify-center cursor-pointer">Go to post</DropdownMenuItem>
+              <Link to={`/profile/${post?.author?.username}/${post.caption}`}>
+                <DropdownMenuItem className="justify-center cursor-pointer">Go to post</DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="justify-center cursor-pointer">Share to...</DropdownMenuItem>
@@ -116,7 +116,9 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
               <DropdownMenuSeparator />
               <DropdownMenuItem className="justify-center cursor-pointer">Embed</DropdownMenuItem>
               <DropdownMenuSeparator />
+              <Link to={`/profile/${post?.author?.username}`}>
               <DropdownMenuItem className="justify-center cursor-pointer">About this account</DropdownMenuItem>
+              </Link>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="justify-center cursor-pointer">Cancel</DropdownMenuItem>
             </DropdownMenuContent>
@@ -126,12 +128,13 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
           {post?.mediaType === 'video' ? (
             <>
               <video
-                src={`http://localhost:5000/${post.mediaPath}`}
+                src={`${post.mediaPath}`}
                 className="w-full h-full aspect-square object-contain"
                 loop
                 autoPlay
                 muted={isMuted}
                 playsInline
+                preload="auto" 
               />
               <Button
                 variant="ghost"
@@ -148,9 +151,10 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
             </>
           ) : (
             <img
-              src={`http://localhost:5000/${post.mediaPath}`}
+              src={`${post.mediaPath}`}
               alt={`Post `}
               className="w-full h-full aspect-square object-cover rounded-sm object-top"
+              loading="lazy"
             />
           )}
         </CardContent>
@@ -158,7 +162,7 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
           <div className="flex items-center justify-between w-full">
             <div className="flex space-x-2">
               <button onClick={(e) => handleLike(e, post._id)} variant="ghost" size="icon">
-                {post?.likes?.includes(userDetails.id) ? <FaHeart className="w-6 h-6 text-red-500" /> :  <Heart className="w-6 h-6 hover:scale-110 transition-transform" />}
+                {post?.likes?.includes(userDetails.id) ? <FaHeart className="w-6 h-6 text-red-500" /> : <Heart className="w-6 h-6 hover:scale-110 transition-transform" />}
               </button>
               <Button onClick={(e) => showComments(e, post)} variant="ghost" size="icon">
                 <MessageCircle className="w-6 h-6 -rotate-90" />

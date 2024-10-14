@@ -30,6 +30,7 @@ const Register = () => {
             navigate(`/profile/${response?.data?.newUser?.username}`);
 
         } catch (err) {
+            if (err.response.statusText === "Unauthorized") navigate('/login')
             console.error(err);
         }
     };

@@ -8,7 +8,7 @@ import { Heart, MessageCircle, Send } from 'lucide-react';
 import { FaHeart } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSavedPosts, setWatchHistory } from '@/features/userDetail/userDetailsSlice';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const ReelSection = () => {
@@ -16,7 +16,7 @@ const ReelSection = () => {
     const [allPosts, setAllPosts] = useState([]);
     const videoRefs = useRef([]); // Ref array for videos
     const savedPost = useSelector((state) => state.counter.savedPosts);
-
+    const navigate = useNavigate()
     const dispatch = useDispatch();
 
     // Timeouts for tracking how long the user watches each reel
@@ -30,6 +30,8 @@ const ReelSection = () => {
             setAllPosts(reels); // Filtered reels only
         } catch (error) {
             console.error('Error fetching posts:', error);
+            if (error.response.statusText === "Unauthorized") navigate('/login')
+
         }
     };
 
@@ -41,6 +43,8 @@ const ReelSection = () => {
             await axios.put(`/api/posts/${postId}/like`, { userId });
         } catch (error) {
             console.error('Error liking the post:', error);
+            if (error.response.statusText === "Unauthorized") navigate('/login')
+
         } finally {
             fetchPosts();
         }
@@ -54,6 +58,8 @@ const ReelSection = () => {
             dispatch(setSavedPosts(savedPosts));
         } catch (error) {
             console.error('Error saving the post:', error);
+            if (error.response.statusText === "Unauthorized") navigate('/login')
+
         } finally {
             fetchPosts();
         }
@@ -68,6 +74,8 @@ const ReelSection = () => {
             dispatch(setSavedPosts(savedPosts));
         } catch (error) {
             console.error('Error saving the post:', error);
+            if (error.response.statusText === "Unauthorized") navigate('/login')
+
         } finally {
             fetchPosts();
         }
@@ -91,10 +99,11 @@ const ReelSection = () => {
         const userId = userDetails.id;
 
         try {
-            const response=await axios.post(`/api/users/reelHistory/${userId}/${postId}`);
-            const watchHistory=response?.data?.user?.reelHistory
+            const response = await axios.post(`/api/users/reelHistory/${userId}/${postId}`);
+            const watchHistory = response?.data?.user?.reelHistory
             dispatch(setWatchHistory([watchHistory]))
         } catch (error) {
+            if (error.response.statusText === "Unauthorized") navigate('/login')
             console.error('Error adding to history:', error.message);
         }
     };
@@ -152,7 +161,7 @@ const ReelSection = () => {
                                         ref={(el) => (videoRefs.current[index] = el)} // Assign ref to each video
                                         muted
                                         data-postid={post._id} // Store postId for reference in intersection observer
-                                        src={`http://localhost:5000/${post.mediaPath}`}
+                                        src={`${post.mediaPath}`}
                                         loop
                                         className="object-cover w-full h-full rounded-lg"
                                     />

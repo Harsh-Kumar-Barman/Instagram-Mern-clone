@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,17 +23,20 @@ const Profile = () => {
   const [postsArr, setPostsArr] = useState([]);
   const [watched, setWatched] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [profilePicture, setProfilePicture] = useState("")
   const [followingUserss, setFollowingUserss] = useState();
   const userDetails = useSelector((state) => state.counter.userDetails);
   const watchHistory = useSelector((state) => state.counter.watchHistory);
-
-  const fetchUserData = async () => {
+ 
+  const fetchUserData = useCallback(async () => {
     try {
       setIsLoading(true)
       const { data } = await axios.get(`/api/users/${username}`);
+      setProfilePicture(data?.user?.profilePicture)
       setUserID(data?.user?._id)
       setUser(data.user);
       setPosts(data.posts);
+      console.log(data.posts)
       setPostsArr(data.posts.reverse())
       setWatched(data?.posts?.filter(post => watchHistory[0].some(reelHistory=>reelHistory?.postId===post?._id)))
       if (reelId) {
@@ -41,11 +44,13 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
+      if (error?.response?.statusText === "Unauthorized") navigate('/login')
+
     }
     finally {
       setIsLoading(false)
     }
-  };
+  },[username, reelId, watchHistory, navigate])
 
   const handleLogout = async () => {
     try {
@@ -69,14 +74,16 @@ const Profile = () => {
       setFollowingUserss(following);
     } catch (error) {
       console.error('Error following/unfollowing the user:', error);
+      if (error.response.statusText === "Unauthorized") navigate('/login')
+
     }
   };
-  const getFollowing = async () => {
+  const getFollowing = useCallback (async () => {
     const response = await axios.get(`/api/users/${userDetails.id}/following`)
     const following = response.data.following
     dispatch(setFollowing([...following]));
     setFollowingUserss(following)
-  }
+  },[dispatch, userDetails.id])
 
   const reelPart = () => {
     const reelElement = document.getElementById(reelId);
@@ -89,6 +96,11 @@ const Profile = () => {
     fetchUserData();
     getFollowing()
   }, [username]);
+  useEffect(() => {
+    if (reelId && postsArr.length) {
+        reelPart();
+    }
+  }, [reelId, postsArr, reelPart]);
 
   if (!user) return <p>Loading...</p>;
 
@@ -101,7 +113,7 @@ const Profile = () => {
         <div className="inner-profile w-full h-full">
           <header className="flex flex-col md:flex-row items-center mb-8 gap-16 ml-10">
             <Avatar className="w-32 h-32 md:w-36 md:h-36 mb-4 md:mb-0 md:mr-8">
-              <AvatarImage src={`http://localhost:5000/${userDetails?.profilePic}`} alt={user.username} className="w-full h-full rounded-full object-top object-cover" />
+              <AvatarImage src={`http://localhost:5000/${profilePicture}`} alt={user.username} className="w-full h-full rounded-full object-top object-cover" />
               <AvatarFallback>{user.username}</AvatarFallback>
             </Avatar>
             <div className="text-center md:text-left">
@@ -176,13 +188,13 @@ const Profile = () => {
                         <CardContent className="p-0 w-full h-full">
                           {post?.mediaType === 'image' ? (
                             <img
-                              src={`http://localhost:5000/${post.mediaPath}`}
+                              src={`${post.mediaPath}`}
                               alt={post.caption}
                               className="w-full h-full object-cover object-top"
                             />
                           ) : (
                             <video
-                              src={`http://localhost:5000/${post.mediaPath}`}
+                              src={`${post.mediaPath}`}
                               className="w-full h-full aspect-square object-cover"
                             />
                           )}
@@ -197,7 +209,7 @@ const Profile = () => {
                             <div className="likes flex gap-2 justify-center items-center"><FaHeart className='w-6 h-6' /> {post?.likes?.length}</div>
                             <div className="comments flex gap-2 justify-center items-center"> <IoChatbubbleSharp className="w-6 h-6 -rotate-90" />  {post?.comments?.length}</div>
                           </p>
-                          <p>caption : <span className='font-semibold'>{post?.caption}</span></p>
+                          <p className='text-white'>caption : <span className='font-semibold'>{post?.caption}</span></p>
                         </div>
                       </div>
                     </div>
@@ -209,6 +221,41 @@ const Profile = () => {
 
               <TabsContent value="saved">
                 <div className="text-center py-8 text-gray-500">No saved posts yet.</div>
+                <div className="grid grid-cols-3 gap-1 mb-20 w-full h-full">
+                  {postsArr.map((post) => (
+                    <div key={post._id} className="relative w-full h-72 group">
+                      <Card id={post?.caption} className="rounded-none border-none w-full h-full">
+                        <CardContent className="p-0 w-full h-full">
+                          {post?.mediaType === 'image' ? (
+                            <img
+                              src={`${post.mediaPath}`}
+                              alt={post.caption}
+                              className="w-full h-full object-cover object-top"
+                            />
+                          ) : (
+                            <video
+                              src={`${post.mediaPath}`}
+                              className="w-full h-full aspect-square object-cover"
+                            />
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        {/* You can add content like likes and comments here */}
+                        <div className="flex flex-col justify-center items-center gap-5">
+                          <p className="text-white flex gap-5">
+                            <div className="likes flex gap-2 justify-center items-center"><FaHeart className='w-6 h-6' /> {post?.likes?.length}</div>
+                            <div className="comments flex gap-2 justify-center items-center"> <IoChatbubbleSharp className="w-6 h-6 -rotate-90" />  {post?.comments?.length}</div>
+                          </p>
+                          <p className='text-white'>caption : <span className='font-semibold'>{post?.caption}</span></p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                </div>
               </TabsContent>
 
               <TabsContent value="tagged">

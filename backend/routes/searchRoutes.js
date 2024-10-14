@@ -5,6 +5,3 @@ const router = express.Router();
 router.get('/users', searchUsers);
 
 module.exports = router;
-
-
-

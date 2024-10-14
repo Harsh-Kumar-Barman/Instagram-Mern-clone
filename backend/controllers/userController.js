@@ -86,6 +86,10 @@ const updateProfile = async (req, res) => {
 };
 
 
+
+
+
+
 const addToReelHistory = async (req, res) => {
   try {
     const { userId, postId } = req.params; // Get userId and postId from request params

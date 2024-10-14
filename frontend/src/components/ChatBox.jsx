@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { setMessages } from '../features/userDetail/userDetailsSlice';
 import axios from 'axios';
 import { AiOutlineMessage } from 'react-icons/ai';
@@ -16,18 +16,22 @@ function ChatBox() {
     const messages = useSelector((state) => state.counter.messages);
     const [textMessage, setTextMessage] = useState('')
     const dispatch = useDispatch()
+    const navigate = useNavigate();
 
     const sendMessageHandle = async (e, reciverId) => {
         e.preventDefault()
         try {
             const senderId = userDetails.id
-            const response = await axios.post(`/api/conversations/send/message/${reciverId}`, { senderId, textMessage })
+            const response = suggestedUser && 'groupName' in suggestedUser ?
+                await axios.post(`/api/conversations/group/send/message/${suggestedUser?._id}`, { senderId, textMessage, messageType: "text" }) :
+                await axios.post(`/api/conversations/send/message/${reciverId}`, { senderId, textMessage })
             if (response.data.success) {
                 dispatch(setMessages([...messages, response.data.newMessage]))
                 setTextMessage('')
             }
         } catch (error) {
             console.log(error.message)
+            if (error.response.statusText === "Unauthorized") navigate('/login')
         }
     }
 
@@ -76,8 +80,9 @@ function ChatBox() {
                             </Link>
                         </div>
                         {messages && Array.isArray(messages) && messages?.map((message, index) => (
-                            <div key={index} className={`flex ${message.senderId === userDetails.id ? "justify-end" : "justify-start"} my-1`}>
-                                <div className={`px-3 py-2 rounded-full break-words max-w-sm text-sm ${message.senderId === userDetails.id ? "bg-blue-400 text-white" : "bg-neutral-100 dark:bg-zinc-800 dark:text-white "}`}>{message?.message}</div>
+                            <div key={index} className={`flex ${message.senderId?._id === userDetails.id || message.senderId === userDetails.id ? "justify-end" : "justify-start"} my-1`}>
+
+                                <div className={`px-3 py-2 rounded-full break-words max-w-sm text-sm ${message.senderId?._id === userDetails.id || message.senderId === userDetails.id ? "bg-blue-400 text-white" : "bg-neutral-100 dark:bg-zinc-800 dark:text-white "}`}>{message?.message}</div>
                             </div>
                         ))}
                     </ScrollArea>

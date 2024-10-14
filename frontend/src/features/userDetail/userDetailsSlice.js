@@ -52,7 +52,8 @@ export const userDetailsSlice = createSlice({
       state.onlineUsers = action.payload;
     },
     setFollowingUsers: (state, action) => {
-      state.followingUsers = action.payload;
+      // state.followingUsers = Array.isArray(state.followingUsers)? [...state.followingUsers, ...action.payload]:[ ...action.payload] ;
+      state.followingUsers = action.payload ;
     },
     setSuggestedUser: (state, action) => {
       state.suggestedUser = action.payload;

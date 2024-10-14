@@ -46,9 +46,9 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<ProtectedRoute><Home socketRef={socketRef} /></ProtectedRoute>} />
-        <Route path="/profile/:username" element={<ProtectedRoute><Profile socketRef={socketRef} /></ProtectedRoute>} />
-        <Route path="/profile/:username/:reelId" element={<ProtectedRoute><Profile socketRef={socketRef} /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><Home/></ProtectedRoute>} />
+        <Route path="/profile/:username" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+        <Route path="/profile/:username/:reelId" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
         <Route path="/direct/inbox" element={<ProtectedRoute><ChatComponent socketRef={socketRef} /></ProtectedRoute>} />
         <Route path="/explore/" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
         <Route path="/reels/" element={<ProtectedRoute><ReelSection /></ProtectedRoute>} />
