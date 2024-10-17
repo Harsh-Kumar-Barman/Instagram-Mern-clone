@@ -2,8 +2,8 @@ import { useState, useEffect,useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFollower, setFollowing } from '../features/userDetail/userDetailsSlice';
-import Sidebar from './Sidebar';
+import { setFollower, setFollowing } from '../../features/userDetail/userDetailsSlice';
+import Sidebar from '../Home/Sidebar';
 import CreatePost from './CreatePost';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"

@@ -2,14 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import { GoBookmark, GoBookmarkFill } from 'react-icons/go';
 import { BsThreeDots } from "react-icons/bs";
 import axios from 'axios';
-import Sidebar from './Sidebar';
-import { Button } from './ui/button';
+import Sidebar from '../Home/Sidebar';
+import { Button } from '../ui/button';
 import { Heart, MessageCircle, Send } from 'lucide-react';
 import { FaHeart } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSavedPosts, setWatchHistory } from '@/features/userDetail/userDetailsSlice';
 import { Link, useNavigate } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 const ReelSection = () => {
     const userDetails = useSelector((state) => state.counter.userDetails);
@@ -172,7 +172,6 @@ const ReelSection = () => {
                                                     <AvatarImage src={`http://localhost:5000/${post?.author?.profilePicture}`} alt={post?.username} className="w-full h-full rounded-full object-top object-cover" />
                                                     <AvatarFallback>{post?.username}</AvatarFallback>
                                                 </Avatar>
-                                                {/* </div> */}
                                                 <span className="ml-2 text-white text-sm ">{post?.author?.username}</span>
                                             </Link>
                                             <Button variant="outline" className="ml-2 py-1 px-4 bg-transparent text-white text-xs">
@@ -197,7 +196,6 @@ const ReelSection = () => {
                                 {/* Like Button */}
                                 <div className="like flex flex-col justify-center items-center">
                                     <button onClick={(e) => handleLike(e, post._id)}>
-                                        {/* <Heart className="w-6 h-6 hover:scale-110 transition-transform" /> */}
                                         {post?.likes?.includes(userDetails.id) ? <FaHeart className="w-6 h-6 text-red-500" /> : <Heart className="w-6 h-6 hover:scale-110 transition-transform" />}
                                     </button>
                                     <p className="text-sm">{post?.likes?.length}</p>
@@ -218,13 +216,11 @@ const ReelSection = () => {
                                 <div className="share flex flex-col justify-center items-center">
                                     <Send className="w-6 h-6 hover:scale-110 transition-transform" />
                                     <p className="text-sm">0</p>
-                                    {/* <p className="text-sm">{post?.likes?.length}</p> */}
                                 </div>
 
                                 {/* Save Button */}
                                 <div className="save flex flex-col justify-center items-center">
                                     <button onClick={(e) => handleSavePosts(e, post._id)}>
-                                        {/* <GoBookmark size={25} className="hover:scale-110 transition-transform" /> */}
                                         {Array.isArray(savedPost) && savedPost.includes(post._id) ? <GoBookmarkFill size={25} className="dark:text-white" /> : <GoBookmark size={25} className="hover:text-zinc-800 dark:hover:text-zinc-500 transition-colors darktext-white duration-100" />}
 
                                     </button>

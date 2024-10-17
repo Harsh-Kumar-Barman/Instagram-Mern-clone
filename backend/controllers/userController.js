@@ -32,8 +32,6 @@ const getFollowing = async (req, res) => {
 };
 
 
-
-
 const following = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
@@ -84,10 +82,6 @@ const updateProfile = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while updating the profile', error: error.message });
   }
 };
-
-
-
-
 
 
 const addToReelHistory = async (req, res) => {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { FaInstagram, FaRegEdit, FaRegHeart } from "react-icons/fa"
-import ChatBox from "./ChatBox"
 import MessagesMember from "./MessagesMember"
 import { Link, useNavigate } from "react-router-dom"
 import { GoHomeFill } from "react-icons/go"
@@ -13,7 +12,8 @@ import { CiSquarePlus } from "react-icons/ci"
 import { RxHamburgerMenu } from "react-icons/rx"
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFollowingUsers, setMessages, setSuggestedUser } from '../features/userDetail/userDetailsSlice';
+import { setFollowingUsers, setMessages, setSuggestedUser } from '@/features/userDetail/userDetailsSlice';
+import ChatBox from "./ChatBox"
 
 export function ChatComponent({ socketRef }) {
   const links = [

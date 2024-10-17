@@ -1,8 +1,8 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { setSuggestedUser } from '../features/userDetail/userDetailsSlice';
-import { ScrollArea } from './ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { setSuggestedUser } from '@/features/userDetail/userDetailsSlice';
+import { ScrollArea } from '../ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { SearchDialogWithCheckboxesComponent } from './search-dialog-with-checkboxes';
 
 function MessagesMember({ socketRef }) {
@@ -27,7 +27,7 @@ function MessagesMember({ socketRef }) {
                             </div>
                             <div className="flex-grow">
                                 <div className="font-semibold text-sm text-black dark:text-white">{'groupName' in suggestedUser ? `${suggestedUser.groupName}` : `${suggestedUser.username}`}</div>
-                                <div className="text-xs text-black dark:bg-neutral-950 dark:text-white flex justify-between">
+                                <div className="text-xs dark:text-white flex justify-between">
                                     {onlineUsers?.includes(suggestedUser?._id) && (
                                         <p className="text-xs text-gray-400">Active now</p>
                                     )}

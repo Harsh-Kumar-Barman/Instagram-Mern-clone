@@ -2,12 +2,15 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Input } from './ui/input';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 const CreatePost = () => {
   const userDetails = useSelector((state) => state.counter.userDetails);
   const [caption, setCaption] = useState('');
   const [media, setMedia] = useState(null); // Update to handle both images and videos
+  const [isresOk, setIsResOk] = useState(true);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,6 +21,7 @@ const CreatePost = () => {
     formData.append('author', userDetails.id); // Assuming you have author/user info
 
     try {
+      setIsResOk(false)
       const response = await axios.post('/api/posts/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -28,6 +32,9 @@ const CreatePost = () => {
 
     } catch (error) {
       console.error('Error creating post:', error);
+    }
+    finally{
+      setIsResOk(true)
     }
   };
 
@@ -63,13 +70,23 @@ const CreatePost = () => {
           accept="image/*,video/*" // Accept both images and videos
           required
         />
+        {isresOk ?
+          <Button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Create Post
+          </Button>
+          :
+          <Button disabled
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+            Create Post
+          </Button>
+        }
 
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Create Post
-        </button>
       </form>
     </section>
   );

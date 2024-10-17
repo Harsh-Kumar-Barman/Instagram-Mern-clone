@@ -5,13 +5,13 @@ import { FiSend } from "react-icons/fi";
 import { GoBookmark } from "react-icons/go";
 import { GoBookmarkFill } from "react-icons/go";
 import { useDispatch, useSelector } from 'react-redux';
-import { setSavedPosts, setSelectedPost } from '../features/userDetail/userDetailsSlice';
+import { setSavedPosts, setSelectedPost } from '@/features/userDetail/userDetailsSlice';
 import { FaHeart } from "react-icons/fa";
 import { IoAddSharp } from "react-icons/io5";
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import { Button } from './ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Button } from '../ui/button';
 import { MoreHorizontal } from 'lucide-react';
 
 function PostComment({ open, setOpen }) {
@@ -148,14 +148,11 @@ function PostComment({ open, setOpen }) {
                                 alt="Post Image"
                                 loading="lazy"
                             /> : <video
-                                // ref={videoRef}
-                                // onClick={handleVideoClick}
                                 autoPlay
                                 muted
                                 controls
                                 src={`http://localhost:5000/${PostDetails?.mediaPath}`}
                                 loop
-                                // className={`object-cover ${PostDetails?.imageWidth > 468 ? `w-[${PostDetails?.imageWidth}px]` : `w-[${PostDetails?.imageWidth}px]`} ${PostDetails?.imageHeight > 585 ? `h-[${PostDetails?.imageHeight}px]` : `h-[${PostDetails?.imageHeight}px]`} duration-300`}
                                 className={`object-cover max-w-[800px] w-full h-full duration-300`}
                             />}
 

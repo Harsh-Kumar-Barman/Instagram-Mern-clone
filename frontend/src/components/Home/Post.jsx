@@ -3,11 +3,11 @@ import { FaHeart } from "react-icons/fa";
 import { GoBookmark, GoBookmarkFill } from "react-icons/go";
 import CommentForm from "./CommentForm";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
 import { Heart, MessageCircle, MoreHorizontal, Send, Volume2, VolumeX } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handleSavePosts, showComments, handleFollowing, handleCommentSubmit }) => {
   // console.log(post)
@@ -16,9 +16,6 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
 
   const [isMuted, setIsMuted] = useState(true)
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [showPlayPauseIcon, setShowPlayPauseIcon] = useState(false);
-  const isImage = post.mediaType === 'image';
-  const isVideo = post.mediaType === 'video';
 
   const handleIntersection = (entries) => {
     entries.forEach((entry) => {

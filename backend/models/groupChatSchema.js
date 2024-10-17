@@ -35,13 +35,15 @@ const groupChatSchema = new mongoose.Schema({
         required: true 
       },
       message: {
-        type: String,
-        required: true
+        type: String
       },
       messageType: {
         type: String,
         enum: ['text', 'image', 'video'],  // For future support of multimedia messages
         default: 'text'
+      },
+      mediaUrl: {
+        type: String
       },
       timestamp: { 
         type: Date, 

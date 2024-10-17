@@ -20,7 +20,6 @@ const createPost = async (req, res) => {
         folder: 'posts',
         resource_type: 'auto', // Automatically determine resource type (image, video, etc.)
       });
-      // console.log('Cloudinary upload successful:', result);
     } catch (error) {
       console.error('Cloudinary upload failed:', error.message);
       return res.status(500).json({ error: 'Failed to upload to Cloudinary' });
@@ -90,7 +89,6 @@ const getComment = async (req, res) => {
       .populate('author', 'username profilePicture')
       .populate('comments.user', 'username profilePicture'); // Include profilePicture
 
-    // console.log(post);
     res.json(post);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });

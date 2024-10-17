@@ -2,32 +2,44 @@ const Conversation = require('../models/conversationSchema');
 const Message = require('../models/messageSchema');
 const User = require('../models/userSchema');
 const GroupChat = require('../models/groupChatSchema')
+const cloudinary=require('../config/cloudinary')
 const { getReciverSocketId, io } = require('../socket/socket');
 
 // For individual message sending
 const sendMessage = async (req, res) => {
   try {
+    const { textMessage: message, senderId, messageType } = req.body;
     const reciverId = req.params.id;
-    const { textMessage: message, senderId } = req.body;
+
+    // Handle file upload (if exists)
+    let mediaUrl = '';
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "auto",  // Automatically detects image or video
+      });
+      mediaUrl = result.secure_url;
+    }
 
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, reciverId] }
     });
+
     if (!conversation) {
       conversation = await Conversation.create({
-        participants: [senderId, reciverId]
+        participants: [senderId, reciverId],
       });
     }
 
     const newMessage = await Message.create({
-      senderId, reciverId, message
+      senderId,
+      reciverId,
+      message: messageType === 'text' ? message : undefined,
+      mediaUrl: messageType !== 'text' ? mediaUrl : undefined,
+      messageType,
     });
 
-    if (newMessage) {
-      conversation.messages.push(newMessage._id);
-    }
-
-    await Promise.all([conversation.save(), newMessage.save()]);
+    conversation.messages.push(newMessage._id);
+    await conversation.save();
 
     const reciverSocketId = getReciverSocketId(reciverId);
     if (reciverSocketId) {
@@ -82,7 +94,6 @@ const getAllMessages = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
-
 
 
 const createGroupChat = async (req, res) => {
@@ -145,12 +156,20 @@ const getUserGroups = async (req, res) => {
   }
 };
 
-
-// Send a message to a group chat
+// For send messages in the group
 const sendGroupMessage = async (req, res) => {
   try {
-    const groupId = req.params.groupId;
     const { senderId, textMessage: message, messageType } = req.body;
+    const groupId = req.params.groupId;
+    console.log(senderId, message, messageType, groupId);
+
+    let mediaUrl = '';
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "auto",
+      });
+      mediaUrl = result.secure_url;
+    }
 
     const groupChat = await GroupChat.findById(groupId);
     if (!groupChat) {
@@ -159,8 +178,9 @@ const sendGroupMessage = async (req, res) => {
 
     const newMessage = {
       senderId,
-      message,
-      messageType
+      message: messageType === 'text' ? message : undefined,
+      mediaUrl: messageType !== 'text' ? mediaUrl : undefined,
+      messageType,
     };
 
     groupChat.messages.push(newMessage);

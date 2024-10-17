@@ -1,19 +1,19 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './components/Home';
-import Profile from './components/Profile';
-import ProtectedRoute from './components/ProtectedRoute';
-import Register from './components/Register';
-import Login from './components/Login';
-import BottomNavigation from './components/BottomNavigation';
-import Navbar from './components/Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { setOnlineUsers } from './features/userDetail/userDetailsSlice';
-import Explore from './components/Explore';
-import ReelSection from './components/ReelSection';
-import { ProfileEdit } from './components/profile-edit';
-import { ChatComponent } from './components/instagram-chat';
+import Profile from './components/Profile/Profile';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import Register from './components/Auth/Register';
+import Login from './components/Auth/Login';
+import BottomNavigation from './components/BottomNavigation';
+import Navbar from './components/Navbar';
+import Home from './components/Home/Home';
+import Explore from './components/Explore/Explore';
+import ReelSection from './components/Explore/ReelSection';
+import { ProfileEdit } from './components/Profile/profile-edit';
+import { ChatComponent } from './components/Chat/instagram-chat';
 
 function App() {
   const userDetails = useSelector((state) => state.counter.userDetails);
