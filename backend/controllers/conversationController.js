@@ -2,14 +2,14 @@ const Conversation = require('../models/conversationSchema');
 const Message = require('../models/messageSchema');
 const User = require('../models/userSchema');
 const GroupChat = require('../models/groupChatSchema')
-const cloudinary=require('../config/cloudinary')
+const cloudinary = require('../config/cloudinary')
 const { getReciverSocketId, io } = require('../socket/socket');
 
 // For individual message sending
 const sendMessage = async (req, res) => {
   try {
     const { textMessage: message, senderId, messageType } = req.body;
-    const reciverId = req.params.id;
+    const receiverId = req.params.id;
 
     // Handle file upload (if exists)
     let mediaUrl = '';
@@ -21,18 +21,18 @@ const sendMessage = async (req, res) => {
     }
 
     let conversation = await Conversation.findOne({
-      participants: { $all: [senderId, reciverId] }
+      participants: { $all: [senderId, receiverId] }
     });
 
     if (!conversation) {
       conversation = await Conversation.create({
-        participants: [senderId, reciverId],
+        participants: [senderId, receiverId],
       });
     }
 
     const newMessage = await Message.create({
       senderId,
-      reciverId,
+      reciverId: receiverId,
       message: messageType === 'text' ? message : undefined,
       mediaUrl: messageType !== 'text' ? mediaUrl : undefined,
       messageType,
@@ -41,17 +41,23 @@ const sendMessage = async (req, res) => {
     conversation.messages.push(newMessage._id);
     await conversation.save();
 
-    const reciverSocketId = getReciverSocketId(reciverId);
-    if (reciverSocketId) {
-      io.to(reciverSocketId).emit('newMessage', newMessage);
+    // Populate the new message with sender and receiver details
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate('senderId', 'username profilePicture') // Populate sender details
+      .populate('reciverId', 'username profilePicture'); // Populate receiver details
+
+    const receiverSocketId = getReciverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('newMessage', populatedMessage);
     }
 
-    res.status(200).json({ success: true, newMessage });
+    res.status(200).json({ success: true, newMessage: populatedMessage });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 // For getting friends of a user
 const getFriends = async (req, res) => {
@@ -74,21 +80,27 @@ const getFriends = async (req, res) => {
   }
 };
 
-// For getting all messages between two users
 const getAllMessages = async (req, res) => {
   try {
     const senderId = req.query.senderId;
-    const reciverId = req.params.id;
+    const receiverId = req.params.id;
 
     let conversation = await Conversation.findOne({
-      participants: { $all: [senderId, reciverId] }
-    }).populate('messages');
+      participants: { $all: [senderId, receiverId] }
+    }).populate({
+      path: 'messages',
+      populate: [
+        { path: 'senderId', select: 'username profilePicture' }, // Populate sender details
+        { path: 'reciverId', select: 'username profilePicture' }  // Populate receiver details (if necessary)
+      ]
+    });
 
+    
     if (!conversation) {
       return res.status(201).json({ success: true, messages: [] });
     }
 
-    return res.status(201).json({ success: true, messages: conversation?.messages });
+    return res.status(200).json({ success: true, messages: conversation.messages });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: 'Server error' });
@@ -106,7 +118,7 @@ const createGroupChat = async (req, res) => {
     const newGroupChat = await GroupChat.create({
       groupName,
       groupImage,
-      members:allMembers,
+      members: allMembers,
       createdBy
     });
 
@@ -161,7 +173,6 @@ const sendGroupMessage = async (req, res) => {
   try {
     const { senderId, textMessage: message, messageType } = req.body;
     const groupId = req.params.groupId;
-    console.log(senderId, message, messageType, groupId);
 
     let mediaUrl = '';
     if (req.file) {

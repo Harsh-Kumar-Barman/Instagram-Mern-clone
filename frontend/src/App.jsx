@@ -14,6 +14,7 @@ import Explore from './components/Explore/Explore';
 import ReelSection from './components/Explore/ReelSection';
 import { ProfileEdit } from './components/Profile/profile-edit';
 import { ChatComponent } from './components/Chat/instagram-chat';
+import Dashboard from './components/Profile/user-dashboard';
 
 function App() {
   const userDetails = useSelector((state) => state.counter.userDetails);
@@ -46,13 +47,14 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<ProtectedRoute><Home/></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><Home socketRef={socketRef}/></ProtectedRoute>} />
         <Route path="/profile/:username" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
         <Route path="/profile/:username/:reelId" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
         <Route path="/direct/inbox" element={<ProtectedRoute><ChatComponent socketRef={socketRef} /></ProtectedRoute>} />
         <Route path="/explore/" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
         <Route path="/reels/" element={<ProtectedRoute><ReelSection /></ProtectedRoute>} />
         <Route path="/accounts/edit/:id" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
+        <Route path="/admindashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

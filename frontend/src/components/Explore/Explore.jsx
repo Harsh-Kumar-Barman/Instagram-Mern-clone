@@ -22,7 +22,7 @@ const ExploreGrid = () => {
             setAllPosts(posts.reverse());
         } catch (error) {
             console.error('Error fetching posts:', error);
-            if (error.response.statusText === "Unauthorized") navigate('/login')
+            if (error.response.statusText === "Unauthorized"||error.response?.status===403) navigate('/login')
         }
     };
 
@@ -44,7 +44,7 @@ const ExploreGrid = () => {
             <>
                 {post?.mediaType === 'image' ? (
                     <img
-                        src={`http://localhost:5000/${post?.mediaPath}`}
+                        src={post?.mediaPath}
                         alt={post?.caption}
                         className="object-cover w-full h-full"
                     />
@@ -52,7 +52,7 @@ const ExploreGrid = () => {
                     <video
                         autoPlay
                         muted
-                        src={`http://localhost:5000/${post?.mediaPath}`}
+                        src={post?.mediaPath}
                         loop
                         className="object-cover w-full h-full duration-300"
                     />
@@ -88,7 +88,7 @@ const ExploreGrid = () => {
                                 <div className="absolute top-5 right-5 text-white">
                                     <BiSolidMoviePlay size={25} />
                                 </div>
-                                <p className="absolute bottom-2 left-2 text-white">{post?.caption}</p>
+                                <p className="absolute bottom-0 left-0 p-5 w-full bg-gradient-to-t from-black/50 to-transparent text-white">{post?.caption}</p>
                             </div>
                         );
                     }
@@ -100,7 +100,7 @@ const ExploreGrid = () => {
                             <div className="absolute top-5 right-5 text-white">
                                 <BiSolidMoviePlay size={25} />
                             </div>
-                            <p className="absolute bottom-2 left-2 text-white">{post?.caption}</p>
+                            <p className="absolute bottom-0 left-0 p-5 bg-gradient-to-t from-black/50 to-transparent w-full text-white">{post?.caption}</p>
                         </div>
                     );
                 })}

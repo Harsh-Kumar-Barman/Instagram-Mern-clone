@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Heart, MessageCircle, MoreHorizontal, Send, Volume2, VolumeX } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 
 const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handleSavePosts, showComments, handleFollowing, handleCommentSubmit }) => {
   // console.log(post)
@@ -62,7 +63,7 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
         <CardHeader className="flex flex-row items-center space-x-4 px-0 py-4">
           <Link to={`/profile/${post?.author?.username}`}>
             <Avatar>
-              <AvatarImage src={`http://localhost:5000/${post?.author?.profilePicture}`} className="object-cover object-top" />
+              <AvatarImage src={post?.author?.profilePicture} className="object-cover object-top" />
               <AvatarFallback>{post?.author?.username}</AvatarFallback>
             </Avatar>
           </Link>
@@ -114,47 +115,103 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
               <DropdownMenuItem className="justify-center cursor-pointer">Embed</DropdownMenuItem>
               <DropdownMenuSeparator />
               <Link to={`/profile/${post?.author?.username}`}>
-              <DropdownMenuItem className="justify-center cursor-pointer">About this account</DropdownMenuItem>
+                <DropdownMenuItem className="justify-center cursor-pointer">About this account</DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="justify-center cursor-pointer">Cancel</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent onDoubleClick={(e) => handleLike(e, post._id)} className="p-0 relative border-[.1px] h-[80vh] border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex justify-center items-center"> {/* Ensure relative positioning here for button positioning */}
-          {post?.mediaType === 'video' ? (
-            <>
-              <video
-                src={`${post.mediaPath}`}
-                className="w-full h-full aspect-square object-contain"
-                loop
-                autoPlay
-                muted={isMuted}
-                playsInline
-                preload="auto" 
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute w-8 h-8 bottom-2 right-2 rounded-full bg-black/50 hover:bg-black/70"
-                onClick={() => setIsMuted(!isMuted)}
-              >
-                {isMuted ? (
-                  <VolumeX className="h-4 w-4 text-white" />
-                ) : (
-                  <Volume2 className="h-4 w-4 text-white" />
-                )}
-              </Button>
-            </>
-          ) : (
-            <img
-              src={`${post.mediaPath}`}
-              alt={`Post `}
-              className="w-full h-full aspect-square object-cover rounded-sm object-top"
-              loading="lazy"
-            />
-          )}
-        </CardContent>
+
+        {post?.media?.length > 1 ?
+          (
+            <Carousel className="w-full">
+              <CarouselContent>
+                {post.media.map((mediaItem, index) => (
+                  <CarouselItem key={index}>
+                    <div className="p-1">
+                      <Card className="rounded-sm">
+                        <CardContent onDoubleClick={(e) => handleLike(e, post._id)} className="p-0 relative border-[.1px] h-[80vh] border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex justify-center items-center">
+                          {mediaItem?.mediaType === 'video' ? (
+                            <>
+                              <video
+                                src={`${mediaItem?.mediaPath}`}
+                                className="w-full h-full aspect-square object-contain"
+                                loop
+                                autoPlay
+                                muted={isMuted}
+                                playsInline
+                                preload="auto"
+                              />
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute w-8 h-8 bottom-2 right-2 rounded-full bg-black/50 hover:bg-black/70"
+                                onClick={() => setIsMuted(!isMuted)}
+                              >
+                                {isMuted ? (
+                                  <VolumeX className="h-4 w-4 text-white" />
+                                ) : (
+                                  <Volume2 className="h-4 w-4 text-white" />
+                                )}
+                              </Button>
+                            </>
+                          ) : (
+                            <img
+                              src={`${mediaItem?.mediaPath}`}
+                              alt={`Post `}
+                              className="w-full h-full aspect-square object-cover rounded-sm object-top"
+                              loading="lazy"
+                            />
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          )
+          :
+          (
+            <CardContent onDoubleClick={(e) => handleLike(e, post._id)} className="p-0 relative border-[.1px] h-[80vh] border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex justify-center items-center">
+              {post?.media[0]?.mediaType === 'video' ? (
+                <>
+                  <video
+                    src={`${post?.media[0]?.mediaPath}`}
+                    className="w-full h-full aspect-square object-contain"
+                    loop
+                    autoPlay
+                    muted={isMuted}
+                    playsInline
+                    preload="auto"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute w-8 h-8 bottom-2 right-2 rounded-full bg-black/50 hover:bg-black/70"
+                    onClick={() => setIsMuted(!isMuted)}
+                  >
+                    {isMuted ? (
+                      <VolumeX className="h-4 w-4 text-white" />
+                    ) : (
+                      <Volume2 className="h-4 w-4 text-white" />
+                    )}
+                  </Button>
+                </>
+              ) : (
+                <img
+                  src={`${post?.media[0]?.mediaPath}`}
+                  alt={`Post `}
+                  className="w-full h-full aspect-square object-cover rounded-sm object-top"
+                  loading="lazy"
+                />
+              )}
+            </CardContent>
+          )
+        }
         <CardFooter className="flex flex-col items-start px-0 py-4 space-y-2">
           <div className="flex items-center justify-between w-full">
             <div className="flex space-x-2">
@@ -185,12 +242,12 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
             className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-zinc-700"
           >
             {post?.comments?.length > 0 ? `View all ${post?.comments?.length} comments` : ""}
-
           </button>
         </CardFooter>
         <CommentForm postId={post._id} handleCommentSubmit={handleCommentSubmit} />
       </Card>
     </div>
+
   );
 };
 

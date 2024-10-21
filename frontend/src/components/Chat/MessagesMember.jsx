@@ -20,7 +20,7 @@ function MessagesMember({ socketRef }) {
                             className="flex items-center space-x-3 p-3 hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer">
                             <div className="relative">
                                 <Avatar className="bg-gray-200 dark:bg-neutral-950 dark:text-white">
-                                    <AvatarImage className="object-cover object-top" src={'groupName' in suggestedUser ? `http://localhost:5000/${suggestedUser?.groupImage}` : `http://localhost:5000/${suggestedUser?.profilePicture}`} alt={`${suggestedUser?.username}'s profile`} />
+                                    <AvatarImage className="object-cover object-top" src={'groupName' in suggestedUser ? `http://localhost:5000/${suggestedUser?.groupImage}` : suggestedUser?.profilePicture} alt={`${suggestedUser?.username}'s profile`} />
                                     <AvatarFallback>{'groupName' in suggestedUser ? `${suggestedUser.groupName}` : `${suggestedUser.username}`}</AvatarFallback>
                                 </Avatar>
                                 {onlineUsers?.includes(suggestedUser?._id) && (<div className="w-3 h-3 absolute top-7 left-7 border-[2px] border-white bg-green-500 rounded-full"></div>)}

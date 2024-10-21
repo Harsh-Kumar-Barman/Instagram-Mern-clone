@@ -41,7 +41,7 @@ export function ChatComponent({ socketRef }) {
       return response.data;
     } catch (error) {
       console.error('Error fetching following users:', error);
-      if (error.response.statusText === "Unauthorized") navigate('/login')
+      if (error.response.statusText === "Unauthorized"||error.response?.status===403) navigate('/login')
 
     }
   };
@@ -113,7 +113,7 @@ export function ChatComponent({ socketRef }) {
       }
     } catch (error) {
       console.log(error.message);
-      if (error?.response?.statusText === "Unauthorized") navigate('/login')
+      if (error?.response?.statusText === "Unauthorized"||error.response?.status===403) navigate('/login')
 
     }
   };
@@ -160,7 +160,7 @@ export function ChatComponent({ socketRef }) {
         </div>
 
         {/* Main Chat Area */}
-        <ChatBox />
+        <ChatBox socketRef={socketRef}/>
       </div>
     </div>)
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { setMessages } from '../../features/userDetail/userDetailsSlice';
@@ -10,9 +10,10 @@ import { Camera, Heart, Info, Mic, Phone, Smile, Video, X } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { Dialog, DialogTrigger, DialogContent, DialogClose } from "../ui/dialog";
+import VideoCall from './VideoCall';
 
 
-function ChatBox() {
+function ChatBox({socketRef}) {
 
     const suggestedUser = useSelector((state) => state.counter.suggestedUser);
     const userDetails = useSelector((state) => state.counter.userDetails);
@@ -23,7 +24,7 @@ function ChatBox() {
     const [isresOk, setIsResOk] = useState(true);
     const dispatch = useDispatch()
     const navigate = useNavigate();
-
+    const messagesEndRef = useRef(null);
 
     const [selectedMedia, setSelectedMedia] = useState(null); // To track selected media
     const [isDialogOpen, setIsDialogOpen] = useState(false);  // To handle dialog state
@@ -76,6 +77,7 @@ function ChatBox() {
                 });
 
             if (response.data.success) {
+                console.log(response.data.newMessage)
                 dispatch(setMessages([...messages, response.data.newMessage]));
                 setTextMessage('');
                 setFile(null);  // Reset file input after sending
@@ -83,24 +85,35 @@ function ChatBox() {
             }
         } catch (error) {
             console.log(error.message);
-            if (error?.response && error?.response?.status === 401) navigate('/login');
+            if (error?.response && error?.response?.status === 401||error.response?.status===403) navigate('/login');
         }
         finally {
             setIsResOk(true)
         }
     };
 
+    useEffect(() => {
+        // Scroll to the bottom when the component mounts or when messages change
+        scrollToBottom();
+    }, [messages]);
+
+    const scrollToBottom = () => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
 
     return (
         <>
+         <VideoCall userId={userDetails?.id} socketRef={socketRef} remoteUserId={suggestedUser?._id}  /> 
             {suggestedUser ?
                 (<div className="flex-grow flex flex-col bg-white dark:bg-neutral-950 dark:text-white">
                     <div
                         className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                         <div className="flex items-center space-x-3">
                             <Avatar>
-                                <AvatarImage className="object-cover object-top" src={`http://localhost:5000/${suggestedUser?.profilePicture}`} />
+                                <AvatarImage className="object-cover object-top" src={suggestedUser?.profilePicture} />
                                 <AvatarFallback>{suggestedUser?.username}</AvatarFallback>
                             </Avatar>
                             <div>
@@ -125,7 +138,7 @@ function ChatBox() {
                     <ScrollArea className="flex-grow py-1 px-6">
                         <div className="flex justify-center">
                             <Avatar className="w-20 h-20">
-                                <AvatarImage className="object-cover object-top w-full h-full" src={`http://localhost:5000/${suggestedUser?.profilePicture}`} />
+                                <AvatarImage className="object-cover object-top w-full h-full" src={suggestedUser?.profilePicture} />
                                 <AvatarFallback>{suggestedUser?.username}</AvatarFallback>
                             </Avatar>
                         </div>
@@ -140,16 +153,16 @@ function ChatBox() {
                             <div
                                 key={index}
                                 className={`flex ${message.senderId?._id === userDetails.id || message.senderId === userDetails.id
-                                        ? "justify-end"
-                                        : "justify-start"
-                                    } my-1`}
+                                    ? "justify-end"
+                                    : "justify-start"
+                                    } my-0`}
                             >
                                 <div className="messagebox flex gap-0 items-center">
                                     {!(message.senderId?._id === userDetails.id || message.senderId === userDetails.id) && (
                                         <div className="image">
                                             <Avatar className="w-5 h-5 bg-red-400">
                                                 <AvatarImage
-                                                    src={`http://localhost:5000/${message?.senderId?.profilePicture}`}
+                                                    src={message?.senderId?.profilePicture}
                                                     className="w-full h-full rounded-full object-top object-cover"
                                                 />
                                                 <AvatarFallback className="text-xs">{message?.senderId?.username}</AvatarFallback>
@@ -178,8 +191,8 @@ function ChatBox() {
                                         {message.messageType === "text" && (
                                             <p
                                                 className={`px-3 py-2 rounded-full break-words max-w-sm text-sm ${message.senderId?._id === userDetails.id || message.senderId === userDetails.id
-                                                        ? "bg-blue-400 text-white"
-                                                        : "bg-neutral-100 dark:bg-zinc-800 dark:text-white"
+                                                    ? "bg-blue-400 text-white"
+                                                    : "bg-neutral-100 dark:bg-zinc-800 dark:text-white"
                                                     }`}
                                             >
                                                 {message.message}
@@ -189,24 +202,24 @@ function ChatBox() {
                                 </div>
                             </div>
                         ))}
-
+                        <div ref={messagesEndRef} />
                         {/* Dialog for displaying media */}
                         {selectedMedia && (
-                           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                           <DialogTrigger className="hidden" />
-                           <DialogContent className="bg-transparent border-none shadow-none min-w-[80vw] max-w-[80vw] h-[90vh] flex justify-center items-center">
-                             <DialogClose onClick={() => setIsDialogOpen(false)} />
-                             {selectedMedia.endsWith(".mp4") || selectedMedia.endsWith(".webm") ? (
-                               <video src={selectedMedia} autoPlay controls className="w-full h-full rounded-xl" />
-                             ) : (
-                               <img
-                                 src={selectedMedia}
-                                 alt="Selected media"
-                                 className="w-full h-full rounded-xl object-contain"
-                               />
-                             )}
-                           </DialogContent>
-                         </Dialog>
+                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <DialogTrigger className="hidden" />
+                                <DialogContent className="bg-transparent border-none shadow-none min-w-[80vw] max-w-[80vw] h-[90vh] flex justify-center items-center">
+                                    <DialogClose onClick={() => setIsDialogOpen(false)} />
+                                    {selectedMedia.endsWith(".mp4") || selectedMedia.endsWith(".webm") ? (
+                                        <video src={selectedMedia} autoPlay controls className="w-full h-full rounded-xl" />
+                                    ) : (
+                                        <img
+                                            src={selectedMedia}
+                                            alt="Selected media"
+                                            className="w-full h-full rounded-xl object-contain"
+                                        />
+                                    )}
+                                </DialogContent>
+                            </Dialog>
                         )}
                     </ScrollArea >
                     <div className="px-4 pb-2">
