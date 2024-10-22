@@ -20,7 +20,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 
 function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
-    console.log(selectedMedia)
     const dispatch = useDispatch();
     const [comment, setComment] = useState('');
     const [isMuted, setIsMuted] = useState(true)

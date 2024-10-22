@@ -15,6 +15,8 @@ import ReelSection from './components/Explore/ReelSection';
 import { ProfileEdit } from './components/Profile/profile-edit';
 import { ChatComponent } from './components/Chat/instagram-chat';
 import Dashboard from './components/Profile/user-dashboard';
+import { VideoCallProvider } from './hooks/VideoCallContext';
+import VideoCall from './components/Chat/VideoCall';
 
 function App() {
   const userDetails = useSelector((state) => state.counter.userDetails);
@@ -46,6 +48,8 @@ function App() {
   return (
     <Router>
       <Navbar />
+      {/* <VideoCallProvider socketRef={socketRef}> */}
+
       <Routes>
         <Route path="/" element={<ProtectedRoute><Home socketRef={socketRef}/></ProtectedRoute>} />
         <Route path="/profile/:username" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
@@ -53,11 +57,14 @@ function App() {
         <Route path="/direct/inbox" element={<ProtectedRoute><ChatComponent socketRef={socketRef} /></ProtectedRoute>} />
         <Route path="/explore/" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
         <Route path="/reels/" element={<ProtectedRoute><ReelSection /></ProtectedRoute>} />
+        <Route path="/call/:remoteUserId/" element={<ProtectedRoute><VideoCall  userId={userDetails?.id} socketRef={socketRef} /></ProtectedRoute>} />
         <Route path="/accounts/edit/:id" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
         <Route path="/admindashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
+      {/* </VideoCallProvider> */}
+
       <BottomNavigation />
     </Router>
   );

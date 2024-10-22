@@ -11,10 +11,11 @@ import { ScrollArea } from '../ui/scroll-area';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { Dialog, DialogTrigger, DialogContent, DialogClose } from "../ui/dialog";
 import VideoCall from './VideoCall';
+// import { useVideoCall } from '@/hooks/VideoCallContext';
 
 
-function ChatBox({socketRef}) {
-
+function ChatBox() {
+    // const { startCall, localVideoRef, remoteVideoRef } = useVideoCall();
     const suggestedUser = useSelector((state) => state.counter.suggestedUser);
     const userDetails = useSelector((state) => state.counter.userDetails);
     const messages = useSelector((state) => state.counter.messages);
@@ -102,11 +103,11 @@ function ChatBox({socketRef}) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     };
-
+console.log(suggestedUser?._id)
 
     return (
         <>
-         <VideoCall userId={userDetails?.id} socketRef={socketRef} remoteUserId={suggestedUser?._id}  /> 
+        {/* <VideoCall userId={userDetails?.id} socketRef={socketRef} remoteUserId={suggestedUser?._id}  /> */}
             {suggestedUser ?
                 (<div className="flex-grow flex flex-col bg-white dark:bg-neutral-950 dark:text-white">
                     <div
@@ -127,7 +128,8 @@ function ChatBox({socketRef}) {
                             <Button variant="ghost" size="sm" className="text-black dark:text-white">
                                 <Phone className="h-6 w-6" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-black dark:text-white">
+                            {/* <Button onClick={()=>startCall(suggestedUser?._id)} variant="ghost" size="sm" className="text-black dark:text-white"> */}
+                            <Button onClick={() => navigate(`/call/${suggestedUser?._id}`)} variant="ghost" size="sm" className="text-black dark:text-white">
                                 <Video className="h-7 w-7" />
                             </Button>
                             <Button variant="ghost" size="sm" className="text-black dark:text-white">
