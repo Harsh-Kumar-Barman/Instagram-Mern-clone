@@ -1,19 +1,21 @@
-import { useState, useEffect,useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFollower, setFollowing } from '../../features/userDetail/userDetailsSlice';
+import { setFollower, setFollowing, setSelectedPost } from '../../features/userDetail/userDetailsSlice';
 import Sidebar from '../Home/Sidebar';
 import CreatePost from './CreatePost';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BookmarkIcon, Clapperboard, GridIcon, MessageCircle, SettingsIcon, UserIcon } from "lucide-react"
+import { BookmarkIcon, Clapperboard, GridIcon, MessageCircle, MoreHorizontal, SettingsIcon, UserIcon } from "lucide-react"
 import { FaHeart } from 'react-icons/fa';
 import { InstagramProfileSkeletonComponent } from './instagram-profile-skeleton';
 import { IoChatbubbleSharp } from 'react-icons/io5';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import PostComment from '../Home/PostComment';
+import StoryUpload from '../StoryUpload';
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,6 +37,8 @@ const Profile = () => {
   const [hasMore, setHasMore] = useState(true); // If more posts are available
   const [loading, setLoading] = useState(false); // Loading state
 
+  console.log(postsArr)
+
   // Fetch user data with pagination
   const fetchUserData = useCallback(async () => {
     try {
@@ -55,13 +59,13 @@ const Profile = () => {
       if (data.posts.length === 0 || data.posts.length < 10) {
         setHasMore(false); // Stop pagination when no more posts
       }
-      
+
       if (reelId) {
         reelPart(); // Scroll to the specific reel when reelId is provided
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      if (error?.response?.statusText === "Unauthorized"||error.response?.status===403) navigate('/login');
+      if (error?.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login');
     } finally {
       setIsLoading(false);
     }
@@ -99,6 +103,13 @@ const Profile = () => {
     dispatch(setSelectedPost(post));
   };
 
+  const handleDeletePost = async (e, postId) => {
+    e.preventDefault()
+    const response = await axios.delete(`/api/posts/delete/${postId}`);
+    console.log(response?.data?.post)
+    setPostsArr((prevPosts) => prevPosts.filter((post) => post?._id !== response?.data?.post?._id))
+  }
+
 
   // Handle following/unfollowing users
   const handleFollowing = async (e, followingID) => {
@@ -111,7 +122,7 @@ const Profile = () => {
       setFollowingUserss(following);
     } catch (error) {
       console.error('Error following/unfollowing the user:', error);
-      if (error.response?.statusText === "Unauthorized"||error.response?.status===403) navigate('/login');
+      if (error.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login');
     }
   };
 
@@ -208,6 +219,7 @@ const Profile = () => {
                       <div className="horizontal w-10 sm:w-12 h-[2px] bg-zinc-800 absolute"></div>
                     </div>
                   </div>
+                  <StoryUpload />
                 </>
               }
             </div>
@@ -232,7 +244,7 @@ const Profile = () => {
               <TabsContent value="posts" className='w-full h-full'>
                 <div className="grid grid-cols-3 gap-1 mb-20 w-full h-full">
                   {postsArr.map((post) => (
-                    <div onClick={(e)=>showComments(e,post)} key={post._id} className="relative w-full h-72 group">
+                    <div key={post._id} className="relative w-full h-72 group">
                       <Card id={post?.caption} className="rounded-none border-none w-full h-full">
                         <CardContent className="p-0 w-full h-full">
                           {post?.media[0]?.mediaType === 'image' ? (
@@ -250,20 +262,47 @@ const Profile = () => {
                         </CardContent>
                       </Card>
 
+                      {/* Dropdown menu positioned at top-right */}
+                      <div className="absolute top-2 right-2 z-20">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="w-5 h-5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-80">
+                            <DropdownMenuItem onClick={e => handleDeletePost(e, post?._id)} className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Delete</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="justify-center cursor-pointer">Add to favorites</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="justify-center cursor-pointer">Share to...</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="justify-center cursor-pointer">Copy link</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="justify-center cursor-pointer">Cancel</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
                       {/* Hover overlay */}
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         {/* You can add content like likes and comments here */}
                         <div className="flex flex-col justify-center items-center gap-5">
                           <p className="text-white flex gap-5">
-                            <div className="likes flex gap-2 justify-center items-center"><FaHeart className='w-6 h-6' /> {post?.likes?.length}</div>
-                            <div className="comments flex gap-2 justify-center items-center"> <IoChatbubbleSharp className="w-6 h-6 -rotate-90" />  {post?.comments?.length}</div>
+                            <div className="likes flex gap-2 justify-center items-center">
+                              <FaHeart className='w-6 h-6' /> {post?.likes?.length}
+                            </div>
+                            <div className="comments flex gap-2 justify-center items-center">
+                              <IoChatbubbleSharp className="w-6 h-6 -rotate-90" /> {post?.comments?.length}
+                            </div>
                           </p>
-                          <p className='text-white'>caption : <span className='font-semibold'>{post?.caption}</span></p>
+                          <p className='text-white'>
+                            caption : <span className='font-semibold'>{post?.caption}</span>
+                          </p>
                         </div>
                       </div>
                     </div>
                   ))}
-
                 </div>
                 {userDetails?.id === userID && <CreatePost />}
               </TabsContent>
@@ -272,7 +311,7 @@ const Profile = () => {
                 <div className="text-center py-8 text-gray-500">No saved posts yet.</div>
                 <div className="grid grid-cols-3 gap-1 mb-20 w-full h-full">
                   {postsArr.map((post) => (
-                    <div onClick={(e)=>showComments(e,post)} key={post._id} className="relative w-full h-72 group">
+                    <div onClick={(e) => showComments(e, post)} key={post._id} className="relative w-full h-72 group">
                       <Card id={post?.caption} className="rounded-none border-none w-full h-full">
                         <CardContent className="p-0 w-full h-full">
                           {post?.media[0]?.mediaType === 'image' ? (
@@ -310,10 +349,11 @@ const Profile = () => {
               <TabsContent value="tagged">
                 <div className="text-center py-8 text-gray-500">No tagged posts yet.</div>
               </TabsContent>
+
               <TabsContent value="watched" className='w-full h-full'>
                 <div className="grid grid-cols-3 gap-1 mb-20 w-full h-full">
                   {watched.map((watch) => (
-                    <Card onClick={(e)=>showComments(e,post)} id={watch?.caption} key={watch._id} className="rounded-none border-none w-full h-72">
+                    <Card onClick={(e) => showComments(e, post)} id={watch?.caption} key={watch._id} className="rounded-none border-none w-full h-72">
                       <CardContent className="p-0 w-full h-full">
                         {watch?.mediaType === 'image' ?
                           <>

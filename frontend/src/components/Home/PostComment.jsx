@@ -34,9 +34,9 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
     const fetchComments = async () => {
         try {
             const response = await axios.get(`/api/posts/${PostDetails?._id}/comment`);
-            setCommentsArr(response.data.comments);
+            setCommentsArr(response?.data?.comments);
         } catch (error) {
-            if (error.response.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login')
+            if (error?.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login')
             console.error('Error fetching comments:', error);
         }
     };
@@ -201,7 +201,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                 <div className="author border-b-[.1px] border-zinc-800 w-full h-[70px] flex items-center px-4">
                                     <div className="flex items-center gap-2">
                                         <Avatar>
-                                            <AvatarImage src={PostDetails?.author?.profilePicture} alt={`${PostDetails?.author?.username}'s profile`} />
+                                            <AvatarImage className="object-cover object-top" src={PostDetails?.author?.profilePicture} alt={`${PostDetails?.author?.username}'s profile`} />
                                             <AvatarFallback>{PostDetails?.author?.username[0]}</AvatarFallback>
                                         </Avatar>
                                         <div className="authorDetail">
@@ -215,7 +215,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                     </div>
                                 </div>
 
-                                <div className={`comments-section flex-1 overflow-y-auto p-4 ${commentsArr.length === 0 ? 'flex justify-center items-center' : ''}`}>
+                                <div className={`comments-section flex-1 overflow-y-auto p-4 ${commentsArr?.length === 0 ? 'flex justify-center items-center' : ''}`}>
                                     {commentsArr.length > 0 ? (
                                         commentsArr.map((comment) => (
                                             <div key={comment._id} className="mb-4">

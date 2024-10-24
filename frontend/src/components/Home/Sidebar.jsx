@@ -103,8 +103,8 @@ function Sidebar() {
 
                                             {/* Notification badge (circle) */}
                                             {RTMNotification && RTMNotification.length > 0 && (
-                                                <div className="absolute top-1 left-8 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center text-white text-xs">
-                                                    {RTMNotification.length}
+                                                <div className="absolute top-1 left-8 h-3 w-3 rounded-full bg-red-500 flex items-center justify-center border-2 border-black text-white text-xs">
+                                                    {/* {RTMNotification.length} */}
                                                 </div>
                                             )}
                                         </Button>

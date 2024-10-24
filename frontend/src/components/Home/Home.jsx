@@ -77,6 +77,12 @@ const Home = ({ socketRef }) => {
     }
   };
 
+  const handleDeletePost = async (e, postId) => {
+    e.preventDefault()
+    const response = await axios.delete(`/api/posts/delete/${postId}`);
+    setAllPosts((prevPosts) => prevPosts.filter((post) => post?._id !== response?.data?.post?._id))
+  }
+
   const handleSavePosts = async (e, postId) => {
     e.preventDefault();
     const userId = userDetails.id;
@@ -112,8 +118,10 @@ const Home = ({ socketRef }) => {
 
   const getFollowing = async () => {
     try {
-      const { data: { following } } = await axios.get(`/api/users/${userDetails.id}/following`);
-      setFollowingUserss(following)
+      const { data } = await axios.get(`/api/users/${userDetails.id}/following`);
+      // console.log(data)
+      const following = data?.user?.following
+      setFollowingUserss(data?.user?.following)
       dispatch(setFollowing([...following]));
     } catch (error) {
       console.error('Error fetching following users:', error);
@@ -132,8 +140,6 @@ const Home = ({ socketRef }) => {
     } catch (error) {
       console.error('Error following/unfollowing the user:', error);
       if (error.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login');
-    } finally {
-      // fetchPosts(); // Refresh posts
     }
   };
 
@@ -197,9 +203,10 @@ const Home = ({ socketRef }) => {
                 showComments={showComments}
                 handleFollowing={handleFollowing}
                 handleCommentSubmit={handleCommentSubmit}
+                handleDeletePost={handleDeletePost}
               />
             ))}
-            
+
             {isLoading && <InstagramSkeletonComponent />}
             {!hasMore && <div>No more posts to load</div>}
           </section>

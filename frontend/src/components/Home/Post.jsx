@@ -10,7 +10,7 @@ import { Heart, MessageCircle, MoreHorizontal, Send, Volume2, VolumeX } from "lu
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 
-const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handleSavePosts, showComments, handleFollowing, handleCommentSubmit }) => {
+const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handleSavePosts, showComments, handleFollowing, handleCommentSubmit, handleDeletePost }) => {
   // console.log(post)
 
   const videoRef = useRef(null);
@@ -90,6 +90,8 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-96">
               <DropdownMenuItem className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Report</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={e => handleDeletePost(e, post?._id)} className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Delete</DropdownMenuItem>
               <DropdownMenuSeparator />
               {followingUserss?.includes(post.author._id) && (
                 <>

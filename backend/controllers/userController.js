@@ -1,5 +1,6 @@
 const User = require('../models/userSchema');
 const Post = require('../models/postSchema');
+const Story = require('../models/storySchema');
 const cloudinary = require('../config/cloudinary'); // Import Cloudinary
 
 
@@ -29,11 +30,25 @@ const getUserAndPosts = async (req, res) => {
 const getFollowing = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
-
-    res.json(user);
+  
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+  
+    const followingUsers = [...user.following, user._id];
+  
+    // Fetch stories of all users in the following list
+    const stories = await Story.find({ user: { $in: followingUsers } })
+      .populate("user", "username profilePicture") // Populate the username and profile picture
+      .sort({ createdAt: -1 });
+  
+    res.json({ user, stories });
+  
   } catch (error) {
+    console.error("Error fetching user and stories:", error);
     res.status(500).json({ error: 'Server error' });
   }
+
 };
 
 
@@ -125,7 +140,7 @@ const addToReelHistory = async (req, res) => {
 };
 
 
-getUserDashboard = async (req, res) => {
+const getUserDashboard = async (req, res) => {
   try {
     const { username } = req.params;
 
