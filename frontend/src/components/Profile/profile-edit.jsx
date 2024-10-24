@@ -40,7 +40,6 @@ export function ProfileEdit() {
     try {
       setIsResOk(false)
       const response = await axios.post(`/api/users/edit/${id}`, formData, { withCredentials: true });
-      console.log(response)
       const profilePic = response?.data?.user?.profilePicture
       dispatch(addUser({
         fullName: response?.data?.user?.fullName,

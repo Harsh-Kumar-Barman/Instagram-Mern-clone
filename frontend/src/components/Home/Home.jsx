@@ -113,7 +113,6 @@ const Home = ({ socketRef }) => {
   const getFollowing = async () => {
     try {
       const { data: { following } } = await axios.get(`/api/users/${userDetails.id}/following`);
-      // console.log(following)
       setFollowingUserss(following)
       dispatch(setFollowing([...following]));
     } catch (error) {
@@ -167,7 +166,6 @@ const Home = ({ socketRef }) => {
 
   useEffect(() => {
     socketRef.current.on('rtmNotification', (rtmNotification) => {
-      console.log('bsjja    ', rtmNotification);
       dispatch(setRtmNotification(rtmNotification))
     });
     return () => {

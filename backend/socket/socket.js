@@ -46,6 +46,7 @@ io.on('connection', (socket) => {
 
   socket.on('videoCallAnswer', ({ to, answer }) => {
     const receiverSocketId = getReciverSocketId(to);
+    // console.log(receiverSocketId)
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('videoCallAnswer', { from: userId, answer });
     }
@@ -57,6 +58,17 @@ io.on('connection', (socket) => {
       io.to(receiverSocketId).emit('iceCandidate', { from: userId, candidate });
     }
   });
+
+  socket.on('endCall', ({ to, from }) => {
+    const targetSocketId = getReciverSocketId(to);
+    if (targetSocketId) {
+      // Emit the endCall event to the other user
+      io.to(targetSocketId).emit('endCall', { from });
+    }
+  });
+
+
+
 
   // Handle user disconnection
   socket.on('disconnect', () => {

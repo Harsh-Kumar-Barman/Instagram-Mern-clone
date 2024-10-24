@@ -78,7 +78,6 @@ function ChatBox() {
                 });
 
             if (response.data.success) {
-                console.log(response.data.newMessage)
                 dispatch(setMessages([...messages, response.data.newMessage]));
                 setTextMessage('');
                 setFile(null);  // Reset file input after sending
@@ -103,7 +102,6 @@ function ChatBox() {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     };
-console.log(suggestedUser?._id)
 
     return (
         <>

@@ -91,11 +91,7 @@ export function ChatComponent({ socketRef }) {
 
 
     socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
-      // console.log('Received videoCallOffer from:', offer.type);
-      // setCreateOffer(offer);
-      // setForm(from);
       if (offer.type == 'offer') {
-        // setIsAnswer(true);
         navigate(`/call/${from}`); // Navigate to the correct call route
       }
     });

@@ -45,7 +45,6 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
 
   useEffect(() => {
     socketRef.current.on('groupCreated', ({ groupChat }) => {
-      // console.log('New group created: ', message, groupChat);
       const followingUsers = [...arrOfFollowingUsers, groupChat]
       dispatch(setFollowingUsers(followingUsers))
     });
@@ -60,7 +59,6 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
       });
 
       if (response?.data?.success) {
-        // console.log(response.data); // Group creation response
         setIsOpen(false);  // Close dialog or modal
       }
     } catch (error) {
