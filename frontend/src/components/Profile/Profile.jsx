@@ -32,6 +32,7 @@ const Profile = () => {
   const [selectedMedia, setSelectedMedia] = useState(null); // To track selected media
   const [isDialogOpen, setIsDialogOpen] = useState(false);  // To handle dialog state
   const userDetails = useSelector((state) => state.counter.userDetails);
+  const following = useSelector((state) => state.counter.following);
   const watchHistory = useSelector((state) => state.counter.watchHistory);
   const [page, setPage] = useState(0); // Pagination page
   const [hasMore, setHasMore] = useState(true); // If more posts are available
@@ -74,10 +75,11 @@ const Profile = () => {
   // Fetch the following users list
   const getFollowing = useCallback(async () => {
     try {
-      const response = await axios.get(`/api/users/${userDetails.id}/following`);
-      const following = response.data.following;
-      dispatch(setFollowing(following));
-      setFollowingUserss(following);
+      const { data } = await axios.get(`/api/users/${userDetails.id}/following`);
+      // console.log(data)
+      const following = data?.user?.following
+      setFollowingUserss(data?.user?.following)
+      dispatch(setFollowing([...following]));
     } catch (error) {
       console.error('Error fetching following users:', error);
     }
@@ -165,7 +167,7 @@ const Profile = () => {
     {isLoading && <InstagramProfileSkeletonComponent />}
     <PostComment selectedMedia={selectedMedia} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
     <div className="flex min-h-screen">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <main className="profile min-h-screen flex-grow px-4 sm:px-8 lg:px-[72px] py-[60px] ml-0 lg:ml-[14.5%] dark:bg-neutral-950 dark:text-white">
         <div className="inner-profile w-full h-full">
           <header className="flex flex-col md:flex-row items-center mb-8 gap-16 ml-10">
@@ -200,7 +202,12 @@ const Profile = () => {
               </div>
               <div className="flex justify-center md:justify-start space-x-16 mb-4">
                 <span><strong>{posts.length}</strong> posts</span>
+                {userDetails?.id === userID ?
                 <span><strong>{user.followers?.length || 0}</strong> followers</span>
+                :
+                <span><strong>{following?.length || 0}</strong> followers</span>
+                }
+                
                 <span><strong>{user.following?.length || 0}</strong> following</span>
               </div>
               <p className="font-medium">{user.fullName}</p>
