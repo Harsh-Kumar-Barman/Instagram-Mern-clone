@@ -164,7 +164,7 @@ const Profile = () => {
     {isLoading && <InstagramProfileSkeletonComponent />}
     <PostComment selectedMedia={selectedMedia} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
     <div className="flex min-h-screen">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <main className="profile min-h-screen flex-grow px-4 sm:px-8 lg:px-[72px] py-[60px] ml-0 lg:ml-[14.5%] dark:bg-neutral-950 dark:text-white">
         <div className="inner-profile w-full h-full">
           <header className="flex flex-col md:flex-row items-center mb-8 gap-16 ml-10">

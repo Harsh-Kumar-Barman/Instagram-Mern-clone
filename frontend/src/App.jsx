@@ -17,6 +17,7 @@ import { ChatComponent } from './components/Chat/instagram-chat';
 import Dashboard from './components/Profile/user-dashboard';
 import { VideoCallProvider } from './hooks/VideoCallContext';
 import VideoCall from './components/Chat/VideoCall';
+import Sidebar from './components/Home/Sidebar';
 
 function ChildApp() {
   const userDetails = useSelector((state) => state.counter.userDetails);
@@ -51,7 +52,7 @@ function ChildApp() {
 
   return (
     <>
-      <Navbar />
+      <Sidebar />
       <Routes>
         <Route path="/" element={<ProtectedRoute><Home socketRef={socketRef}/></ProtectedRoute>} />
         <Route path="/profile/:username" element={<ProtectedRoute><Profile/></ProtectedRoute>} />

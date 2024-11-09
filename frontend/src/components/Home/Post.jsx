@@ -59,7 +59,7 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
   }, [videoRef]);
   return (
     <div className="space-y-8 mb-4">
-      <Card key={post._id} className="w-11/12 border-t-0 border-x-0 rounded-none border-b-[.1px] border-zinc-300 shadow-none">
+      <Card key={post._id} className="w-full border-t-0 border-x-0 rounded-none border-b-[.1px] border-zinc-300 shadow-none">
         <CardHeader className="flex flex-row items-center space-x-4 px-0 py-4">
           <Link to={`/profile/${post?.author?.username}`}>
             <Avatar>
@@ -176,8 +176,8 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
+              <CarouselPrevious className="left-3 dark:text-white" />
+              <CarouselNext className="right-3 dark:text-white" />
             </Carousel>
           )
           :

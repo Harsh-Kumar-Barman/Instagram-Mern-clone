@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 
 const ExploreGrid = () => {
     const [allPosts, setAllPosts] = useState([]);
-    const [open, setOpen] = useState(false);
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [selectedMedia, setSelectedMedia] = useState(null); // To track selected media
@@ -33,7 +32,6 @@ const ExploreGrid = () => {
         setIsDialogOpen(true);
         dispatch(setSelectedPost(post));
     };
-
 
     useEffect(() => {
         fetchPosts();
@@ -76,7 +74,7 @@ const ExploreGrid = () => {
     return (
         <>
             <PostComment selectedMedia={selectedMedia} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
-            <div className="w-[81.8%] dark:bg-neutral-950 min-h-screen grid grid-cols-3 gap-1 px-20 py-12 ml-auto">
+            <div className="flex-1 md:ml-[72px] lg:ml-60 dark:bg-neutral-950 min-h-screen grid grid-cols-3 gap-1 md:px-12 py-5 md:py-12 ml-auto">
                 {allPosts?.map((post, index) => {
                     if (index === 2) {
                         // The third item will span both rows
@@ -113,7 +111,7 @@ const ExploreGrid = () => {
 const Explore = () => {
     return (
         <>
-            <Sidebar />
+            {/* <Sidebar /> */}
             <ExploreGrid />
         </>
     );

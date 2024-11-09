@@ -180,13 +180,13 @@ const ReelSection = () => {
     }, [getSavePosts]);
     return (
         <>
-            <Sidebar />
-            <div className="w-[81.3%] min-h-screen flex flex-col items-center p-4 ml-auto dark:bg-neutral-950 dark:text-white">
+            {/* <Sidebar /> */}
+            <div className="flex-1 md:ml-[72px] lg:ml-60 min-h-screen flex flex-col items-center py-4 ml-auto dark:bg-neutral-950 dark:text-white">
                 <div className="w-full flex flex-wrap justify-center gap-4 mt-2">
                     {allPosts?.map((post, index) => (
                         <div
                             key={post._id}
-                            className="relative w-full h-[90vh] flex justify-center items-center rounded-lg overflow-hidden"
+                            className="relative w-full h-[90vh] flex gap-2 justify-center items-center rounded-lg overflow-hidden"
                         >
                             <div className="h-full w-[300px] rounded-lg flex justify-center items-center overflow-hidden shadow-xl">
                                 {/* Video Container */}
