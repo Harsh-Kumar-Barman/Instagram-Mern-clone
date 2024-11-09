@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
@@ -18,38 +18,40 @@ import Dashboard from './components/Profile/user-dashboard';
 import { VideoCallProvider } from './hooks/VideoCallContext';
 import VideoCall from './components/Chat/VideoCall';
 
-function App() {
+function ChildApp() {
   const userDetails = useSelector((state) => state.counter.userDetails);
   const dispatch = useDispatch();
-  const socketRef = useRef(null); // Use ref to hold socket connection
-  
+  const socketRef = useRef(null);
+  const navigate = useNavigate(); // Now useNavigate will work here
+
   useEffect(() => {
-    // Initialize socket only when userDetails is available
     if (userDetails.id) {
       const socket = io('http://localhost:5000', {
         query: { userId: userDetails.id },
       });
-  
-      socketRef.current = socket; // Assign socket instance to ref
-  
-      // Listen for 'getOnlineUsers' event and dispatch online users to Redux
+
+      socketRef.current = socket;
+
       socket.on('getOnlineUsers', (onlineUsers) => {
         dispatch(setOnlineUsers(onlineUsers));
       });
-  
-      // Clean up socket connection when component unmounts
+
+      socket.on('videoCallOffer', async ({ from, offer }) => {
+        if (offer.type === 'offer') {
+          navigate(`/call/${from}`);
+        }
+      });
+
       return () => {
         socket.disconnect();
-        dispatch(setOnlineUsers([])); // Reset online users
+        dispatch(setOnlineUsers([]));
       };
     }
-  }, [userDetails, dispatch]);
-  
-  return (
-    <Router>
-      <Navbar />
-      {/* <VideoCallProvider socketRef={socketRef}> */}
+  }, [userDetails, dispatch, navigate]);
 
+  return (
+    <>
+      <Navbar />
       <Routes>
         <Route path="/" element={<ProtectedRoute><Home socketRef={socketRef}/></ProtectedRoute>} />
         <Route path="/profile/:username" element={<ProtectedRoute><Profile/></ProtectedRoute>} />
@@ -57,17 +59,24 @@ function App() {
         <Route path="/direct/inbox" element={<ProtectedRoute><ChatComponent socketRef={socketRef} /></ProtectedRoute>} />
         <Route path="/explore/" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
         <Route path="/reels/" element={<ProtectedRoute><ReelSection /></ProtectedRoute>} />
-        <Route path="/call/:remoteUserId/" element={<ProtectedRoute><VideoCall  userId={userDetails?.id} socketRef={socketRef} /></ProtectedRoute>} />
+        <Route path="/call/:remoteUserId/" element={<ProtectedRoute><VideoCall userId={userDetails?.id} socketRef={socketRef} /></ProtectedRoute>} />
         <Route path="/accounts/edit/:id" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
         <Route path="/admindashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
-      {/* </VideoCallProvider> */}
-
       <BottomNavigation />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <ChildApp />
     </Router>
   );
 }
 
 export default App;
+

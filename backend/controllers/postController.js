@@ -80,7 +80,7 @@ const getAllPosts = async (req, res) => {
 
 const like = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate('author', 'username profilePicture');
     const user = await User.findById(post.author);
     const likedUser = await User.findById(req.body.userId);
     let newObj = {};
@@ -88,7 +88,7 @@ const like = async (req, res) => {
       post.likes.push(req.body.userId);
       newObj = {
         likeType: 'like',
-        id: user._id,
+        id: likedUser._id,
         username: likedUser.username,
         userPic: user.profilePicture
       };
@@ -96,7 +96,7 @@ const like = async (req, res) => {
       post.likes.pull(req.body.userId);
       newObj = {
         likeType: 'dislike',
-        id: user._id,
+        id: likedUser._id,
         username: user.username,
         userPic: user.profilePicture
       };
@@ -104,13 +104,12 @@ const like = async (req, res) => {
 
     await post.save();
 
-    const receiverSocketId = getReciverSocketId(post?.author);
+    const receiverSocketId = getReciverSocketId(post?.author?._id);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('rtmNotification', newObj);
     } else {
       console.log('Receiver not connected to socket');
     }
-
     res.json({ post, newObj });
   } catch (error) {
     console.error('Error in like route:', error);
@@ -146,6 +145,7 @@ const savePost = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 const getSavedPosts = async (req, res) => {
   try {

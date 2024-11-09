@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 const StoryUpload = () => {
   const [media, setMedia] = useState(null);
   const [type, setType] = useState("");
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -14,6 +17,7 @@ const StoryUpload = () => {
   };
 
   const handleStoryUpload = async (e) => {
+    setUploadSuccess(true)
     e.preventDefault();
     const formData = new FormData();
     formData.append("media", media);
@@ -27,13 +31,27 @@ const StoryUpload = () => {
     } catch (error) {
       console.error("Error uploading story:", error);
     }
+    finally{
+      setUploadSuccess(false)
+      setMedia(null)
+    }
   };
 
   return (
     <form onSubmit={handleStoryUpload}>
       <div className="flex gap-2">
       <Input type="file" accept="image/*,video/*" onChange={handleFileChange} required className="w-56" />
-      <Button type="submit">Upload Story</Button>
+      {
+          !uploadSuccess?
+          <Button type="submit">
+          
+            Upload Story</Button>
+          :
+          <Button disabled type="submit">
+          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+            Upload Story</Button>
+        }
+
       </div>
     </form>
   );

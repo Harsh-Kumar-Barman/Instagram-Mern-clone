@@ -202,7 +202,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                     <div className="flex items-center gap-2">
                                         <Avatar>
                                             <AvatarImage className="object-cover object-top" src={PostDetails?.author?.profilePicture} alt={`${PostDetails?.author?.username}'s profile`} />
-                                            <AvatarFallback>{PostDetails?.author?.username[0]}</AvatarFallback>
+                                            <AvatarFallback>{PostDetails?.author?.username}</AvatarFallback>
                                         </Avatar>
                                         <div className="authorDetail">
                                             <p className="text-sm font-semibold">{PostDetails?.author?.username}</p>
@@ -216,8 +216,8 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                 </div>
 
                                 <div className={`comments-section flex-1 overflow-y-auto p-4 ${commentsArr?.length === 0 ? 'flex justify-center items-center' : ''}`}>
-                                    {commentsArr.length > 0 ? (
-                                        commentsArr.map((comment) => (
+                                    {commentsArr?.length > 0 ? (
+                                        commentsArr?.map((comment) => (
                                             <div key={comment._id} className="mb-4">
                                                 <div className="flex justify-between items-start">
                                                     <div className='flex items-start gap-3 flex-1'>

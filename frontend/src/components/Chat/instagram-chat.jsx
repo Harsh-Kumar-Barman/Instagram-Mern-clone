@@ -90,11 +90,11 @@ export function ChatComponent({ socketRef }) {
     }
 
 
-    socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
-      if (offer.type == 'offer') {
-        navigate(`/call/${from}`); // Navigate to the correct call route
-      }
-    });
+    // socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
+    //   if (offer.type == 'offer') {
+    //     navigate(`/call/${from}`); // Navigate to the correct call route
+    //   }
+    // });
   }, [userDetails, suggestedUser]);
 
 

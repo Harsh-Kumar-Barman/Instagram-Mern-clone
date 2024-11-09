@@ -20,7 +20,6 @@ const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { username, reelId } = useParams();
-
   const [user, setUser] = useState(null);
   const [userID, setUserID] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -37,8 +36,6 @@ const Profile = () => {
   const [page, setPage] = useState(0); // Pagination page
   const [hasMore, setHasMore] = useState(true); // If more posts are available
   const [loading, setLoading] = useState(false); // Loading state
-
-  console.log(postsArr)
 
   // Fetch user data with pagination
   const fetchUserData = useCallback(async () => {
@@ -167,7 +164,7 @@ const Profile = () => {
     {isLoading && <InstagramProfileSkeletonComponent />}
     <PostComment selectedMedia={selectedMedia} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
     <div className="flex min-h-screen">
-      {/* <Sidebar /> */}
+      <Sidebar />
       <main className="profile min-h-screen flex-grow px-4 sm:px-8 lg:px-[72px] py-[60px] ml-0 lg:ml-[14.5%] dark:bg-neutral-950 dark:text-white">
         <div className="inner-profile w-full h-full">
           <header className="flex flex-col md:flex-row items-center mb-8 gap-16 ml-10">

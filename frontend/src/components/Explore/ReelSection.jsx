@@ -16,7 +16,7 @@ const ReelSection = () => {
     const savedPost = useSelector((state) => state.counter.savedPosts);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    
+
     const [allPosts, setAllPosts] = useState([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
@@ -29,15 +29,28 @@ const ReelSection = () => {
         try {
             setLoading(true);
             const { data: posts } = await axios.get(`/api/posts/getPosts?page=${page}&limit=10`);
-            const reels = posts.filter(post => post?.mediaType === 'video');
+            // const reels = posts.filter(post => post?.media[0]?.mediaType === 'video');
 
-            setAllPosts((prevPosts) => [...prevPosts, ...reels]);
+            const videoPosts = posts.map(post => {
+                // Filter the media array to include only videos
+                const videoMedia = post.media.filter(mediaItem => mediaItem.mediaType === "video");
+
+
+                // If there are video media items, return the post with only video media, else return null
+                if (videoMedia.length > 0) {
+                    return { ...post, media: videoMedia };  // Store only the video media for this post
+                }
+                return null;   // Exclude posts without video media
+            }).filter(post => post !== null);  // Remove any null posts
+
+
+            setAllPosts((prevPosts) => [...prevPosts, ...videoPosts]);
             if (posts.length < 10) {
                 setHasMore(false);
             }
         } catch (error) {
             console.error('Error fetching posts:', error);
-            if (error.response?.statusText === 'Unauthorized'||error.response?.status===403) navigate('/login');
+            if (error.response?.statusText === 'Unauthorized' || error.response?.status === 403) navigate('/login');
         } finally {
             setLoading(false);
         }
@@ -51,7 +64,7 @@ const ReelSection = () => {
             dispatch(setSavedPosts(savedPosts));
         } catch (error) {
             console.error('Error fetching saved posts:', error);
-            if (error.response?.statusText === 'Unauthorized'||error.response?.status===403) navigate('/login');
+            if (error.response?.statusText === 'Unauthorized' || error.response?.status === 403) navigate('/login');
         }
     }, [dispatch, navigate, userDetails.id]);
 
@@ -59,20 +72,20 @@ const ReelSection = () => {
     const handleLike = useCallback(async (e, postId) => {
         e.preventDefault();
         const userId = userDetails.id;
-      
+
         try {
-          // API request to like the post
-          const { data: updatedPost } = await axios.put(`/api/posts/${postId}/like`, { userId });
-      
-          // Update the post locally in the state
-          setAllPosts((prevPosts) =>
-            prevPosts.map((post) =>
-              post._id === postId ? updatedPost : post
-            )
-          );
+            // API request to like the post
+            const { data: updatedPost } = await axios.put(`/api/posts/${postId}/like`, { userId });
+
+            // Update the post locally in the state
+            setAllPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post._id === postId ? updatedPost?.post : post
+                )
+            );
         } catch (error) {
-          console.error('Error liking the post:', error);
-          if (error.response?.statusText === "Unauthorized"||error.response?.status===403) navigate('/login');
+            console.error('Error liking the post:', error);
+            if (error.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login');
         }
     }, [navigate, userDetails.id]);
 
@@ -84,7 +97,7 @@ const ReelSection = () => {
             dispatch(setSavedPosts(savedPosts));
         } catch (error) {
             console.error('Error saving the post:', error);
-            if (error.response?.statusText === 'Unauthorized'||error.response?.status===403) navigate('/login');
+            if (error.response?.statusText === 'Unauthorized' || error.response?.status === 403) navigate('/login');
         }
     }, [dispatch, navigate, userDetails.id]);
 
@@ -108,7 +121,7 @@ const ReelSection = () => {
             dispatch(setWatchHistory([response?.data?.user?.reelHistory]));
         } catch (error) {
             console.error('Error adding to history:', error);
-            if (error.response?.statusText === 'Unauthorized'||error.response?.status===403) navigate('/login');
+            if (error.response?.statusText === 'Unauthorized' || error.response?.status === 403) navigate('/login');
         }
     }, [dispatch, navigate, userDetails.id]);
 
@@ -152,6 +165,9 @@ const ReelSection = () => {
     // Initial fetch and pagination setup
     useEffect(() => {
         fetchPosts();
+        return () => {
+            setAllPosts([]);
+        }
     }, [page, fetchPosts]);
 
     useEffect(() => {
@@ -179,7 +195,7 @@ const ReelSection = () => {
                                         ref={(el) => (videoRefs.current[index] = el)} // Assign ref to each video
                                         muted
                                         data-postid={post._id} // Store postId for reference in intersection observer
-                                        src={post.mediaPath}
+                                        src={post?.media[0]?.mediaPath}
                                         loop
                                         className="object-cover w-full h-full rounded-lg"
                                     />

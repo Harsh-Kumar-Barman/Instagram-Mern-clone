@@ -64,7 +64,6 @@ const Home = ({ socketRef }) => {
     try {
       // API request to like the post
       const { data: updatedPost } = await axios.put(`/api/posts/${postId}/like`, { userId });
-
       // Update the post locally in the state
       setAllPosts((prevPosts) =>
         prevPosts.map((post) =>
@@ -138,7 +137,7 @@ const Home = ({ socketRef }) => {
       dispatch(setFollower(followers));
       setFollowingUserss(following);
     } catch (error) {
-      console.error('Error following/unfollowing the user:', error);
+      console.error('Error following/unfollowing the user:', error.message);
       if (error.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login');
     }
   };
@@ -172,16 +171,17 @@ const Home = ({ socketRef }) => {
 
   useEffect(() => {
     socketRef.current.on('rtmNotification', (rtmNotification) => {
-      dispatch(setRtmNotification(rtmNotification))
+      {rtmNotification.id!==userDetails?.id&&
+        dispatch(setRtmNotification(rtmNotification))
+      }
     });
     return () => {
       socketRef.current.off('rtmNotification');
     };
-  }, [dispatch]); // Empty dependency array to ensure the listener is added only once
+  }, []); // Empty dependency array to ensure the listener is added only once
 
   return (<div className='dark:bg-neutral-950 dark:text-white'>
 
-    {/* { isLoading && <InstagramSkeletonComponent/> } */}
 
     <div className="flex bg-white dark:bg-neutral-950 min-h-screen">
       <Sidebar />

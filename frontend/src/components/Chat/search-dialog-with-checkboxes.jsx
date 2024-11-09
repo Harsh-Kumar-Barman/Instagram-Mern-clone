@@ -1,7 +1,5 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from 'react';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,46 +7,50 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { ScrollArea } from '../ui/scroll-area'
-import axios from 'axios'
-import { useDispatch, useSelector } from 'react-redux'
-import { setFollowingUsers } from '@/features/userDetail/userDetailsSlice'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from '../ui/scroll-area';
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { setFollowingUsers } from '@/features/userDetail/userDetailsSlice';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export function SearchDialogWithCheckboxesComponent({ socketRef }) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   const userDetails = useSelector((state) => state.counter.userDetails);
   const followingUserss = useSelector((state) => state.counter.followingUsers);
-  const [searchTerm, setSearchTerm] = useState("")
-  const [groupName, setGroupName] = useState("")
-  const [members, setMembers] = useState([])
-  const [followingUser, setFollowingUser] = useState([])
-  const dispatch = useDispatch()
-  const arrOfFollowingUsers = Object.values(followingUserss)
-  const filteredResults = followingUser.filter(
-    item => item?.username?.toLowerCase()?.includes(searchTerm?.toLowerCase()))
+  const [searchTerm, setSearchTerm] = useState("");
+  const [groupName, setGroupName] = useState("");
+  const [members, setMembers] = useState([]);
+  const [followingUser, setFollowingUser] = useState([]);
+  const dispatch = useDispatch();
+  const arrOfFollowingUsers = Object.values(followingUserss);
 
-  const handleCheckboxChange = (id) => {
+  const filteredResults = followingUser.filter(
+    item => item?.username?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+  );
+
+  const handleCheckboxChange = (member) => {
+    console.log(member)
     setMembers(prev => {
-      const memberExists = prev.some(item => item.userId === id);
+      const memberExists = prev.some(item => item._id === member._id);
       if (memberExists) {
-        // Remove the object with matching userId
-        return prev.filter(item => item.userId !== id);
+        return prev.filter(item => item._id !== member._id);
       } else {
-        // Add new object with userId
-        return [...prev, { userId: id }];
+        return [...prev, member];
       }
     });
   };
 
   useEffect(() => {
-    socketRef.current.on('groupCreated', ({ groupChat }) => {
-      const followingUsers = [...arrOfFollowingUsers, groupChat]
-      dispatch(setFollowingUsers(followingUsers))
-    });
-  }, []);
+    if (socketRef.current) {
+      socketRef.current.on('groupCreated', ({ groupChat }) => {
+        const followingUsers = [...arrOfFollowingUsers, groupChat];
+        dispatch(setFollowingUsers(followingUsers));
+      });
+    }
+  }, [socketRef, arrOfFollowingUsers, dispatch]);
 
   const handleCreateGroup = async () => {
     try {
@@ -59,33 +61,32 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
       });
 
       if (response?.data?.success) {
-        setIsOpen(false);  // Close dialog or modal
+        setIsOpen(false);
       }
     } catch (error) {
       console.log(error.message);
     }
   };
 
-
   const getFollower = async () => {
     const response = await axios.get(`/api/conversations/followingUsers/${userDetails.username}`);
-    setFollowingUser(response?.data)
-  }
-  useEffect(() => {
-    getFollower()
-  }, [])
+    setFollowingUser(response?.data);
+  };
 
+  useEffect(() => {
+    getFollower();
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Create Group</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:text-white">
         <DialogHeader>
           <DialogTitle>Create Group</DialogTitle>
           <DialogDescription>
-            This action help's to create a group
+            This action helps to create a group
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -103,7 +104,7 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-1/2"
             />
-            <Button onClick={handleCreateGroup}>Create</Button>
+            <Button type="button" onClick={handleCreateGroup}>Create</Button>
           </div>
 
           {/* Filtered search results */}
@@ -114,16 +115,18 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
                   filteredResults.map((result) => (
                     <div
                       key={result._id}
-                      className="flex items-center space-x-2 p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                      className="flex items-center space-x-2 p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer"
+                    >
                       <Checkbox
                         id={`checkbox-${result._id}`}
-                        // checked={members.includes(result.id)}
-                        checked={members.some(item => item.userId === result._id)}
-                        onCheckedChange={() => handleCheckboxChange(result._id)} />
+                        checked={members.some(item => item._id === result._id)}
+                        onCheckedChange={() => handleCheckboxChange(result)}
+                      />
                       <div>
                         <label
                           htmlFor={`checkbox-${result._id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
                           {result?.username}
                         </label>
                       </div>
@@ -138,15 +141,26 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
           {members.length > 0 && (
             <div className="mt-4">
               <h4 className="font-medium mb-2">Selected Items:</h4>
+              {/* <ul className="list-disc pl-5"> */}
               <ul className="list-disc pl-5">
-                {members.map(id => (
-                  <p key={id.userId}>{id.userId}</p>
+                {members.map(member => (
+                  <li key={member._id} className="text-sm flex gap-1 items-center justify-start">
+                    <Avatar className="bg-gray-200 dark:bg-neutral-950 dark:text-white w-6 h-6">
+                      <AvatarImage className="object-cover object-top" src={`${member.profilePicture}`} />
+                      <AvatarFallback>{member.username}</AvatarFallback>
+                    </Avatar>
+                    {/* <img src={`${member.profilePicture}`} className='w-6 h-6 rounded-full object-cover object-top' alt="" /> */}
+                    {member.username}</li>
                 ))}
               </ul>
+              {/* {members.map(member => (
+                  <p key={member._id}>{member.username}</p>
+                ))}
+              </ul> */}
             </div>
           )}
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

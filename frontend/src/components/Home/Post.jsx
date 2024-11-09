@@ -91,8 +91,12 @@ const Post = ({ post, userDetails, savedPost, followingUserss, handleLike, handl
             <DropdownMenuContent align="end" className="w-96">
               <DropdownMenuItem className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Report</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={e => handleDeletePost(e, post?._id)} className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Delete</DropdownMenuItem>
-              <DropdownMenuSeparator />
+              {userDetails?.id == post?.author?._id &&
+                <>
+                  <DropdownMenuItem onClick={e => handleDeletePost(e, post?._id)} className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Delete</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              }
               {followingUserss?.includes(post.author._id) && (
                 <>
                   <DropdownMenuItem
