@@ -188,7 +188,7 @@ const Home = ({ socketRef }) => {
       {/* <main className="flex-1 ml-64 flex justify-center"> */}
       <main className="flex-1 md:ml-[72px] lg:ml-60">
         {/* <div className="max-w-2xl w-full py-3 px-4"> */}
-        <div className="max-w-screen-xl mx-auto py-2 md:px-6 lg:px-8">
+        <div className="max-w-screen-xl mt-14 md:mt-0 mx-auto py-2 md:px-6 lg:px-8">
           <div className="flex gap-0">
             <div className="flex-1 max-w-[630px]">
               <Stories />

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { setMessages } from '../../features/userDetail/userDetailsSlice';
+import { setMessages, setSuggestedUser } from '../../features/userDetail/userDetailsSlice';
 import axios from 'axios';
 import { AiOutlineMessage } from 'react-icons/ai';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -17,6 +17,7 @@ import VideoCall from './VideoCall';
 function ChatBox() {
     // const { startCall, localVideoRef, remoteVideoRef } = useVideoCall();
     const suggestedUser = useSelector((state) => state.counter.suggestedUser);
+    console.log(suggestedUser)
     const userDetails = useSelector((state) => state.counter.userDetails);
     const messages = useSelector((state) => state.counter.messages);
     const [textMessage, setTextMessage] = useState('')
@@ -29,6 +30,13 @@ function ChatBox() {
 
     const [selectedMedia, setSelectedMedia] = useState(null); // To track selected media
     const [isDialogOpen, setIsDialogOpen] = useState(false);  // To handle dialog state
+
+
+    const removeSuggestedUser = (e) => {
+        e.preventDefault()
+        dispatch(setSuggestedUser(null))
+    }
+
 
     const handleMediaClick = (mediaUrl) => {
         setSelectedMedia(mediaUrl);
@@ -85,7 +93,7 @@ function ChatBox() {
             }
         } catch (error) {
             console.log(error.message);
-            if (error?.response && error?.response?.status === 401||error.response?.status===403) navigate('/login');
+            if (error?.response && error?.response?.status === 401 || error.response?.status === 403) navigate('/login');
         }
         finally {
             setIsResOk(true)
@@ -105,19 +113,20 @@ function ChatBox() {
 
     return (
         <>
-        {/* <VideoCall userId={userDetails?.id} socketRef={socketRef} remoteUserId={suggestedUser?._id}  /> */}
+            {/* <VideoCall userId={userDetails?.id} socketRef={socketRef} remoteUserId={suggestedUser?._id}  /> */}
             {suggestedUser ?
-                (<div className="flex-grow flex flex-col bg-white dark:bg-neutral-950 dark:text-white">
+                (<div className={`flex-grow ${suggestedUser ? "w-[90vw] md:w-full" : "w-0"} flex flex-col max-h-screen bg-white dark:bg-neutral-950 dark:text-white`}>
                     <div
                         className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                         <div className="flex items-center space-x-3">
+                            <span onClick={removeSuggestedUser} className='text-3xl inline-block md:hidden '>←</span>
                             <Avatar>
                                 <AvatarImage className="object-cover object-top" src={suggestedUser?.profilePicture} />
-                                <AvatarFallback>{suggestedUser?.username}</AvatarFallback>
+                                <AvatarFallback>{suggestedUser && 'groupName' in suggestedUser ? suggestedUser?.groupName : suggestedUser?.username}</AvatarFallback>
                             </Avatar>
                             <div>
                                 <Link to={`/profile/${suggestedUser?.username}`}>
-                                    <p className="font-semibold text-sm dark:text-white">{suggestedUser?.username}</p>
+                                    <p className="font-semibold text-xs md:text-sm dark:text-white">{suggestedUser && 'groupName' in suggestedUser ? suggestedUser?.groupName : suggestedUser?.username}</p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">Active 1h ago</p>
                                 </Link>
                             </div>
@@ -130,20 +139,20 @@ function ChatBox() {
                             <Button onClick={() => navigate(`/call/${suggestedUser?._id}`)} variant="ghost" size="sm" className="text-black dark:text-white">
                                 <Video className="h-7 w-7" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-black dark:text-white">
+                            <Button variant="ghost" size="sm" className="text-black dark:text-white hidden md:block ">
                                 <Info className="h-6 w-6" />
                             </Button>
                         </div>
                     </div>
-                    <ScrollArea className="flex-grow py-1 px-6">
+                    <ScrollArea className="flex-grow py-1 px-2 md:px-6">
                         <div className="flex justify-center">
                             <Avatar className="w-20 h-20">
                                 <AvatarImage className="object-cover object-top w-full h-full" src={suggestedUser?.profilePicture} />
                                 <AvatarFallback>{suggestedUser?.username}</AvatarFallback>
                             </Avatar>
                         </div>
-                        <div className='flex flex-col justify-center items-center'>
-                            <p className="text-center mt-2 font-semibold">{suggestedUser?.username}</p>
+                        <div className='flex flex-col justify-center items-center mb-10 md:mb-0'>
+                            <p className="text-center mt-2 font-semibold">{suggestedUser && 'groupName' in suggestedUser ? suggestedUser?.groupName : suggestedUser?.username}</p>
                             <p className="text-center mb-2">{suggestedUser?.fullName}</p>
                             <Link to={`/profile/${suggestedUser?.username}`}>
                                 <Button className='text-sm'>View profile</Button>
@@ -175,7 +184,7 @@ function ChatBox() {
                                             <img
                                                 src={message.mediaUrl}
                                                 alt="Image message"
-                                                className="w-56 h-96 rounded-xl object-cover cursor-pointer"
+                                                className="w-36 h-52 md:w-56 md:h-96 rounded-xl object-cover cursor-pointer"
                                                 onClick={() => handleMediaClick(message.mediaUrl)} // Open dialog on click
                                             />
                                         )}
@@ -222,7 +231,7 @@ function ChatBox() {
                             </Dialog>
                         )}
                     </ScrollArea >
-                    <div className="px-4 pb-2">
+                    <div className="px-0 md:px-4 pb-2">
                         <div className="message-form p-2 dark:bg-neutral-950 rounded-lg space-y-2">
                             {/* Media Preview Section */}
                             {filePreview && (
@@ -255,7 +264,7 @@ function ChatBox() {
                             {/* Form Input Section */}
                             <form
                                 onSubmit={(e) => sendMessageHandle(e, suggestedUser._id)}
-                                className="flex items-center space-x-4 border border-zinc-800 bg-transparent rounded-full px-4 py-2"
+                                className="flex items-center space-x-2 md:space-x-4 border border-zinc-800 bg-transparent rounded-full px-4 py-2"
                             >
                                 <Smile className="h-6 w-6 text-black dark:text-white" />
                                 <input
@@ -289,7 +298,7 @@ function ChatBox() {
                     </div>
                 </div >)
                 : (
-                    <div className="flex-grow flex flex-col justify-center items-center bg-white dark:bg-neutral-950 dark:text-white">
+                    <div className="flex-grow hidden md:flex flex-col justify-center items-center bg-white dark:bg-neutral-950 dark:text-white">
                         <div className="emptyField flex flex-col justify-center items-center">
                             <div>
                                 <AiOutlineMessage size={100} />

@@ -130,7 +130,7 @@ export function ChatComponent({ socketRef }) {
     (<div className="flex h-screen">
       <div className="flex-1 flex dark:bg-neutral-950 dark:text-white">
         {/* Sidebar */}
-        <div className="h-screen w-[5.3%] flex flex-col gap-7 items-center border-r-[.1px] border-zinc-800">
+        <div className="h-screen w-[5.3%] hidden md:flex flex-col gap-7 items-center border-r-[.1px] border-zinc-800">
           <div className="instaIcon my-8">
             <Link to="/">
               <FaInstagram size={26} />
@@ -143,7 +143,7 @@ export function ChatComponent({ socketRef }) {
           ))}
         </div>
         <div
-          className="w-80 border-r border-gray-200 dark:border-zinc-800 flex flex-col bg-white dark:bg-neutral-950 dark:text-white">
+          className={` ${suggestedUser?"w-0":'w-full'}  md:w-80 border-r border-gray-200 dark:border-zinc-800 flex flex-col bg-white dark:bg-neutral-950 dark:text-white`}>
           <div
             className="p-4 border-gray-200 dark:border-zinc-800 dark:bg-neutral-950 dark:text-white flex justify-between items-center">
             <div className="flex items-center space-x-2">
