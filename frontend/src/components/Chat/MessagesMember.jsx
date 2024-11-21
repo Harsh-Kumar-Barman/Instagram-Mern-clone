@@ -11,7 +11,7 @@ function MessagesMember({ socketRef }) {
     const dispatch = useDispatch()
     return (
         <>
-            <SearchDialogWithCheckboxesComponent socketRef={socketRef} />
+            {/* <SearchDialogWithCheckboxesComponent socketRef={socketRef} /> */}
             <ScrollArea className="flex-grow">
                 {followingUsers?.length > 0 ? (
                     followingUsers.map((suggestedUser) => (
@@ -23,7 +23,7 @@ function MessagesMember({ socketRef }) {
                                     <AvatarImage className="w-full h-full object-cover object-top" src={'groupName' in suggestedUser ? `http://localhost:5000/${suggestedUser?.groupImage}` : suggestedUser?.profilePicture} alt={`${suggestedUser?.username}'s profile`} />
                                     <AvatarFallback>{'groupName' in suggestedUser ? `${suggestedUser.groupName}` : `${suggestedUser.username}`}</AvatarFallback>
                                 </Avatar>
-                                {onlineUsers?.includes(suggestedUser?._id) && (<div className="w-3 h-3 absolute top-7 left-7 border-[2px] border-white bg-green-500 rounded-full"></div>)}
+                                {onlineUsers?.includes(suggestedUser?._id) && (<div className="w-3 h-3 absolute top-9 left-9 border-[2px] border-white bg-green-500 rounded-full"></div>)}
                             </div>
                             <div className="flex-grow">
                                 <div className="text-sm md:text-sm text-black dark:text-white">{'groupName' in suggestedUser ? `${suggestedUser.groupName}` : `${suggestedUser.username}`}</div>

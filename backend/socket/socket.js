@@ -13,7 +13,6 @@ const io = new Server(server, {
 });
 
 const userSocketMap = {};  // Maps userId to socketId
-const groupRoomMap = {};   // Maps groupId to list of userIds (or just track membership in DB)
 
 const getReciverSocketId = (receiverId) => userSocketMap[receiverId];
 
@@ -22,7 +21,6 @@ io.on('connection', (socket) => {
   if (userId) {
     userSocketMap[userId] = socket.id;
   }
-
   // Emit online users to all clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
 
@@ -46,7 +44,6 @@ io.on('connection', (socket) => {
 
   socket.on('videoCallAnswer', ({ to, answer }) => {
     const receiverSocketId = getReciverSocketId(to);
-    // console.log(receiverSocketId)
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('videoCallAnswer', { from: userId, answer });
     }
@@ -66,8 +63,6 @@ io.on('connection', (socket) => {
       io.to(targetSocketId).emit('endCall', { from });
     }
   });
-
-
 
 
   // Handle user disconnection

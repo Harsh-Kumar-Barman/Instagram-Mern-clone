@@ -38,7 +38,8 @@ const Profile = () => {
   const [hasMore, setHasMore] = useState(true); // If more posts are available
   const [loading, setLoading] = useState(false); // Loading state
 
-  // Fetch user data with pagination
+  let watchHistoryy = Object.values(watchHistory)
+
   const fetchUserData = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -52,7 +53,7 @@ const Profile = () => {
 
       // Filter watched posts based on user's watch history
       setWatched(data?.posts?.filter(post =>
-        watchHistory[0]?.some(reelHistory => reelHistory?.postId === post?._id)
+        watchHistoryy[0]?.some(savepost => savepost.postId === post?._id)
       ));
 
       if (data.posts.length === 0 || data.posts.length < 10) {
@@ -74,7 +75,6 @@ const Profile = () => {
   const getFollowing = useCallback(async () => {
     try {
       const { data } = await axios.get(`/api/users/${userDetails.id}/following`);
-      // console.log(data)
       const following = data?.user?.following
       setFollowingUserss(data?.user?.following)
       dispatch(setFollowing([...following]));
@@ -106,10 +106,8 @@ const Profile = () => {
   const handleDeletePost = async (e, postId) => {
     e.preventDefault()
     const response = await axios.delete(`/api/posts/delete/${postId}`);
-    console.log(response?.data?.post)
     setPostsArr((prevPosts) => prevPosts.filter((post) => post?._id !== response?.data?.post?._id))
   }
-
 
   // Handle following/unfollowing users
   const handleFollowing = async (e, followingID) => {
@@ -429,7 +427,7 @@ const Profile = () => {
               <TabsContent value="posts" className="w-full h-full">
                 <div className="grid grid-cols-3 sm:grid-cols-3 gap-1 mb-20 w-full h-full">
                   {postsArr.map((post) => (
-                    <div onClick={e=>showComments(e,post)} key={post._id} className="relative w-full h-48 sm:h-64 md:h-72 group">
+                    <div onClick={e => showComments(e, post)} key={post._id} className="relative w-full h-48 sm:h-64 md:h-72 group">
                       <Card id={post?.caption} className="rounded-none border-none w-full h-full">
                         <CardContent className="p-0 w-full h-full">
                           {post?.media[0]?.mediaType === 'image' ? (
@@ -486,15 +484,61 @@ const Profile = () => {
               <TabsContent value="watched">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 mb-20 w-full h-full">
                   {watched.map((watch) => (
-                    <Card key={watch._id} className="rounded-none border-none w-full h-48 sm:h-64 md:h-72">
-                      <CardContent className="p-0 w-full h-full">
-                        {watch?.mediaType === 'image' ? (
-                          <img src={watch?.mediaPath} alt={watch?.caption} className="w-full h-full object-cover object-top" />
-                        ) : (
-                          <video src={watch?.mediaPath} className="w-full aspect-square object-cover" />
-                        )}
-                      </CardContent>
-                    </Card>
+                    <>
+
+                      {/* // <Card key={watch._id} className="rounded-none border-none w-full h-48 sm:h-64 md:h-72">
+                    //   <CardContent className="p-0 w-full h-full">
+                    //     {watch?.media[0]?.mediaType === 'image' ? (
+                    //       <img src={watch?.media[0]?.mediaPath} alt={watch?.caption} className="w-full h-full object-cover object-top" />
+                    //     ) : (
+                    //       <video src={watch?.media[0]?.mediaPath} className="w-full aspect-square object-cover" />
+                    //     )}
+                    //   </CardContent>
+                    // </Card> */}
+
+                      <div onClick={e => showComments(e, watch)} key={watch._id} className="relative w-full h-48 sm:h-64 md:h-72 group">
+                        <Card id={watch?.caption} className="rounded-none border-none w-full h-full">
+                          <CardContent className="p-0 w-full h-full">
+                            {watch?.media[0]?.mediaType === 'image' ? (
+                              <img src={`${watch?.media[0]?.mediaPath}`} alt={watch.caption} className="w-full h-full object-cover object-top" />
+                            ) : (
+                              <video src={`${watch?.media[0]?.mediaPath}`} className="w-full h-full aspect-square object-cover" />
+                            )}
+                          </CardContent>
+                        </Card>
+
+                        <div className="absolute top-2 right-2 z-20">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="w-5 h-5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40 md:w-80">
+                              <DropdownMenuItem onClick={e => handleDeletePost(e, post?._id)} className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Delete</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="justify-center cursor-pointer">Add to favorites</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="justify-center cursor-pointer">Share to...</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="justify-center cursor-pointer">Copy link</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="justify-center cursor-pointer">Cancel</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="flex flex-col justify-center items-center gap-5">
+                            <p className="text-white flex gap-5">
+                              <div className="likes flex gap-2 justify-center items-center"><FaHeart className='w-6 h-6' /> {watch?.likes?.length}</div>
+                              <div className="comments flex gap-2 justify-center items-center"><IoChatbubbleSharp className="w-6 h-6 -rotate-90" /> {watch?.comments?.length}</div>
+                            </p>
+                            <p className='text-white'>caption : <span className='font-semibold'>{watch?.caption}</span></p>
+                          </div>
+                        </div>
+                      </div>
+                    </>
                   ))}
                 </div>
               </TabsContent>

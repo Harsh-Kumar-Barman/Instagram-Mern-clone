@@ -184,6 +184,7 @@ import { ScrollArea } from '../ui/scroll-area'
 import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
 import { setFollowingUsers } from '@/features/userDetail/userDetailsSlice'
+import { FaRegEdit } from 'react-icons/fa'
 
 export function SearchDialogWithCheckboxesComponent({ socketRef }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -247,7 +248,7 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Create Group</Button>
+        <Button variant="outline" className="px-2"><FaRegEdit size={20} /></Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
