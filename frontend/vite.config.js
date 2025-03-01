@@ -10,7 +10,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'https://instagram-mern-clone-backend.onrender.com', // Your backend URL
+      '/api': 'http://localhost:5000', // Your backend URL
     },
   },
 });
