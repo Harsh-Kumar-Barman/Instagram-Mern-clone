@@ -14,23 +14,18 @@ const cors = require('cors');
 const { server, app } = require('./socket/socket');
 const path = require('path');
 require('dotenv').config();
-const MongoStore = require("connect-mongo");
 
 // Connect to database
 connectDB();
 
 app.use(cors({
-  // origin: 'http://localhost:5173', // Replace with your frontend URL
-  origin: '*', // Replace with your frontend URL
+  origin: 'http://localhost:5173', // Replace with your frontend URL
   methods: ['GET', 'POST', 'PUT'], // Allowing GET, POST, and PUT
   credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true,store: MongoStore.create({
-  mongoUrl: process.env.MONGO_URI, // Your MongoDB URI
-  ttl: 14 * 24 * 60 * 60, // 14 days (Time to live for the session)
-}), }));
+app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -49,4 +44,3 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-// update mongodb
