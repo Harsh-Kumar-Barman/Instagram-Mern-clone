@@ -14,6 +14,7 @@ const cors = require('cors');
 const { server, app } = require('./socket/socket');
 const path = require('path');
 require('dotenv').config();
+const MongoStore = require("connect-mongo");
 
 // Connect to database
 connectDB();
@@ -25,7 +26,10 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }));
+app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true,store: MongoStore.create({
+  mongoUrl: process.env.MONGO_URI, // Your MongoDB URI
+  ttl: 14 * 24 * 60 * 60, // 14 days (Time to live for the session)
+}), }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
