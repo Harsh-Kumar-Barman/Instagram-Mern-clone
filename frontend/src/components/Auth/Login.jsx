@@ -23,7 +23,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response =await axios.post(`${BASE_URL}/auth/login`, { email, password });
+      const response =await axios.post(`${BASE_URL}/api/auth/login`, { email, password });
       const profilePic = response?.data?.user?.profilePicture
       dispatch(addUser({
         fullName: response?.data?.user?.fullName,
