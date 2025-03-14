@@ -26,6 +26,7 @@ const Login = () => {
       const response =await axios.post(`${BASE_URL}/api/auth/login`, { email, password });
       console.log(response.data)
       localStorage.setItem("token", response?.data?.token);
+      console.log(localStorage.getItem("token")) ;
       const profilePic = response?.data?.user?.profilePicture
       dispatch(addUser({
         fullName: response?.data?.user?.fullName,
