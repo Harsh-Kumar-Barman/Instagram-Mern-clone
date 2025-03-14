@@ -19,7 +19,7 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('/api/auth/register', { fullName, username, email, password });
+            const response = await axios.post('/api/auth/register', { fullName, username, email, password }); 
             const profilePic = response?.data?.newUser?.profilePicture
             dispatch(addUser({
                 fullName: response?.data?.newUser?.fullName,
