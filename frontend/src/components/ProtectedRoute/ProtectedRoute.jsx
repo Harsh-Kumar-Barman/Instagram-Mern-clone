@@ -4,27 +4,21 @@ import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
- 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if(token){
-      setIsAuthenticated(true)
-    }else{
-      setIsAuthenticated(false)
-    }
-    // const checkAuth = async () => {
-    //   try {
-    //     const res = await axios.get('/api/auth/isLoggedIn');
-    //     if (res.status === 200) {
-    //       setIsAuthenticated(true);
-    //     }
-    //   } catch (error) {
-    //     setIsAuthenticated(false);
-    //     console.log('Error during authentication check:', error.message);
-    //   }
-    // };
 
-    // checkAuth();
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get('/api/auth/isLoggedIn');
+        if (res.status === 200) {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        console.log('Error during authentication check:', error.message);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   // While waiting for authentication check
