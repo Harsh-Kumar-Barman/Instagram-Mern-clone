@@ -15,6 +15,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '../ui/input';
 import { ReloadIcon } from '@radix-ui/react-icons';
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 function Sidebar({ compact }) {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState(null);
@@ -132,7 +139,7 @@ function Sidebar({ compact }) {
 
         try {
             setIsSubmitting(true);
-            const response = await axios.post('/api/posts/create', formData, {
+            const response = await axios.post(`${BASE_URL}/api/posts/create`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -172,7 +179,7 @@ function Sidebar({ compact }) {
         formData.append("type", type);
 
         try {
-            const response = await axios.post("/api/story/uploadStory", formData, {
+            const response = await axios.post(`${BASE_URL}/api/story/uploadStory`, formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
             console.log("Story uploaded:", response.data);
@@ -212,7 +219,7 @@ function Sidebar({ compact }) {
         setQuery(searchQuery);
         if (searchQuery) {
             try {
-                const response = await axios.get(`/api/search/users?query=${searchQuery}`);
+                const response = await axios.get(`${BASE_URL}/api/search/users?query=${searchQuery}`);
                 console.log(response.data)
                 setResults(response.data);
             } catch (error) {

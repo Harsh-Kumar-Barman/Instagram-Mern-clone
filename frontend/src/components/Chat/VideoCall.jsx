@@ -4,6 +4,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Camera, CameraOff, Mic, MicOff, PhoneOff, Settings } from "lucide-react"
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+  
 const VideoCall = ({ userId, socketRef }) => {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);

@@ -9,6 +9,13 @@ import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 export default function Stories() {
   const [currentStory, setCurrentStory] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -19,7 +26,7 @@ export default function Stories() {
   
   const getFollowing = async () => {
     try {
-      const { data } = await axios.get(`/api/users/${userDetails.id}/following`)
+      const { data } = await axios.get(`${BASE_URL}/api/users/${userDetails.id}/following`)
       setStories(data?.stories)
     } catch (error) {
       console.error('Error fetching following users:', error)

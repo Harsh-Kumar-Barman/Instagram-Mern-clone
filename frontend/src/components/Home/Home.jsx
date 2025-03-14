@@ -58,7 +58,7 @@ const Home = ({ socketRef }) => {
 
     try {
       // API request to like the post
-      const { data: updatedPost } = await axios.put(`/api/posts/${postId}/like`, { userId });
+      const { data: updatedPost } = await axios.put(`${BASE_URL}/api/posts/${postId}/like`, { userId });
       // Update the post locally in the state
       setAllPosts((prevPosts) =>
         prevPosts.map((post) =>
@@ -73,7 +73,7 @@ const Home = ({ socketRef }) => {
 
   const handleDeletePost = async (e, postId) => {
     e.preventDefault()
-    const response = await axios.delete(`/api/posts/delete/${postId}`);
+    const response = await axios.delete(`${BASE_URL}/api/posts/delete/${postId}`);
     setAllPosts((prevPosts) => prevPosts.filter((post) => post?._id !== response?.data?.post?._id))
   }
 
@@ -82,7 +82,7 @@ const Home = ({ socketRef }) => {
     const userId = userDetails.id;
 
     try {
-      const { data: { savedPosts } } = await axios.put(`/api/posts/${userId}/save`, { postId });
+      const { data: { savedPosts } } = await axios.put(`${BASE_URL}/api/posts/${userId}/save`, { postId });
 
       dispatch(setSavedPosts(savedPosts));
     } catch (error) {
@@ -95,7 +95,7 @@ const Home = ({ socketRef }) => {
     const userId = userDetails.id;
 
     try {
-      const { data: { savedPosts } } = await axios.get(`/api/posts/${userId}/save`);
+      const { data: { savedPosts } } = await axios.get(`${BASE_URL}/api/posts/${userId}/save`);
       dispatch(setSavedPosts(savedPosts));
     } catch (error) {
       console.error('Error fetching saved posts:', error);
@@ -112,7 +112,7 @@ const Home = ({ socketRef }) => {
 
   const getFollowing = async () => {
     try {
-      const { data } = await axios.get(`/api/users/${userDetails.id}/following`);
+      const { data } = await axios.get(`${BASE_URL}/api/users/${userDetails.id}/following`);
       // console.log(data)
       const following = data?.user?.following
       setFollowingUserss(data?.user?.following)
@@ -127,7 +127,7 @@ const Home = ({ socketRef }) => {
     const userId = userDetails.id;
 
     try {
-      const { data: { following, followers } } = await axios.put(`/api/users/${userId}/following`, { followingID });
+      const { data: { following, followers } } = await axios.put(`${BASE_URL}/api/users/${userId}/following`, { followingID });
       dispatch(setFollowing(following));
       dispatch(setFollower(followers));
       setFollowingUserss(following);
@@ -142,7 +142,7 @@ const Home = ({ socketRef }) => {
     if (!comment.trim()) return;
 
     try {
-      const { data: updatedPost } = await axios.post(`/api/posts/${postId}/comment`, {
+      const { data: updatedPost } = await axios.post(`${BASE_URL}/api/posts/${postId}/comment`, {
         userId: userDetails.id,
         text: comment,
       });

@@ -6,6 +6,13 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { ReloadIcon } from '@radix-ui/react-icons';
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 const CreatePost = () => {
   const userDetails = useSelector((state) => state.counter.userDetails);
   const [caption, setCaption] = useState('');
@@ -31,7 +38,7 @@ const CreatePost = () => {
 
     try {
       setIsResOk(false);
-      const response = await axios.post('/api/posts/create', formData, {
+      const response = await axios.post(`${BASE_URL}/api/posts/create`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

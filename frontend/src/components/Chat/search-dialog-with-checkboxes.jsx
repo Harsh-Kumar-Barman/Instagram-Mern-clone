@@ -186,6 +186,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setFollowingUsers } from '@/features/userDetail/userDetailsSlice'
 import { FaRegEdit } from 'react-icons/fa'
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 export function SearchDialogWithCheckboxesComponent({ socketRef }) {
   const [isOpen, setIsOpen] = useState(false)
   const userDetails = useSelector((state) => state.counter.userDetails);
@@ -221,7 +228,7 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
 
   const handleCreateGroup = async () => {
     try {
-      const response = await axios.post(`/api/conversations/group/create`, {
+      const response = await axios.post(`${BASE_URL}/api/conversations/group/create`, {
         groupName,
         members,
         createdBy: userDetails.id
@@ -237,7 +244,7 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
 
 
   const getFollower = async () => {
-    const response = await axios.get(`/api/conversations/followingUsers/${userDetails.username}`);
+    const response = await axios.get(`${BASE_URL}/api/conversations/followingUsers/${userDetails.username}`);
     setFollowingUser(response?.data)
   }
   useEffect(() => {

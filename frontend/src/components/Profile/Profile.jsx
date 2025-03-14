@@ -17,6 +17,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import PostComment from '../Home/PostComment';
 import StoryUpload from '../StoryUpload';
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -43,7 +50,7 @@ const Profile = () => {
   const fetchUserData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get(`/api/users/${username}?page=${page}&limit=10`);
+      const { data } = await axios.get(`${BASE_URL}/api/users/${username}?page=${page}&limit=10`);
       setProfilePicture(data?.user?.profilePicture);
       setUserID(data?.user?._id);
       setUser(data.user);
@@ -74,7 +81,7 @@ const Profile = () => {
   // Fetch the following users list
   const getFollowing = useCallback(async () => {
     try {
-      const { data } = await axios.get(`/api/users/${userDetails.id}/following`);
+      const { data } = await axios.get(`${BASE_URL}/api/users/${userDetails.id}/following`);
       const following = data?.user?.following
       setFollowingUserss(data?.user?.following)
       dispatch(setFollowing([...following]));
@@ -86,7 +93,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      const { status } = await axios.get('/api/auth/logout');
+      const { status } = await axios.get(`${BASE_URL}/api/auth/logout`);
       if (status === 200) {
         console.log('Logged out successfully');
         navigate('/login');
@@ -105,7 +112,7 @@ const Profile = () => {
 
   const handleDeletePost = async (e, postId) => {
     e.preventDefault()
-    const response = await axios.delete(`/api/posts/delete/${postId}`);
+    const response = await axios.delete(`${BASE_URL}/api/posts/delete/${postId}`);
     setPostsArr((prevPosts) => prevPosts.filter((post) => post?._id !== response?.data?.post?._id))
   }
 
@@ -114,7 +121,7 @@ const Profile = () => {
     e.preventDefault();
     const userId = userDetails.id;
     try {
-      const { data: { following, followers } } = await axios.put(`/api/users/${userId}/following`, { followingID });
+      const { data: { following, followers } } = await axios.put(`${BASE_URL}/api/users/${userId}/following`, { followingID });
       dispatch(setFollowing(following));
       dispatch(setFollower(followers));
       setFollowingUserss(following);

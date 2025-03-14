@@ -18,6 +18,11 @@ import { SearchDialogWithCheckboxesComponent } from "./search-dialog-with-checkb
 import { IoIosArrowDown } from "react-icons/io";
 
 
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
 export function ChatComponent({ socketRef }) {
   const links = [
     { id: 1, icon: <GoHomeFill size={26} />, label: 'Home', link: '/' },
@@ -39,8 +44,8 @@ export function ChatComponent({ socketRef }) {
 
   const getFollowingUsers = async (username) => {
     try {
-      const response = await axios.get(`/api/conversations/followingUsers/${username}`);
-      const gropuResponse = await axios.get(`/api/conversations/groups/${userDetails.id}`);
+      const response = await axios.get(`${BASE_URL}/api/conversations/followingUsers/${username}`);
+      const gropuResponse = await axios.get(`${BASE_URL}/api/conversations/groups/${userDetails.id}`);
       const followingUsers = [...response?.data, ...gropuResponse?.data]
       dispatch(setFollowingUsers(followingUsers))
       return response.data;
@@ -116,8 +121,8 @@ export function ChatComponent({ socketRef }) {
       if (suggestedUser && Object.keys(suggestedUser).length > 0) {
         const response = await axios.get(
           suggestedUser && 'groupName' in suggestedUser
-            ? `/api/conversations/group/messages/${suggestedUser?._id}`
-            : `/api/conversations/all/messages/${suggestedUser?._id}?senderId=${senderId}`
+            ? `${BASE_URL}/api/conversations/group/messages/${suggestedUser?._id}`
+            : `${BASE_URL}/api/conversations/all/messages/${suggestedUser?._id}?senderId=${senderId}`
         );
 
         if (response.data.success) {

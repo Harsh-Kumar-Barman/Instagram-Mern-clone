@@ -9,6 +9,13 @@ import { useDispatch } from 'react-redux';
 import { setSelectedPost } from '@/features/userDetail/userDetailsSlice';
 import { useNavigate } from 'react-router-dom';
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 const ExploreGrid = () => {
     const [allPosts, setAllPosts] = useState([]);
     const dispatch = useDispatch()
@@ -18,7 +25,7 @@ const ExploreGrid = () => {
 
     const fetchPosts = async () => {
         try {
-            const { data: posts } = await axios.get('/api/posts/getPosts');
+            const { data: posts } = await axios.get(`${BASE_URL}/api/posts/getPosts`);
             setAllPosts(posts.reverse());
         } catch (error) {
             console.error('Error fetching posts:', error);

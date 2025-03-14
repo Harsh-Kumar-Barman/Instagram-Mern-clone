@@ -19,6 +19,12 @@ import { Card, CardContent } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
     const dispatch = useDispatch();
     const [comment, setComment] = useState('');
@@ -33,7 +39,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
     // Fetch comments from the server
     const fetchComments = async () => {
         try {
-            const response = await axios.get(`/api/posts/${PostDetails?._id}/comment`);
+            const response = await axios.get(`${BASE_URL}/api/posts/${PostDetails?._id}/comment`);
             setCommentsArr(response?.data?.comments);
         } catch (error) {
             if (error?.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login')
@@ -46,7 +52,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
         e.preventDefault();
         if (!comment.trim()) return;
         try {
-            await axios.post(`/api/posts/${postId}/comment`, {
+            await axios.post(`${BASE_URL}/api/posts/${postId}/comment`, {
                 userId: userDetails.id,
                 text: comment,
             });
@@ -63,7 +69,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
     const handleRemoveComment = async (e, postId, commentId) => {
         e.preventDefault()
         try {
-            const response = await axios.delete(`/api/posts/${postId}/comment/${commentId}`);
+            const response = await axios.delete(`${BASE_URL}/api/posts/${postId}/comment/${commentId}`);
 
             if (response.status === 200) {
                 setCommentsArr(response?.data?.post?.comments);
@@ -80,7 +86,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
         e.preventDefault();
         const userId = userDetails.id;
         try {
-            const response = await axios.put(`/api/posts/${postId}/like`, { userId });
+            const response = await axios.put(`${BASE_URL}/api/posts/${postId}/like`, { userId });
             setLiked(prevLiked => {
                 const userHasLiked = prevLiked.includes(userId);
                 if (userHasLiked) {
@@ -101,7 +107,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
         e.preventDefault();
         const userId = userDetails.id;
         try {
-            const response = await axios.put(`/api/posts/${userId}/save`, {
+            const response = await axios.put(`${BASE_URL}/api/posts/${userId}/save`, {
                 postId,
             });
             const savedPosts = response.data.savedPosts

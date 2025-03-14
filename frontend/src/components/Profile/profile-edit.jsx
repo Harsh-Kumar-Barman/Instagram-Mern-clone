@@ -16,6 +16,13 @@ import { addUser } from "@/features/userDetail/userDetailsSlice"
 import { useDispatch } from "react-redux"
 import { ReloadIcon } from "@radix-ui/react-icons"
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 export function ProfileEdit() {
   const { id } = useParams();
   const [username, setUsername] = useState('');
@@ -39,7 +46,7 @@ export function ProfileEdit() {
 
     try {
       setIsResOk(false)
-      const response = await axios.post(`/api/users/edit/${id}`, formData, { withCredentials: true });
+      const response = await axios.post(`${BASE_URL}/api/users/edit/${id}`, formData, { withCredentials: true });
       const profilePic = response?.data?.user?.profilePicture
       dispatch(addUser({
         fullName: response?.data?.user?.fullName,

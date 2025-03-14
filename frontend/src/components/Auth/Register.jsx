@@ -7,6 +7,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
+
 const Register = () => {
     const [fullName, setFullName] = useState('');
     const [username, setUsername] = useState('');
@@ -19,7 +26,7 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('/api/auth/register', { fullName, username, email, password }); 
+            const response = await axios.post(`${BASE_URL}/api/auth/register`, { fullName, username, email, password }); 
             const profilePic = response?.data?.newUser?.profilePicture
             dispatch(addUser({
                 fullName: response?.data?.newUser?.fullName,

@@ -15,6 +15,11 @@ import GroupDetails from './GroupDetails';
 // import { useVideoCall } from '@/hooks/VideoCallContext';
 
 
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
 function ChatBox() {
     // const { startCall, localVideoRef, remoteVideoRef } = useVideoCall();
     const suggestedUser = useSelector((state) => state.counter.suggestedUser);
@@ -72,10 +77,10 @@ function ChatBox() {
             formData.append('messageType', file ? (file.type.includes('video') ? 'video' : 'image') : 'text');
 
             const response = suggestedUser && 'groupName' in suggestedUser ?
-                await axios.post(`/api/conversations/group/send/message/${suggestedUser?._id}`, formData, {
+                await axios.post(`${BASE_URL}/api/conversations/group/send/message/${suggestedUser?._id}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 }) :
-                await axios.post(`/api/conversations/send/message/${reciverId}`, formData, {
+                await axios.post(`${BASE_URL}/api/conversations/send/message/${reciverId}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
 

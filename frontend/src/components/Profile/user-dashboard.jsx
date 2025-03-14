@@ -9,6 +9,13 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 
+
+const BASE_URL =
+import.meta.env.VITE_NODE_ENV === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 export default function Dashboard() {
   const userDetails = useSelector((state) => state.counter.userDetails);
   const [totalLikes, setTotalLikes] = useState(0)
@@ -20,7 +27,7 @@ export default function Dashboard() {
   const navigate=useNavigate()
   const fetchUserData = useCallback(async () => {
     try {
-      const { data } = await axios.get(`/api/users/dashboard/${userDetails.username}`);
+      const { data } = await axios.get(`${BASE_URL}/api/users/dashboard/${userDetails.username}`);
   
       // Set the total likes, comments, and views based on the lengths of the arrays
       setTotalLikes(data?.totalLikes);
