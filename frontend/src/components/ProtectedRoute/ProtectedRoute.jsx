@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }) => {
           },
         }
         );
-        console.log("protect  --->>",res.data)
+        console.log("protect  --->>",res)
         if (res.status === 200) {
           setIsAuthenticated(true);
         }
