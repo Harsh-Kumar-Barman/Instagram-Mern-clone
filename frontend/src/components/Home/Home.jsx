@@ -10,6 +10,12 @@ import Stories from './Stories';
 import { InstagramSkeletonComponent } from './instagram-skeleton';
 import { useNavigate } from 'react-router-dom';
 
+const BASE_URL =
+import.meta.env.MODE === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
+
 const Home = ({ socketRef }) => {
   const [allPosts, setAllPosts] = useState([]);
   const [followingUserss, setFollowingUserss] = useState();
@@ -28,7 +34,7 @@ const Home = ({ socketRef }) => {
   const fetchPosts = async (page) => {
     setIsLoading(true);
     try {
-      const { data: posts } = await axios.get(`/api/posts/getPosts?page=${page}&limit=10`);
+      const { data: posts } = await axios.get(`${BASE_URL}/api/posts/getPosts?page=${page}&limit=10`);
       if (posts.length > 0) {
         setAllPosts((prevPosts) => [...prevPosts, ...posts]);
       } else {
