@@ -26,7 +26,6 @@ const login = async (req, res) => {
     if (!isMatch) return res.status(400).json({ error: 'Invalid email or password' });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    req.q=token
     res.cookie('token', token);
     res.json({ token, user });
   } catch (error) {
@@ -35,7 +34,7 @@ const login = async (req, res) => {
 };
 
 const isLoggedIn = async (req, res) => {
-  if (req.q) {
+  if (req.cookies.token) {
     res.status(200).json({ loggedIn: true });
   } else {
     res.status(401).json({ loggedIn: false });
