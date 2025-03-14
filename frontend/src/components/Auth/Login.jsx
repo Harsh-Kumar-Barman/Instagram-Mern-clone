@@ -24,6 +24,7 @@ const Login = () => {
     try {
       const response =await axios.post(`${BASE_URL}/api/auth/login`, { email, password });
       console.log(response.data)
+      const token=response.data;
       const profilePic = response?.data?.user?.profilePicture
       dispatch(addUser({
         fullName: response?.data?.user?.fullName,
@@ -32,6 +33,15 @@ const Login = () => {
         id: response?.data?.user?._id,
         profilePic: profilePic
       }));
+      localStorage.setItem('user-info', JSON.stringify({ token }));
+
+      // Store token in cookies (expires in 7 days)
+      if (token) {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 7); // Expires in 7 days
+
+        document.cookie = `userToken=${token}; path=/; expires=${expiryDate.toUTCString()}; SameSite=Strict`;
+      }
       toast.success('Login Successfull');
       navigate(`/profile/${response?.data?.user?.username}`);
 
