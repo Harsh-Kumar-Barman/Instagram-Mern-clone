@@ -29,30 +29,60 @@ function ChildApp() {
   const navigate = useNavigate();
   const location = useLocation(); // Access the current route
 
-  useEffect(() => {
-    if (userDetails.id) {
-      const socket = io('http://localhost:5000', {
-        query: { userId: userDetails.id },
-      });
+  const BASE_URL =
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_API_BASE_URL_DEV
+    : import.meta.env.VITE_API_BASE_URL_PROD;
+console.log(BASE_URL)
+// Initialize the socket connection once user details are available.
+useEffect(() => {
+  if (userDetails?.id) {
+    // Create the socket connection with the backend URL.
+    const socket = io(BASE_URL, { query: { userId: userDetails.id } });
+    socketRef.current = socket;
 
-      socketRef.current = socket;
+    // Set up event listeners.
+    socket.on('getOnlineUsers', (onlineUsers) => {
+      dispatch(setOnlineUsers(onlineUsers));
+    });
+    socket.on('videoCallOffer', async ({ from, offer }) => {
+      if (offer.type === 'offer') {
+        navigate(`/call/${from}`);
+      }
+    });
 
-      socket.on('getOnlineUsers', (onlineUsers) => {
-        dispatch(setOnlineUsers(onlineUsers));
-      });
+    // Clean up the socket on unmount or when userDetails change.
+    return () => {
+      socket.disconnect();
+      dispatch(setOnlineUsers([]));
+    };
+  }
+}, [userDetails, dispatch, navigate, BASE_URL]);
 
-      socket.on('videoCallOffer', async ({ from, offer }) => {
-        if (offer.type === 'offer') {
-          navigate(`/call/${from}`);
-        }
-      });
+  // useEffect(() => {
+  //   if (userDetails.id) {
+  //     const socket = io('http://localhost:5000', {
+  //       query: { userId: userDetails.id },
+  //     });
 
-      return () => {
-        socket.disconnect();
-        dispatch(setOnlineUsers([]));
-      };
-    }
-  }, [userDetails, dispatch, navigate]);
+  //     socketRef.current = socket;
+
+  //     socket.on('getOnlineUsers', (onlineUsers) => {
+  //       dispatch(setOnlineUsers(onlineUsers));
+  //     });
+
+  //     socket.on('videoCallOffer', async ({ from, offer }) => {
+  //       if (offer.type === 'offer') {
+  //         navigate(`/call/${from}`);
+  //       }
+  //     });
+
+  //     return () => {
+  //       socket.disconnect();
+  //       dispatch(setOnlineUsers([]));
+  //     };
+  //   }
+  // }, [userDetails, dispatch, navigate]);
 
   const hideNavbar = ['/login', '/register','/direct/inbox'].includes(location.pathname) || 
   matchPath("/profile/:username", location.pathname) ||
