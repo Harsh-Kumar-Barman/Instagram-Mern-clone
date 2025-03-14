@@ -18,11 +18,30 @@ require('dotenv').config();
 // Connect to database
 connectDB();
 
+// app.use(cors({
+//   origin: ['http://localhost:5173',"https://instagram-mern-clone-frontend.onrender.com"], // Replace with your frontend URL
+//   methods: ['GET', 'POST', 'PUT'], // Allowing GET, POST, and PUT
+//   credentials: true
+// }));
+
 app.use(cors({
-  origin: ['http://localhost:5173',"https://instagram-mern-clone-frontend.onrender.com"], // Replace with your frontend URL
-  methods: ['GET', 'POST', 'PUT'], // Allowing GET, POST, and PUT
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    const allowedOrigins = [
+      process.env.FRONTEND_PROD_URL, // e.g., https://instagram-frontend-j39q.onrender.com
+      process.env.FRONTEND_DEV_URL   // e.g., http://localhost:5173
+    ];
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT'],
   credentials: true
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }));
