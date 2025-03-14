@@ -43,7 +43,8 @@ const Login = () => {
         document.cookie = `userToken=${token}; path=/; expires=${expiryDate.toUTCString()}; SameSite=Strict`;
       }
       toast.success('Login Successfull');
-      navigate(`/profile/${response?.data?.user?.username}`);
+      // navigate(`/profile/${response?.data?.user?.username}`);
+      navigate(`/`);
 
     } catch (err) {
       toast.error('Something went wrong!!!');
