@@ -37,8 +37,7 @@ const isLoggedIn = async (req, res) => {
   if (req.cookies.token) {
     res.status(200).json({ loggedIn: true });
   } else {
-    // res.status(401).json({ loggedIn: false });
-    res.status(200).json({ loggedIn: true });
+    res.status(401).json({ loggedIn: false });
   }
 };
 
