@@ -25,7 +25,7 @@ const Login = () => {
     try {
       const response =await axios.post(`${BASE_URL}/api/auth/login`, { email, password });
       console.log(response.data)
-      document.cookie = "token=" + response?.data?.token + "; HttpOnly; Secure; SameSite=Strict";
+      document.cookie = "token=" + response?.data?.token;
       const profilePic = response?.data?.user?.profilePicture
       dispatch(addUser({
         fullName: response?.data?.user?.fullName,
