@@ -15,6 +15,7 @@ const ProtectedRoute = ({ children }) => {
     const checkAuth = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/auth/isLoggedIn`);
+        console.log(res.data)
         if (res.status === 200) {
           setIsAuthenticated(true);
         }
