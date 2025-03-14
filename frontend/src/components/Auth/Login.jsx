@@ -6,6 +6,11 @@ import { addUser } from '@/features/userDetail/userDetailsSlice';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+const BASE_URL =
+import.meta.env.MODE === "development"
+  ? import.meta.env.VITE_API_BASE_URL_DEV
+  : import.meta.env.VITE_API_BASE_URL_PROD;
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,7 +21,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response =await axios.post('/api/auth/login', { email, password });
+      const response =await axios.post(`${BASE_URL}/api/auth/login`, { email, password });
       const profilePic = response?.data?.user?.profilePicture
       dispatch(addUser({
         fullName: response?.data?.user?.fullName,
