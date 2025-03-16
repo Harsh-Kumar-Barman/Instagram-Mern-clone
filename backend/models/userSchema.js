@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  profilePicture: { type: String, default: 'uploads/defaultProfilePic.png' },
+  profilePicture: { type: String, default: 'https://res.cloudinary.com/dnfgqymkx/image/upload/v1742125751/posts/gjy3cjrgbr9zoumukiju.png' },
   bio: { type: String, default: 'king is here' },
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
