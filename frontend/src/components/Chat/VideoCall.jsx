@@ -31,6 +31,7 @@ const VideoCall = ({ userId, socketRef }) => {
       setForm(from);
       if (offer.type == 'offer') {
         setIsAnswer(true);
+        console.log(isAnswer)
       }
       navigate(`/call/${from}`); // Navigate to the correct call route
     });
