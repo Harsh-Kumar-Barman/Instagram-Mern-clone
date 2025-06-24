@@ -13,18 +13,18 @@ export const VideoCallProvider = ({ children, socketRef }) => {
         if (!socketRef.current) return;
 
         // Listen for incoming video call offer
-        socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
+        socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
             console.log(from, offer)
             await handleVideoCallOffer(from, offer);
         });
 
         // Listen for incoming video call answer
-        socketRef.current?.on('videoCallAnswer', async ({ from, answer }) => {
+        socketRef.current.on('videoCallAnswer', async ({ from, answer }) => {
             await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
         });
 
         // Listen for ICE candidates
-        socketRef.current?.on('iceCandidate', async ({ from, candidate }) => {
+        socketRef.current.on('iceCandidate', async ({ from, candidate }) => {
             // await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
             console.log(candidate)
         if (!peerConnection.current) {
@@ -55,11 +55,11 @@ export const VideoCallProvider = ({ children, socketRef }) => {
         localStream.getTracks().forEach(track => peerConnection.current.addTrack(track, localStream));
 
         // Display remote video stream
-        peerConnection.current?.ontrack = (event) => {
+        peerConnection.current.ontrack = (event) => {
             remoteVideoRef.current.srcObject = event.streams[0];
         };
 
-        peerConnection.current?.onicecandidate = (event) => {
+        peerConnection.current.onicecandidate = (event) => {
             if (event.candidate) {
                 socketRef.current.emit('iceCandidate', { to: remoteUserId, candidate: event.candidate });
             }
@@ -82,13 +82,13 @@ export const VideoCallProvider = ({ children, socketRef }) => {
         localStream.getTracks().forEach(track => peerConnection.current.addTrack(track, localStream));
 
         // Display remote video stream
-        peerConnection.current?.ontrack = (event) => {
+        peerConnection.current.ontrack = (event) => {
             remoteVideoRef.current.srcObject = event.streams[0];
         };
 
-        peerConnection.current?.onicecandidate = (event) => {
+        peerConnection.current.onicecandidate = (event) => {
             if (event.candidate) {
-                socketRef.current.emit('iceCandidate', { to: from, candidate: event.candidate }) ;
+                socketRef.current.emit('iceCandidate', { to: from, candidate: event.candidate });
             }
         };
 
