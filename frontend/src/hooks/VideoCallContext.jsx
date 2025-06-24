@@ -88,7 +88,7 @@ export const VideoCallProvider = ({ children, socketRef }) => {
 
         peerConnection.current?.onicecandidate = (event) => {
             if (event.candidate) {
-                socketRef.current.emit('iceCandidate', { to: from, candidate: event.candidate });
+                socketRef.current.emit('iceCandidate', { to: from, candidate: event.candidate }) ;
             }
         };
 
