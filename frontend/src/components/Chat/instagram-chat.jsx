@@ -59,7 +59,7 @@ export function ChatComponent({ socketRef }) {
 
 
   const getRealTimeMessages = () => {
-    socketRef.current.on('newMessage', (newMessage) => {
+    socketRef.current?.on('newMessage', (newMessage) => {
       Array.isArray(messages) ?
         dispatch(setMessages([...messages, newMessage])) : "no"
     });
