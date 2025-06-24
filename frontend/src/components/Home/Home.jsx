@@ -175,7 +175,7 @@ const Home = ({ socketRef }) => {
   }, []); // Only run once on mount
 
   useEffect(() => {
-    socketRef.current?.on('rtmNotification', (rtmNotification) => {
+    socketRef.current.on('rtmNotification', (rtmNotification) => {
       {
         rtmNotification.id !== userDetails?.id &&
         dispatch(setRtmNotification(rtmNotification))

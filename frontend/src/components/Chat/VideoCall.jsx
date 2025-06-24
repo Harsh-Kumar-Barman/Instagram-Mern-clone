@@ -26,7 +26,7 @@ const VideoCall = ({ userId, socketRef }) => {
 
   useEffect(() => {
     // Ensure that the socket listeners are set up when the component mounts
-    socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
+    socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
       setCreateOffer(offer);
       setForm(from);
       if (offer.type == 'offer') {
@@ -35,14 +35,14 @@ const VideoCall = ({ userId, socketRef }) => {
       navigate(`/call/${from}`); // Navigate to the correct call route
     });
 
-    socketRef.current?.on('videoCallAnswer', async ({ from, answer }) => {
+    socketRef.current.on('videoCallAnswer', async ({ from, answer }) => {
       setshowVideoCall(true)
       if (peerConnection.current) {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
       }
     });
 
-    socketRef.current?.on('iceCandidate', async ({ from, candidate }) => {
+    socketRef.current.on('iceCandidate', async ({ from, candidate }) => {
       if (!peerConnection.current) {
         console.error('Peer connection is not initialized');
         return;
@@ -55,7 +55,7 @@ const VideoCall = ({ userId, socketRef }) => {
     });
 
 
-    socketRef.current?.on('endCall', ({ from }) => {
+    socketRef.current.on('endCall', ({ from }) => {
       console.log('Call ended by user:', from);
 
       // Close the peer connection and stop the local stream
@@ -92,11 +92,11 @@ const VideoCall = ({ userId, socketRef }) => {
 
     localStreamRef.current.getTracks().forEach(track => peerConnection.current.addTrack(track, localStreamRef.current));
 
-    peerConnection.current?.ontrack = (event) => {
+    peerConnection.current.ontrack = (event) => {
       remoteVideoRef.current.srcObject = event.streams[0];
     };
 
-    peerConnection.current?.onicecandidate = (event) => {
+    peerConnection.current.onicecandidate = (event) => {
       if (event.candidate) {
         socketRef.current.emit('iceCandidate', { to: remoteUserId, candidate: event.candidate });
       }
@@ -119,11 +119,11 @@ const VideoCall = ({ userId, socketRef }) => {
 
     localStreamRef.current.getTracks().forEach(track => peerConnection.current.addTrack(track, localStreamRef.current));
 
-    peerConnection.current?.ontrack = (event) => {
+    peerConnection.current.ontrack = (event) => {
       remoteVideoRef.current.srcObject = event.streams[0];
     };
 
-    peerConnection.current?.onicecandidate = (event) => {
+    peerConnection.current.onicecandidate = (event) => {
       if (event.candidate) {
         socketRef.current.emit('iceCandidate', { to: from, candidate: event.candidate });
       }
