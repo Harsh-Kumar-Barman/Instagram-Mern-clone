@@ -26,7 +26,7 @@ const VideoCall = ({ userId, socketRef }) => {
 
   useEffect(() => {
     // Ensure that the socket listeners are set up when the component mounts
-    socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
+    socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
       setCreateOffer(offer);
       setForm(from);
       if (offer.type == 'offer') {
@@ -35,14 +35,14 @@ const VideoCall = ({ userId, socketRef }) => {
       navigate(`/call/${from}`); // Navigate to the correct call route
     });
 
-    socketRef.current.on('videoCallAnswer', async ({ from, answer }) => {
+    socketRef.current?.on('videoCallAnswer', async ({ from, answer }) => {
       setshowVideoCall(true)
       if (peerConnection.current) {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
       }
     });
 
-    socketRef.current.on('iceCandidate', async ({ from, candidate }) => {
+    socketRef.current?.on('iceCandidate', async ({ from, candidate }) => {
       if (!peerConnection.current) {
         console.error('Peer connection is not initialized');
         return;
@@ -55,7 +55,7 @@ const VideoCall = ({ userId, socketRef }) => {
     });
 
 
-    socketRef.current.on('endCall', ({ from }) => {
+    socketRef.current?.on('endCall', ({ from }) => {
       console.log('Call ended by user:', from);
 
       // Close the peer connection and stop the local stream
