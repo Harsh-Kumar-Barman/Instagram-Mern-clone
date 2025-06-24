@@ -26,7 +26,7 @@ const VideoCall = ({ userId, socketRef }) => {
 
   useEffect(() => {
     // Ensure that the socket listeners are set up when the component mounts
-    socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
+    socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
       setCreateOffer(offer);
       setForm(from);
       if (offer.type == 'offer') {

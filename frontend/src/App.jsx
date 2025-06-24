@@ -45,7 +45,7 @@ useEffect(() => {
     socket.on('getOnlineUsers', (onlineUsers) => {
       dispatch(setOnlineUsers(onlineUsers));
     });
-    socket.on('videoCallOffer', async ({ from, offer }) => {
+    socket?.on('videoCallOffer', async ({ from, offer }) => {
       if (offer.type === 'offer') {
         navigate(`/call/${from}`);
       }

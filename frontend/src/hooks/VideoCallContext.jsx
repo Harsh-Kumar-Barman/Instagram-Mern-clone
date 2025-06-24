@@ -13,7 +13,7 @@ export const VideoCallProvider = ({ children, socketRef }) => {
         if (!socketRef.current) return;
 
         // Listen for incoming video call offer
-        socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
+        socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
             console.log(from, offer)
             await handleVideoCallOffer(from, offer);
         });
