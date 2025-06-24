@@ -45,7 +45,7 @@
 
 //   useEffect(() => {
 //     if (socketRef.current) {
-//       socketRef.current.on('groupCreated', ({ groupChat }) => {
+//       socketRef.current?.on('groupCreated', ({ groupChat }) => {
 //         const followingUsers = [...arrOfFollowingUsers, groupChat];
 //         dispatch(setFollowingUsers(followingUsers));
 //       });
@@ -220,7 +220,7 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
   };
 
   useEffect(() => {
-    socketRef.current.on('groupCreated', ({ groupChat }) => {
+    socketRef.current?.on('groupCreated', ({ groupChat }) => {
       const followingUsers = [...arrOfFollowingUsers, groupChat]
       dispatch(setFollowingUsers(followingUsers))
     });

@@ -59,11 +59,11 @@ export function ChatComponent({ socketRef }) {
 
 
   const getRealTimeMessages = () => {
-    socketRef.current.on('newMessage', (newMessage) => {
+    socketRef.current?.on('newMessage', (newMessage) => {
       Array.isArray(messages) ?
         dispatch(setMessages([...messages, newMessage])) : "no"
     });
-    socketRef.current.on('sendGroupMessage', (newMessage) => {
+    socketRef.current?.on('sendGroupMessage', (newMessage) => {
       Array.isArray(messages) ?
         dispatch(setMessages([...messages, newMessage])) : "no"
     });
@@ -101,7 +101,7 @@ export function ChatComponent({ socketRef }) {
     }
 
 
-    // socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
+    // socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
     //   if (offer.type == 'offer') {
     //     navigate(`/call/${from}`); // Navigate to the correct call route
     //   }

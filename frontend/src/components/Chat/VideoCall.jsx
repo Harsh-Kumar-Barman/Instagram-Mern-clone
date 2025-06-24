@@ -92,11 +92,11 @@ const VideoCall = ({ userId, socketRef }) => {
 
     localStreamRef.current.getTracks().forEach(track => peerConnection.current.addTrack(track, localStreamRef.current));
 
-    peerConnection.current.ontrack = (event) => {
+    peerConnection.current?.ontrack = (event) => {
       remoteVideoRef.current.srcObject = event.streams[0];
     };
 
-    peerConnection.current.onicecandidate = (event) => {
+    peerConnection.current?.onicecandidate = (event) => {
       if (event.candidate) {
         socketRef.current.emit('iceCandidate', { to: remoteUserId, candidate: event.candidate });
       }
@@ -119,11 +119,11 @@ const VideoCall = ({ userId, socketRef }) => {
 
     localStreamRef.current.getTracks().forEach(track => peerConnection.current.addTrack(track, localStreamRef.current));
 
-    peerConnection.current.ontrack = (event) => {
+    peerConnection.current?.ontrack = (event) => {
       remoteVideoRef.current.srcObject = event.streams[0];
     };
 
-    peerConnection.current.onicecandidate = (event) => {
+    peerConnection.current?.onicecandidate = (event) => {
       if (event.candidate) {
         socketRef.current.emit('iceCandidate', { to: from, candidate: event.candidate });
       }
