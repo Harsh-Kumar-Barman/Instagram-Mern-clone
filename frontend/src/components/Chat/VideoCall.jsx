@@ -23,66 +23,110 @@ const VideoCall = ({ userId, socketRef }) => {
   const [isAnswer, setIsAnswer] = useState(false);
   const [showVideoCall, setshowVideoCall] = useState(false)
   const navigate = useNavigate();
+console.log('socketRef.current:', socketRef.current);
+console.log('remoteUserId:', remoteUserId);
+
+  // useEffect(() => {
+  //   // Ensure that the socket listeners are set up when the component mounts
+  //   socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
+  //     setCreateOffer(offer);
+  //     setForm(from);
+  //     if (offer.type == 'offer') {
+  //       setIsAnswer(true);
+  //     }
+  //     navigate(`/call/${from}`); // Navigate to the correct call route
+  //   });
+
+  //   socketRef.current?.on('videoCallAnswer', async ({ from, answer }) => {
+  //     setshowVideoCall(true)
+  //     if (peerConnection.current) {
+  //       await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
+  //     }
+  //   });
+
+  //   socketRef.current?.on('iceCandidate', async ({ from, candidate }) => {
+  //     if (!peerConnection.current) {
+  //       console.error('Peer connection is not initialized');
+  //       return;
+  //     }
+  //     try {
+  //       await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+  //     } catch (error) {
+  //       console.error('Error adding ICE candidate:', error);
+  //     }
+  //   });
+
+
+  //   socketRef.current?.on('endCall', ({ from }) => {
+  //     console.log('Call ended by user:', from);
+
+  //     // Close the peer connection and stop the local stream
+  //     if (peerConnection.current) {
+  //       peerConnection.current.close();
+  //       peerConnection.current = null;
+  //     }
+
+  //     // Stop local media tracks
+  //     if (localStreamRef.current) {
+  //       localStreamRef.current.getTracks().forEach(track => track.stop());
+  //     }
+
+  //     // Update the UI to reflect the call has ended (e.g., navigate away)
+  //     setshowVideoCall(false); // Update the UI to hide the video call screen
+  //     navigate('/direct/inbox'); // Optionally, navigate to another page
+  //   });
+
+  //   // Cleanup event listeners when the component unmounts
+  //   return () => {
+  //     socketRef.current.off('videoCallOffer');
+  //     socketRef.current.off('videoCallAnswer');
+  //     socketRef.current.off('iceCandidate');
+  //     socketRef.current.off('endCall');
+  //   };
+  // }, [socketRef, navigate, peerConnection, localStreamRef, remoteUserId]);
 
   useEffect(() => {
-    // Ensure that the socket listeners are set up when the component mounts
-    socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
-      setCreateOffer(offer);
-      setForm(from);
-      if (offer.type == 'offer') {
-        setIsAnswer(true);
-        console.log(isAnswer)
-      }
-      navigate(`/call/${from}`); // Navigate to the correct call route
-    });
+  const interval = setInterval(() => {
+    if (socketRef.current) {
+      console.log("Socket initialized, setting up listeners...");
+      
+      socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
+        setCreateOffer(offer);
+        setForm(from);
+        if (offer.type === 'offer') setIsAnswer(true);
+        navigate(`/call/${from}`);
+      });
 
-    socketRef.current?.on('videoCallAnswer', async ({ from, answer }) => {
-      setshowVideoCall(true)
-      if (peerConnection.current) {
-        await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
-      }
-    });
+      socketRef.current.on('videoCallAnswer', async ({ from, answer }) => {
+        setshowVideoCall(true);
+        if (peerConnection.current) {
+          await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
+        }
+      });
 
-    socketRef.current?.on('iceCandidate', async ({ from, candidate }) => {
-      if (!peerConnection.current) {
-        console.error('Peer connection is not initialized');
-        return;
-      }
-      try {
-        await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-      } catch (error) {
-        console.error('Error adding ICE candidate:', error);
-      }
-    });
+      socketRef.current.on('iceCandidate', async ({ from, candidate }) => {
+        if (!peerConnection.current) return;
+        try {
+          await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (error) {
+          console.error('ICE error', error);
+        }
+      });
 
+      socketRef.current.on('endCall', ({ from }) => {
+        console.log('Call ended by', from);
+        if (peerConnection.current) peerConnection.current.close();
+        if (localStreamRef.current) localStreamRef.current.getTracks().forEach(track => track.stop());
+        setshowVideoCall(false);
+        navigate('/direct/inbox');
+      });
 
-    socketRef.current?.on('endCall', ({ from }) => {
-      console.log('Call ended by user:', from);
+      clearInterval(interval); // Stop polling once setup is done
+    }
+  }, 100); // Check every 100ms
 
-      // Close the peer connection and stop the local stream
-      if (peerConnection.current) {
-        peerConnection.current.close();
-        peerConnection.current = null;
-      }
-
-      // Stop local media tracks
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach(track => track.stop());
-      }
-
-      // Update the UI to reflect the call has ended (e.g., navigate away)
-      setshowVideoCall(false); // Update the UI to hide the video call screen
-      navigate('/direct/inbox'); // Optionally, navigate to another page
-    });
-
-    // Cleanup event listeners when the component unmounts
-    return () => {
-      socketRef.current.off('videoCallOffer');
-      socketRef.current.off('videoCallAnswer');
-      socketRef.current.off('iceCandidate');
-      socketRef.current.off('endCall');
-    };
-  }, [socketRef, navigate, peerConnection, localStreamRef, remoteUserId]);
+  return () => clearInterval(interval);
+}, []);
 
   const startCall = async () => {
     peerConnection.current = new RTCPeerConnection();
@@ -98,7 +142,7 @@ const VideoCall = ({ userId, socketRef }) => {
     };
 
     peerConnection.current.onicecandidate = (event) => {
-      if (event.candidate) {
+      if ( event.candidate) {
         socketRef.current.emit('iceCandidate', { to: remoteUserId, candidate: event.candidate });
       }
     };
