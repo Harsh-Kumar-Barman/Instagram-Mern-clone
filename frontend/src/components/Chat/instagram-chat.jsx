@@ -63,7 +63,7 @@ export function ChatComponent({ socketRef }) {
       Array.isArray(messages) ?
         dispatch(setMessages([...messages, newMessage])) : "no"
     });
-    socketRef.current.on('sendGroupMessage', (newMessage) => {
+    socketRef.current?.on('sendGroupMessage', (newMessage) => {
       Array.isArray(messages) ?
         dispatch(setMessages([...messages, newMessage])) : "no"
     });
