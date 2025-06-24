@@ -35,7 +35,7 @@ const VideoCall = ({ userId, socketRef }) => {
       navigate(`/call/${from}`); // Navigate to the correct call route
     });
 
-    socketRef.current.on('videoCallAnswer', async ({ from, answer }) => {
+    socketRef.current?.on('videoCallAnswer', async ({ from, answer }) => {
       setshowVideoCall(true)
       if (peerConnection.current) {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));

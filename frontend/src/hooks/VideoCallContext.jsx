@@ -19,7 +19,7 @@ export const VideoCallProvider = ({ children, socketRef }) => {
         });
 
         // Listen for incoming video call answer
-        socketRef.current.on('videoCallAnswer', async ({ from, answer }) => {
+        socketRef.current?.on('videoCallAnswer', async ({ from, answer }) => {
             await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
         });
 
