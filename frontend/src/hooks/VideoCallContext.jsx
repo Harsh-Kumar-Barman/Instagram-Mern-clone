@@ -24,7 +24,7 @@ export const VideoCallProvider = ({ children, socketRef }) => {
         });
 
         // Listen for ICE candidates
-        socketRef.current.on('iceCandidate', async ({ from, candidate }) => {
+        socketRef.current?.on('iceCandidate', async ({ from, candidate }) => {
             // await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
             console.log(candidate)
         if (!peerConnection.current) {

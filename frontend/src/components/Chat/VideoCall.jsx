@@ -42,7 +42,7 @@ const VideoCall = ({ userId, socketRef }) => {
       }
     });
 
-    socketRef.current.on('iceCandidate', async ({ from, candidate }) => {
+    socketRef.current?.on('iceCandidate', async ({ from, candidate }) => {
       if (!peerConnection.current) {
         console.error('Peer connection is not initialized');
         return;
