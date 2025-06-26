@@ -14,7 +14,6 @@ const BASE_URL =
 import.meta.env.VITE_NODE_ENV === "development"
   ? import.meta.env.VITE_API_BASE_URL_DEV
   : import.meta.env.VITE_API_BASE_URL_PROD;
-
 const Home = ({ socketRef }) => {
   const [allPosts, setAllPosts] = useState([]);
   const [followingUserss, setFollowingUserss] = useState();
