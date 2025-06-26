@@ -73,7 +73,7 @@ const Home = ({ socketRef }) => {
 
   const handleDeletePost = async (e, postId) => {
     e.preventDefault()
-    const response = await axios.delete(`${BASE_URL}/api/posts/delete/${postId}`);
+    const response = await axios.delete(`${BASE_URL}/api/posts/delete/${postId}`,{withCredentials:true});
     setAllPosts((prevPosts) => prevPosts.filter((post) => post?._id !== response?.data?.post?._id))
   }
 
