@@ -13,6 +13,6 @@ router.put('/:id/save', savePost);
 router.get('/:id/save', getSavedPosts);
 router.post('/:id/comment', writeComment);
 router.delete('/:postId/comment/:commentId', removeComment);
-router.delete('/delete/:postId', authMiddleware, deletePost);
+router.delete('/delete/:postId/:userId', deletePost);
 
 module.exports = router;
