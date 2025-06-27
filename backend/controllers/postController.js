@@ -197,7 +197,8 @@ const removeComment = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const postId = req.params.postId;
-    const userId = req.user.id; // Assuming user ID is available in req.user (after authentication middleware)
+    const userIdId = req.params.userId;
+   // const userId = req.user.id; // Assuming user ID is available in req.user (after authentication middleware)
 
     // Find the post by ID
     const post = await Post.findById(postId);
