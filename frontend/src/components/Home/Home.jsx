@@ -29,6 +29,7 @@ const Home = ({ socketRef }) => {
   const userDetails = useSelector((state) => state.counter.userDetails);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const userId = userDetails.id;
 
   const fetchPosts = async (page) => {
     setIsLoading(true);
@@ -73,7 +74,7 @@ const Home = ({ socketRef }) => {
 
   const handleDeletePost = async (e, postId) => {
     e.preventDefault()
-    const response = await axios.delete(`${BASE_URL}/api/posts/delete/${postId}`,{withCredentials:true});
+    const response = await axios.delete(`${BASE_URL}/api/posts/delete/${postId}/${userId}`,{withCredentials:true});
     setAllPosts((prevPosts) => prevPosts.filter((post) => post?._id !== response?.data?.post?._id))
   }
 
