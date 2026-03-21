@@ -13,6 +13,9 @@ const errorHandler = require('./middlewares/errorMiddleware');
 const cors = require('cors');
 const { server, app } = require('./socket/socket');
 const path = require('path');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 // Connect to database
@@ -42,6 +45,19 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
+
+app.use(helmet());
+app.use(compression());
+
+// Global API rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // 200 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes' }
+});
+app.use('/api', limiter);
 
 app.use(express.json());
 app.use(cookieParser());

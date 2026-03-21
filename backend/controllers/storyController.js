@@ -5,6 +5,8 @@ const cloudinary = require('../config/cloudinary'); // Import Cloudinary
 const storyUpload = async (req, res) => {
     let result;
     try {
+    const { userId } = req.body;
+
         if (req.file) {
             // Update the profile image field
             try {
@@ -19,7 +21,7 @@ const storyUpload = async (req, res) => {
         }
 
         const newStory = new Story({
-            user: req.user.id,
+            user: userId,
             media: result.secure_url,
             type:result.resource_type
         });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../Home/Sidebar';
 import axios from 'axios';
 import { BiSolidMoviePlay } from 'react-icons/bi';
@@ -8,7 +8,7 @@ import PostComment from '../Home/PostComment';
 import { useDispatch } from 'react-redux';
 import { setSelectedPost } from '@/features/userDetail/userDetailsSlice';
 import { useNavigate } from 'react-router-dom';
-
+import { useQuery } from '@tanstack/react-query';
 
 const BASE_URL =
 import.meta.env.VITE_NODE_ENV === "development"
@@ -17,21 +17,24 @@ import.meta.env.VITE_NODE_ENV === "development"
 
 
 const ExploreGrid = () => {
-    const [allPosts, setAllPosts] = useState([]);
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [selectedMedia, setSelectedMedia] = useState(null); // To track selected media
-    const [isDialogOpen, setIsDialogOpen] = useState(false);  // To handle dialog state
+    const [selectedMedia, setSelectedMedia] = useState(null); 
+    const [isDialogOpen, setIsDialogOpen] = useState(false);  
 
-    const fetchPosts = async () => {
-        try {
-            const { data: posts } = await axios.get(`${BASE_URL}/api/posts/getPosts`);
-            setAllPosts(posts.reverse());
-        } catch (error) {
+    const { data: allPosts, isLoading } = useQuery({
+        queryKey: ['explore-posts'],
+        queryFn: async () => {
+            const { data } = await axios.get(`${BASE_URL}/api/posts/getPosts`);
+            return data.reverse();
+        },
+        onError: (error) => {
             console.error('Error fetching posts:', error);
-            if (error.response.statusText === "Unauthorized"||error.response?.status===403) navigate('/login')
+            if (error.response?.statusText === "Unauthorized" || error.response?.status === 403) {
+                navigate('/login');
+            }
         }
-    };
+    });
 
     const showComments = (e, post) => {
         e.preventDefault();
@@ -40,11 +43,6 @@ const ExploreGrid = () => {
         dispatch(setSelectedPost(post));
     };
 
-    useEffect(() => {
-        fetchPosts();
-    }, []);
-
-    // Function to render media (image or video) with hover effects
     const renderMedia = (post) => {
         return (
             <>
@@ -53,6 +51,7 @@ const ExploreGrid = () => {
                         src={post?.media[0]?.mediaPath}
                         alt={post?.caption}
                         className="object-cover w-full h-full"
+                        loading="lazy"
                     />
                 ) : (
                     <video
@@ -78,6 +77,8 @@ const ExploreGrid = () => {
         );
     };
 
+    if (isLoading) return <div className="flex justify-center items-center h-screen md:ml-[72px] lg:ml-60 dark:bg-neutral-950 dark:text-white">Loading...</div>;
+
     return (
         <>
             <PostComment selectedMedia={selectedMedia} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
@@ -88,25 +89,29 @@ const ExploreGrid = () => {
                         return (
                             <div onClick={(e) => showComments(e, post)}
                                 key={post?._id}
-                                className="relative h-full col-span-1 row-span-2 group"
+                                className="relative h-full col-span-1 row-span-2 group cursor-pointer"
                             >
                                 {renderMedia(post)}
-                                <div className="absolute top-5 right-5 text-white">
-                                    <BiSolidMoviePlay size={25} />
-                                </div>
-                                <p className="absolute bottom-0 left-0 p-5 w-full bg-gradient-to-t from-black/50 to-transparent text-white">{post?.caption}</p>
+                                {post?.media[0]?.mediaType === 'video' && (
+                                    <div className="absolute top-5 right-5 text-white">
+                                        <BiSolidMoviePlay size={25} />
+                                    </div>
+                                )}
+                                <p className="absolute bottom-0 left-0 p-5 w-full bg-gradient-to-t from-black/50 to-transparent text-white truncate">{post?.caption}</p>
                             </div>
                         );
                     }
 
                     // Render all other posts
                     return (
-                        <div onClick={(e) => showComments(e, post)} key={post?._id} className="w-full relative h-80 bg-gray-800 col-span-1 group">
+                        <div onClick={(e) => showComments(e, post)} key={post?._id} className="w-full relative h-80 bg-gray-800 col-span-1 group cursor-pointer">
                             {renderMedia(post)}
-                            <div className="absolute top-5 right-5 text-white">
-                                <BiSolidMoviePlay size={25} />
-                            </div>
-                            <p className="absolute bottom-0 left-0 p-5 bg-gradient-to-t from-black/50 to-transparent w-full text-white">{post?.caption}</p>
+                            {post?.media[0]?.mediaType === 'video' && (
+                                <div className="absolute top-5 right-5 text-white">
+                                    <BiSolidMoviePlay size={25} />
+                                </div>
+                            )}
+                            <p className="absolute bottom-0 left-0 p-5 bg-gradient-to-t from-black/50 to-transparent w-full text-white truncate">{post?.caption}</p>
                         </div>
                     );
                 })}
@@ -118,7 +123,6 @@ const ExploreGrid = () => {
 const Explore = () => {
     return (
         <>
-            {/* <Sidebar /> */}
             <ExploreGrid />
         </>
     );

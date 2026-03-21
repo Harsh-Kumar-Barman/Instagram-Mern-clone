@@ -14,12 +14,13 @@ import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';  // Import shad
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { toast } from 'react-toastify';
 
 
 const BASE_URL =
-import.meta.env.VITE_NODE_ENV === "development"
-  ? import.meta.env.VITE_API_BASE_URL_DEV
-  : import.meta.env.VITE_API_BASE_URL_PROD;
+    import.meta.env.VITE_NODE_ENV === "development"
+        ? import.meta.env.VITE_API_BASE_URL_DEV
+        : import.meta.env.VITE_API_BASE_URL_PROD;
 
 
 function Sidebar({ compact }) {
@@ -144,6 +145,8 @@ function Sidebar({ compact }) {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            toast.success('post created successfull');
+            setIsOpen(false)
             navigate('/');
 
         } catch (error) {
@@ -177,6 +180,7 @@ function Sidebar({ compact }) {
         const formData = new FormData();
         formData.append("media", media);
         formData.append("type", type);
+        formData.append('userId', userDetails.id);
 
         try {
             const response = await axios.post(`${BASE_URL}/api/story/uploadStory`, formData, {
@@ -184,7 +188,7 @@ function Sidebar({ compact }) {
             });
             console.log("Story uploaded:", response.data);
         } catch (error) {
-            console.error("Error uploading story:", error);
+            console.error("Error uploading story:", error.message);
         }
         finally {
             setStoryMedia([]);

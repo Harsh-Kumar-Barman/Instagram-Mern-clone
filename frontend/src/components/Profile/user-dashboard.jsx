@@ -7,8 +7,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
-
+import { useQuery } from "@tanstack/react-query";
 
 const BASE_URL =
 import.meta.env.VITE_NODE_ENV === "development"
@@ -18,45 +17,38 @@ import.meta.env.VITE_NODE_ENV === "development"
 
 export default function Dashboard() {
   const userDetails = useSelector((state) => state.counter.userDetails);
-  const [totalLikes, setTotalLikes] = useState(0)
-  const [totalComments, setTotalComments] = useState(0)
-  const [totalViews, setTotalViews] = useState(0)
-  const [reels, setReels] = useState([])
-  const [chartData, setChartData] = useState([])
+  const navigate = useNavigate();
 
-  const navigate=useNavigate()
-  const fetchUserData = useCallback(async () => {
-    try {
+  const { data, isLoading } = useQuery({
+    queryKey: ['dashboard', userDetails?.username],
+    queryFn: async () => {
       const { data } = await axios.get(`${BASE_URL}/api/users/dashboard/${userDetails.username}`);
-  
-      // Set the total likes, comments, and views based on the lengths of the arrays
-      setTotalLikes(data?.totalLikes);
-      setTotalComments(data?.totalComments);
-      setTotalViews(data?.totalViews);
-      setReels(data?.reels);
-  
-      // Prepare chart data
-      const chartData = data.reels.map(reel => ({
-        name: `Reel ${reel.caption}`, // Use reel.id as you've defined it in the backend
-        likes: reel.likes.length, // Directly use the number of likes
-        comments: reel.comments.length, // Directly use the number of comments
-        views: 10, // Directly use the number of views
-      }));
-  
-      // Update chart data state if you have it
-      setChartData(chartData);
-    } catch (error) {
+      return data;
+    },
+    enabled: !!userDetails?.username,
+    onError: (error) => {
       console.error('Error fetching user data:', error);
-      if (error?.response?.statusText === "Unauthorized"||error.response?.status===403) navigate('/login');
+      if (error?.response?.statusText === "Unauthorized" || error.response?.status === 403) {
+        navigate('/login');
+      }
     }
-  }, [userDetails.username]);
-  
+  });
 
-  useEffect(() => {
-  fetchUserData()
-    
-  }, [userDetails])
-  
+  const totalLikes = data?.totalLikes || 0;
+  const totalComments = data?.totalComments || 0;
+  const totalViews = data?.totalViews || 0;
+  const reels = data?.reels || [];
+
+  const chartData = reels.map(reel => ({
+    name: `Reel ${reel.caption}`,
+    likes: reel.likes.length,
+    comments: reel.comments.length,
+    views: 10,
+  }));
+
+  if (isLoading) {
+    return <div className="p-4 flex justify-center items-center dark:bg-neutral-950 min-h-screen text-white">Loading dashboard...</div>;
+  }
 
   return (
     (<div className="p-4 space-y-4 dark:bg-neutral-950">
@@ -65,7 +57,7 @@ export default function Dashboard() {
           <Link to={`/profile/${userDetails.username}`} className="flex flex-row items-center space-x-4 pb-2">
           <Avatar className="w-20 h-20">
             <AvatarImage src={userDetails.profilePic} alt={userDetails.username} />
-            <AvatarFallback>{userDetails.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>{userDetails.username?.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>
             <CardTitle className="text-2xl">{userDetails.username}</CardTitle>

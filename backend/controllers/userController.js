@@ -9,7 +9,7 @@ const getUserAndPosts = async (req, res) => {
   const limit = parseInt(req.query.limit) || 10; // Default limit to 10 if not provided
   try {
     const { username } = req.params;
-    const user = await User.findOne({ username }).select('-password');
+    const user = await User.findOne({ username }).select('-password').lean();
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -18,7 +18,7 @@ const getUserAndPosts = async (req, res) => {
     const posts = await Post.find({ author: user._id })
       .skip(page * limit).limit(limit)
       .populate('author', 'username profilePicture')
-      .populate('comments.user', 'username');
+      .populate('comments.user', 'username').lean();
 
     res.json({ user, posts });
   } catch (error) {
@@ -29,7 +29,7 @@ const getUserAndPosts = async (req, res) => {
 
 const getFollowing = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await User.findById(req.params.id).select('-password').lean();
   
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -40,7 +40,7 @@ const getFollowing = async (req, res) => {
     // Fetch stories of all users in the following list
     const stories = await Story.find({ user: { $in: followingUsers } })
       .populate("user", "username profilePicture") // Populate the username and profile picture
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }).lean();
   
     res.json({ user, stories });
   
@@ -145,7 +145,7 @@ const getUserDashboard = async (req, res) => {
     const { username } = req.params;
 
     // Find the user by username
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).lean();
     // console.log(user);
 
     if (!user) {
@@ -153,7 +153,7 @@ const getUserDashboard = async (req, res) => {
     }
 
     // Fetch all reels (posts) by this user
-    const reels = await Post.find({ author: user._id });
+    const reels = await Post.find({ author: user._id }).lean();
     console.log(reels);
 
     // Initialize arrays for likes, comments, and views IDs

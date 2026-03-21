@@ -15,30 +15,30 @@ const createPost = async (req, res) => {
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    const mediaDetails = [];
-
-    // Loop through each uploaded file and upload to Cloudinary
-    for (let file of req.files) {
-      let result;
-      try {
-        result = await cloudinary.uploader.upload(file.path, {
+    let mediaDetails = [];
+    // Use Promise.all to map over files and upload concurrently
+    try {
+      const uploadPromises = req.files.map(async (file) => {
+        const result = await cloudinary.uploader.upload(file.path, {
           folder: 'posts',
           resource_type: 'auto',
         });
-      } catch (error) {
-        console.error('Cloudinary upload failed:', error.message);
-        return res.status(500).json({ error: 'Failed to upload to Cloudinary' });
-      }
+        
+        // Remove file from server after uploading
+        fs.unlinkSync(file.path);
 
-      mediaDetails.push({
-        mediaType: file.mimetype.startsWith('image') ? 'image' : 'video',
-        mediaPath: result.secure_url,
-        imageWidth: result.width,
-        imageHeight: result.height,
+        return {
+          mediaType: file.mimetype.startsWith('image') ? 'image' : 'video',
+          mediaPath: result.secure_url,
+          imageWidth: result.width,
+          imageHeight: result.height,
+        };
       });
 
-      // Remove file from server after uploading
-      fs.unlinkSync(file.path);
+      mediaDetails = await Promise.all(uploadPromises);
+    } catch (error) {
+      console.error('Cloudinary upload failed:', error.message);
+      return res.status(500).json({ error: 'Failed to upload to Cloudinary' });
     }
 
     // Store post details in MongoDB
@@ -70,7 +70,7 @@ const getAllPosts = async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
 
   try {
-    const posts = await Post.find().skip(page * limit).limit(limit).populate('author', 'username profilePicture').populate('comments.user', 'username');
+    const posts = await Post.find().skip(page * limit).limit(limit).populate('author', 'username profilePicture').populate('comments.user', 'username').lean();
     res.json(posts);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
@@ -106,6 +106,7 @@ const like = async (req, res) => {
 
     const receiverSocketId = getReciverSocketId(post?.author?._id);
     if (receiverSocketId) {
+      console.log("liked to ", post?.author?._id, "having socket id ",receiverSocketId)
       io.to(receiverSocketId).emit('rtmNotification', newObj);
     } else {
       console.log('Receiver not connected to socket');
@@ -122,7 +123,7 @@ const getComment = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
       .populate('author', 'username profilePicture')
-      .populate('comments.user', 'username profilePicture'); // Include profilePicture
+      .populate('comments.user', 'username profilePicture').lean(); // Include profilePicture
 
     res.json(post);
   } catch (error) {

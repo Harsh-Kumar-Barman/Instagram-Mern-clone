@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import { GoBookmark, GoBookmarkFill } from 'react-icons/go';
 import { BsThreeDots } from "react-icons/bs";
 import axios from 'axios';
@@ -11,7 +11,7 @@ import { setSavedPosts, setWatchHistory } from '@/features/userDetail/userDetail
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
-import { Card, CardContent } from '../ui/card';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 
 const BASE_URL =
@@ -25,47 +25,40 @@ const ReelSection = () => {
     const savedPost = useSelector((state) => state.counter.savedPosts);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const queryClient = useQueryClient();
 
-    const [allPosts, setAllPosts] = useState([]);
-    const [page, setPage] = useState(0);
-    const [hasMore, setHasMore] = useState(true);
-    const [loading, setLoading] = useState(false);
-    const videoRefs = useRef([]); // Ref for video elements
-    const watchTimeouts = useRef({}); // Timeouts for tracking watch time
+    const videoRefs = useRef([]); 
+    const watchTimeouts = useRef({}); 
 
-    // Fetch posts with pagination
-    const fetchPosts = useCallback(async () => {
-        try {
-            setLoading(true);
-            const { data: posts } = await axios.get(`${BASE_URL}/api/posts/getPosts?page=${page}&limit=10`);
-            // const reels = posts.filter(post => post?.media[0]?.mediaType === 'video');
+    // 1. Fetch Posts (Reels)
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading
+    } = useInfiniteQuery({
+        queryKey: ['reels'],
+        queryFn: async ({ pageParam = 0 }) => {
+            const { data } = await axios.get(`${BASE_URL}/api/posts/getPosts?page=${pageParam}&limit=10`);
+            return data;
+        },
+        getNextPageParam: (lastPage, allPages) => lastPage.length === 10 ? allPages.length : undefined,
+    });
 
-            const videoPosts = posts.map(post => {
-                // Filter the media array to include only videos
-                const videoMedia = post.media.filter(mediaItem => mediaItem.mediaType === "video");
-
-
-                // If there are video media items, return the post with only video media, else return null
-                if (videoMedia.length > 0) {
-                    return { ...post, media: videoMedia };  // Store only the video media for this post
-                }
-                return null;   // Exclude posts without video media
-            }).filter(post => post !== null);  // Remove any null posts
-
-
-            setAllPosts((prevPosts) => [...prevPosts, ...videoPosts]);
-            if (posts.length < 10) {
-                setHasMore(false);
+    // Derive all video posts from query data
+    const allPosts = useMemo(() => {
+        if (!data) return [];
+        return data.pages.flat().map(post => {
+            const videoMedia = post.media.filter(mediaItem => mediaItem.mediaType === "video");
+            if (videoMedia.length > 0) {
+                return { ...post, media: videoMedia };
             }
-        } catch (error) {
-            console.error('Error fetching posts:', error);
-            if (error.response?.statusText === 'Unauthorized' || error.response?.status === 403) navigate('/login');
-        } finally {
-            setLoading(false);
-        }
-    }, [page, navigate]);
+            return null;
+        }).filter(post => post !== null);
+    }, [data]);
 
-    // Fetch saved posts
+    // Fetch saved posts directly (keeping redux pattern for now)
     const getSavePosts = useCallback(async () => {
         try {
             const userId = userDetails.id;
@@ -77,38 +70,56 @@ const ReelSection = () => {
         }
     }, [dispatch, navigate, userDetails.id]);
 
-    // Optimistically update likes
-    const handleLike = useCallback(async (e, postId) => {
-        e.preventDefault();
-        const userId = userDetails.id;
-
-        try {
-            // API request to like the post
-            const { data: updatedPost } = await axios.put(`${BASE_URL}/api/posts/${postId}/like`, { userId });
-
-            // Update the post locally in the state
-            setAllPosts((prevPosts) =>
-                prevPosts.map((post) =>
-                    post._id === postId ? updatedPost?.post : post
-                )
-            );
-        } catch (error) {
-            console.error('Error liking the post:', error);
-            if (error.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login');
+    // 2. Mutations
+    const likeMutation = useMutation({
+        mutationFn: async (postId) => {
+            const { data: updatedPost } = await axios.put(`${BASE_URL}/api/posts/${postId}/like`, { userId: userDetails.id });
+            return updatedPost.post;
+        },
+        onSuccess: (updatedPost) => {
+            queryClient.setQueryData(['reels'], (oldData) => {
+                if (!oldData) return oldData;
+                return {
+                    ...oldData,
+                    pages: oldData.pages.map(page => page.map(post => post._id === updatedPost._id ? updatedPost : post))
+                };
+            });
         }
-    }, [navigate, userDetails.id]);
+    });
 
-    // Optimistically update saved posts
-    const handleSavePosts = useCallback(async (e, postId) => {
+    const handleLike = useCallback((e, postId) => {
         e.preventDefault();
-        try {
+        likeMutation.mutate(postId);
+    }, [likeMutation]);
+
+    const saveMutation = useMutation({
+        mutationFn: async (postId) => {
             const { data: { savedPosts } } = await axios.put(`${BASE_URL}/api/posts/${userDetails.id}/save`, { postId });
-            dispatch(setSavedPosts(savedPosts));
-        } catch (error) {
-            console.error('Error saving the post:', error);
-            if (error.response?.statusText === 'Unauthorized' || error.response?.status === 403) navigate('/login');
+            return savedPosts;
+        },
+        onSuccess: (savedPostsData) => {
+            dispatch(setSavedPosts(savedPostsData));
         }
-    }, [dispatch, navigate, userDetails.id]);
+    });
+
+    const handleSavePosts = useCallback((e, postId) => {
+        e.preventDefault();
+        saveMutation.mutate(postId);
+    }, [saveMutation]);
+
+    const historyMutation = useMutation({
+        mutationFn: async (postId) => {
+            const response = await axios.post(`${BASE_URL}/api/users/reelHistory/${userDetails.id}/${postId}`);
+            return response?.data?.user?.reelHistory;
+        },
+        onSuccess: (watchHistory) => {
+            if(watchHistory) dispatch(setWatchHistory([watchHistory]));
+        }
+    });
+
+    const addToHistory = useCallback((postId) => {
+        historyMutation.mutate(postId);
+    }, [historyMutation]);
 
     // Watch time tracking
     const handleWatchStart = useCallback((postId, videoElement) => {
@@ -116,32 +127,21 @@ const ReelSection = () => {
             addToHistory(postId);
         }, 5000); // 5 seconds watch time
         videoElement.play();
-    }, []);
+    }, [addToHistory]);
 
     const handleWatchEnd = useCallback((postId, videoElement) => {
         clearTimeout(watchTimeouts.current[postId]);
         videoElement.pause();
     }, []);
 
-    const addToHistory = useCallback(async (postId) => {
-        try {
-            const userId = userDetails.id;
-            const response = await axios.post(`${BASE_URL}/api/users/reelHistory/${userId}/${postId}`);
-            const watchHistory = response?.data?.user?.reelHistory
-            dispatch(setWatchHistory([watchHistory]));
-        } catch (error) {
-            console.error('Error adding to history:', error);
-            if (error.response?.statusText === 'Unauthorized' || error.response?.status === 403) navigate('/login');
-        }
-    }, [dispatch, navigate, userDetails.id]);
-
     // Infinite scrolling
     const handleScroll = useCallback(() => {
-        if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || loading || !hasMore) {
-            return;
+        if (window.innerHeight + document.documentElement.scrollTop + 1 >= document.documentElement.offsetHeight - 100) {
+            if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+            }
         }
-        setPage((prevPage) => prevPage + 1);
-    }, [loading, hasMore]);
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     // Video intersection observer
     useEffect(() => {
@@ -172,14 +172,6 @@ const ReelSection = () => {
         };
     }, [allPosts, handleWatchStart, handleWatchEnd]);
 
-    // Initial fetch and pagination setup
-    useEffect(() => {
-        fetchPosts();
-        return () => {
-            setAllPosts([]);
-        }
-    }, [page, fetchPosts]);
-
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
@@ -188,9 +180,9 @@ const ReelSection = () => {
     useEffect(() => {
         getSavePosts();
     }, [getSavePosts]);
+
     return (
         <>
-            {/* <Sidebar /> */}
             <div className="flex-1 min-h-screen flex flex-col items-center py-4 md:ml-[72px] lg:ml-60 ml-auto dark:bg-neutral-950 dark:text-white">
     <div className="w-full flex justify-center mt-4">
         <Carousel
@@ -210,9 +202,9 @@ const ReelSection = () => {
                         <div className="w-[300px] h-full rounded-lg shadow-lg overflow-hidden">
                             <div className="video w-full h-full relative rounded-lg overflow-hidden">
                                 <video
-                                    ref={(el) => (videoRefs.current[index] = el)} // Assign ref to each video
+                                    ref={(el) => (videoRefs.current[index] = el)} 
                                     muted
-                                    data-postid={post._id} // Store postId for reference in intersection observer
+                                    data-postid={post._id} 
                                     src={post?.media[0]?.mediaPath}
                                     loop
                                     className="object-cover w-full h-full"
@@ -227,10 +219,10 @@ const ReelSection = () => {
                                             <Avatar className="w-8 h-8">
                                                 <AvatarImage
                                                     src={post?.author?.profilePicture}
-                                                    alt={post?.username}
+                                                    alt={post?.author?.username}
                                                     className="object-cover w-full h-full rounded-full"
                                                 />
-                                                <AvatarFallback>{post?.username}</AvatarFallback>
+                                                <AvatarFallback>{post?.author?.username}</AvatarFallback>
                                             </Avatar>
                                             <span className="ml-2 text-white text-sm">
                                                 {post?.author?.username}
@@ -321,21 +313,21 @@ const ReelSection = () => {
                                 <BsThreeDots className="w-6 h-6 transition-transform hover:scale-110" />
                             </div>
                         </div>
-                    </CarouselItem>
+                     </CarouselItem>
                 ))}
             </CarouselContent>
 
             {/* Carousel Navigation Arrows */}
+            {allPosts.length > 0 && (
             <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-4 h-14">
                 <CarouselPrevious className="w-12 h-12 p-2 rounded-full bg-neutral-800 text-white hover:bg-neutral-700 transition" />
                 <CarouselNext className="w-12 h-12 p-2 rounded-full bg-neutral-800 text-white hover:bg-neutral-700 transition" />
             </div>
+            )}
         </Carousel>
+        {isFetchingNextPage && <div className="mt-4 text-center">Loading more reels...</div>}
     </div>
 </div>
-
-
-
         </>
     );
 };

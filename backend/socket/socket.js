@@ -21,6 +21,8 @@ io.on('connection', (socket) => {
   if (userId) {
     userSocketMap[userId] = socket.id;
   }
+console.log('new user connect ', userId , socket.id)
+
   // Emit online users to all clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
 
