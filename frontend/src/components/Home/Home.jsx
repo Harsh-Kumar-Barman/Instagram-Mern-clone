@@ -25,21 +25,89 @@ const Home = ({ socketRef }) => {
   const userDetails = useSelector((state) => state.counter.userDetails);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const fetchPosts = async (page) => {
-    setIsLoading(true);
-    try {
-      const { data: posts } = await axios.get(`${BASE_URL}/api/posts/getPosts?page=${page}&limit=10`);
-      if (posts.length > 0) {
-        setAllPosts((prevPosts) => [...prevPosts, ...posts]);
-      } else {
-        setHasMore(false); // No more data to load
+  // 1. Fetch Posts with useInfiniteQuery
+  const fetchPostsGroup = async ({ pageParam = 0 }) => {
+    const { data } = await axios.get(`${BASE_URL}/api/posts/getPosts?page=${pageParam}&limit=10`);
+    return data;
+  };
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ['posts'],
+    queryFn: fetchPostsGroup,
+    getNextPageParam: (lastPage, allPages) => lastPage.length === 10 ? allPages.length : undefined,
+  });
+
+  const allPosts = data?.pages?.flat() || [];
+  const isLoading = status === 'pending';
+
+  const handleScroll = () => {
+    if (window.innerHeight + document.documentElement.scrollTop + 1 >= document.documentElement.offsetHeight - 100) {
+      if (hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
       }
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      if (error.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login');
-    } finally {
-      setIsLoading(false);
+    }
+  };
+
+  // 2. Mutations
+  const likeMutation = useMutation({
+    mutationFn: async (postId) => {
+      const { data } = await axios.put(`${BASE_URL}/api/posts/${postId}/like`, { userId: userDetails.id });
+      return data.post;
+    },
+    onSuccess: (updatedPost) => {
+      queryClient.setQueryData(['posts'], (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map(page => page.map(post => post._id === updatedPost._id ? updatedPost : post))
+        };
+      });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (postId) => {
+      const { data } = await axios.delete(`${BASE_URL}/api/posts/delete/${postId}`, { withCredentials: true });
+      return data.post._id;
+    },
+    onSuccess: (deletedPostId) => {
+      queryClient.setQueryData(['posts'], (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map(page => page.filter(post => post._id !== deletedPostId))
+        };
+      });
+    }
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async (postId) => {
+      const { data } = await axios.put(`${BASE_URL}/api/posts/${userDetails.id}/save`, { postId });
+      return data.savedPosts;
+    },
+    onSuccess: (savedPostsData) => {
+      dispatch(setSavedPosts(savedPostsData));
+    }
+  });
+
+  const followMutation = useMutation({
+    mutationFn: async (followingID) => {
+      const { data } = await axios.put(`${BASE_URL}/api/users/${userDetails.id}/following`, { followingID });
+      return data;
+    },
+    onSuccess: ({ following, followers }) => {
+      dispatch(setFollowing(following));
+      dispatch(setFollower(followers));
+      setFollowingUserss(following);
     }
   });
 
@@ -68,13 +136,7 @@ const Home = ({ socketRef }) => {
     likeMutation.mutate(postId);
   };
 
-  const handleDeletePost = async (e, postId) => {
-    e.preventDefault()
-    const response = await axios.delete(`${BASE_URL}/api/posts/delete/${postId}`,{withCredentials:true});
-    setAllPosts((prevPosts) => prevPosts.filter((post) => post?._id !== response?.data?.post?._id))
-  }
-
-  const handleSavePosts = async (e, postId) => {
+  const handleDeletePost = (e, postId) => {
     e.preventDefault();
     deleteMutation.mutate(postId);
   };
