@@ -60,7 +60,7 @@ function Navbar() {
 
     return (
         <>
-            <aside className="z-50 fixed md:hidden top-0 w-full h-16 dark:bg-neutral-950 border-b border-zinc-800">
+            <aside className="z-50 fixed md:hidden top-0 w-full h-16 border-b border-outline-variant/30 bg-surface">
                 <div className="flex w-screen items-center justify-between">
                     <div className="ml-5 flex items-center mt-4">
                         <img className="w-20" src={InstaLogo} alt="Instagram Logo" />
@@ -68,11 +68,11 @@ function Navbar() {
                     <nav className="flex gap-3 mt-2 items-center mr-2">
                         <Sheet open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
                             <SheetTrigger asChild>
-                                <div className="cursor-pointer text-white">
+                                <div className="cursor-pointer text-on-surface">
                                     <FaRegHeart size={20} />
                                 </div>
                             </SheetTrigger>
-                            <SheetContent side="top" className="h-1/2 p-4 bg-white border-b border-zinc-900 rounded-br-3xl rounded-bl-3xl dark:bg-neutral-950 dark:text-white">
+                            <SheetContent side="top" className="h-1/2 p-4 border-b rounded-br-3xl rounded-bl-3xl bg-surface border-outline-variant/30 text-on-surface">
                                 <h2 className="font-semibold text-lg mb-4">Notifications</h2>
                                 <ScrollArea className="h-48 p-4">
                                     {RTMNotification && Array.isArray(RTMNotification) && RTMNotification.map((user) => (
@@ -85,7 +85,7 @@ function Navbar() {
                                                     </Avatar>
                                                     <div className="flex flex-col items-start">
                                                         <p className="font-medium text-sm">{user.username}</p>
-                                                        <p className="text-sm text-gray-500">Liked your post</p>
+                                                        <p className="text-sm text-on-surface-variant">Liked your post</p>
                                                     </div>
                                                 </Link>
                                             </div>
@@ -97,7 +97,7 @@ function Navbar() {
                         {links.map((link) => (
                             <Link key={link.id} to={link.link}>
                                 <div className="flex items-center rounded-md cursor-pointer">
-                                    <span className="text-white">{link.icon}</span>
+                                    <span className="text-on-surface">{link.icon}</span>
                                 </div>
                             </Link>
                         ))}

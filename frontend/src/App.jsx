@@ -23,6 +23,7 @@ const VideoCall = lazy(() => import('./components/Chat/VideoCall'));
 import { ProfileEdit } from './components/Profile/profile-edit';
 import { ChatComponent } from './components/Chat/instagram-chat';
 import { VideoCallProvider } from './hooks/VideoCallContext';
+import { AppSkeleton } from './components/Home/instagram-skeleton';
 
 
 function ChildApp() {
@@ -101,7 +102,7 @@ useEffect(() => {
     <>
       {!hideNavbar && <Navbar />}
       {showSidebar && <Sidebar />}
-      <Suspense fallback={<div className="h-screen w-full flex items-center justify-center font-semibold">Loading...</div>}>
+      <Suspense fallback={<AppSkeleton />}>
         <Routes>
           <Route path="/" element={<ProtectedRoute><Home socketRef={socketRef} /></ProtectedRoute>} />
           <Route path="/profile/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

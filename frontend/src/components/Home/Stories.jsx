@@ -98,13 +98,13 @@ export default function Stories() {
               className="flex aspect-square flex-col items-center space-y-1"
               onClick={() => openStories(index)}
             >
-              <div className="rounded-full bg-gradient-to-tr from-yellow-400 to-fuchsia-600 p-[2px]">
-                <Avatar className="w-16 h-16 border-2 border-black">
+              <div className="rounded-full bg-gradient-to-tr from-tertiary to-primary p-[2px]">
+                <Avatar className="w-16 h-16 border-2 border-background">
                   <AvatarImage className="object-cover object-top" src={story.user.profilePicture} alt={story.user.username} />
                   <AvatarFallback>{story.user.username[0].toUpperCase()}</AvatarFallback>
                 </Avatar>
               </div>
-              <span className="text-sm w-16 text-center overflow-hidden">{story.user.username}</span>
+              <span className="text-sm font-body text-on-surface w-16 text-center overflow-hidden">{story.user.username}</span>
             </button>
           ))}
         </div>
@@ -113,7 +113,7 @@ export default function Stories() {
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-[350px] p-0 overflow-hidden">
-          <div className="relative aspect-[9/16] bg-background">
+          <div className="relative aspect-[9/16] bg-surface-container-lowest">
             <Progress value={progress} className="absolute top-5 left-0 right-0 z-10 h-[2px] w-[98%]" />
             {stories.length > 0 && (
               <>
@@ -128,7 +128,7 @@ export default function Stories() {
                       <AvatarImage className="object-cover object-top" src={stories[currentStory]?.user?.profilePicture} alt={stories[currentStory]?.user?.username} />
                       <AvatarFallback>{stories[currentStory]?.user?.username[0].toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <span className="dark:text-white font-semibold">{stories[currentStory]?.user?.username}</span>
+                    <span className="text-on-surface font-display tracking-tight font-semibold">{stories[currentStory]?.user?.username}</span>
                   </Link>
                 </div>
                 <Button

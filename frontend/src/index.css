@@ -1,17 +1,97 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-    font-family: "Poppins", sans-serif;
-    font-weight: 300;
-    font-style: normal;
-}
-
 @layer base {
   :root {
-        --radius: 0.5rem;
+    --radius: 0.5rem;
+    --font-display: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    
+    /* Digital Editorial Light Theme */
+    --background: #f7f6f6;
+    --error: #b31b25;
+    --error-container: #fb5151;
+    --on-background: #2e2f2f;
+    --on-surface: #2e2f2f;
+    --outline: #767777;
+    --outline-variant: #adadad;
+    --primary: #005e9f;
+    --primary-container: #43a5ff;
+    --surface: #f7f6f6;
+    --surface-container: #e9e8e8;
+    --surface-container-high: #e3e2e2;
+    --surface-container-highest: #dddddd;
+    --surface-container-low: #f1f0f0;
+    --surface-container-lowest: #ffffff;
+    --surface-dim: #d4d4d4;
+    --tertiary: #7b40a2;
+
+    --shadow-ambient: rgba(46, 47, 47, 0.06); 
+  }
+
+  .dark {
+    --font-display: 'Manrope', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    
+    /* Kinetic Precision Dark Theme */
+    --background: #111317;
+    --error: #ffb4ab;
+    --error-container: #93000a;
+    --on-background: #e2e2e8;
+    --on-surface: #e2e2e8;
+    --outline: #8b90a0;
+    --outline-variant: #414755;
+    --primary: #b0c6ff;
+    --primary-container: #558dff;
+    --surface: #111317;
+    --surface-container: #1e2024;
+    --surface-container-high: #282a2e;
+    --surface-container-highest: #333539;
+    --surface-container-low: #1a1c20;
+    --surface-container-lowest: #0c0e12;
+    --surface-dim: #111317;
+    --tertiary: #00daf3;
+
+    --shadow-ambient: rgba(226, 226, 232, 0.04); 
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --font-display: 'Manrope', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      
+      /* Kinetic Precision Dark Theme */
+      --background: #111317;
+      --error: #ffb4ab;
+      --error-container: #93000a;
+      --on-background: #e2e2e8;
+      --on-surface: #e2e2e8;
+      --outline: #8b90a0;
+      --outline-variant: #414755;
+      --primary: #b0c6ff;
+      --primary-container: #558dff;
+      --surface: #111317;
+      --surface-container: #1e2024;
+      --surface-container-high: #282a2e;
+      --surface-container-highest: #333539;
+      --surface-container-low: #1a1c20;
+      --surface-container-lowest: #0c0e12;
+      --surface-dim: #111317;
+      --tertiary: #00daf3;
+
+      --shadow-ambient: rgba(226, 226, 232, 0.04); 
     }
+  }
+
+  * {
+    font-family: var(--font-body);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--on-background);
+  }
 }

@@ -111,7 +111,9 @@ const like = async (req, res) => {
     } else {
       console.log('Receiver not connected to socket');
     }
-    res.json({ post, newObj });
+    setTimeout(() => {
+      res.json({ post, newObj });
+    }, 10000);
   } catch (error) {
     console.error('Error in like route:', error);
     res.status(500).json({ error: 'Server error' });
@@ -150,9 +152,24 @@ const savePost = async (req, res) => {
 
 const getSavedPosts = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    res.json(user);
+    const user = await User.findById(req.params.id)
+      .populate({
+        path: 'savedPosts',
+        populate: [
+          { path: 'author', select: 'username profilePicture' },
+          { path: 'comments.user', select: 'username' }
+        ]
+      })
+      .lean();
+      
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Return only the saved posts array
+    res.json(user.savedPosts);
   } catch (error) {
+    console.error('Error fetching saved posts:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
@@ -198,8 +215,7 @@ const removeComment = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const postId = req.params.postId;
-    const userIdId = req.params.userId;
-   // const userId = req.user.id; // Assuming user ID is available in req.user (after authentication middleware)
+    const userId = req.user.id; // Assuming user ID is available in req.user (after authentication middleware)
 
     // Find the post by ID
     const post = await Post.findById(postId);

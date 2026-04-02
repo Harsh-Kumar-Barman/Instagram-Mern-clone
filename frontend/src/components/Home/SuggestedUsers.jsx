@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 const SuggestedUsers = () => {
   const userDetails = useSelector((state) => state.counter.userDetails);
   return (
-    <aside className="w-80 p-4 hidden lg:block mt-2  dark:bg-neutral-950 dark:text-white">
+    <aside className="w-80 p-4 hidden lg:block mt-2 bg-transparent text-on-surface">
       <div className="flex items-center mb-6 justify-between">
         <Link to={`/profile/${userDetails.username}`} >
           <Avatar className="w-12 h-12">
@@ -17,17 +17,17 @@ const SuggestedUsers = () => {
         </Link>
         <div className="ml-2">
           <Link to={`/profile/${userDetails.username}`} >
-            <p className="text-sm font-semibold">{userDetails.username}</p>
+            <p className="text-sm font-display font-semibold transition-colors hover:text-primary">{userDetails.username}</p>
           </Link>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">{userDetails.fullName}</p>
+          <p className="text-sm font-body text-on-surface-variant">{userDetails.fullName}</p>
         </div>
-        <Button variant="link" size="sm" className="ml-auto text-[#0f9bf7]">Switch</Button>
+        <Button variant="link" size="sm" className="ml-auto text-primary px-0 hover:text-primary-container">Switch</Button>
       </div>
       <div className="mb-4">
         <div className="flex justify-between">
           <h2
-            className="text-sm font-semibold text-neutral-500 mb-4 dark:text-neutral-400">Suggestions for you</h2>
-          <p className="text-sm mr-2 font-medium">See All</p>
+            className="text-sm font-display font-semibold text-on-surface-variant mb-4">Suggestions for you</h2>
+          <p className="text-sm mr-2 font-display font-semibold text-on-surface hover:text-on-surface-variant transition-colors cursor-pointer">See All</p>
         </div>
         {[...Array(5)].map((_, i) => (
           <div key={i} className="flex items-center space-x-4 mb-4">
@@ -39,15 +39,15 @@ const SuggestedUsers = () => {
              </Link>
             <div className="flex-grow">
             <Link to={`/profile/${userDetails.username}`} >
-              <p className="text-sm font-semibold">suggested_user{i + 1}</p>
+              <p className="text-sm font-display font-semibold transition-colors hover:text-primary">suggested_user{i + 1}</p>
             </Link>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Followed by user{i + 5}</p>
+              <p className="text-xs font-body text-on-surface-variant">Followed by user{i + 5}</p>
             </div>
-            <Button variant="link" size="sm" className="text-[#0f9bf7] no-underline">Follow</Button>
+            <Button variant="link" size="sm" className="text-primary no-underline hover:text-primary-container">Follow</Button>
           </div>
         ))}
       </div>
-      <footer className="text-xs text-neutral-500 dark:text-neutral-400">
+      <footer className="text-xs font-body text-on-surface-variant mt-6">
         © 2023 Instagram Clone
       </footer>
     </aside>

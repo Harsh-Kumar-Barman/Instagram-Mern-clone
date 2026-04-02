@@ -29,7 +29,8 @@ const Home = ({ socketRef }) => {
 
   // 1. Fetch Posts with useInfiniteQuery
   const fetchPostsGroup = async ({ pageParam = 0 }) => {
-    const { data } = await axios.get(`${BASE_URL}/api/posts/getPosts?page=${pageParam}&limit=10`);
+    const { data } = await axios.get(`${BASE_URL}/api/posts/getPosts?page=${pageParam}&limit=5`);
+    console.log(data);
     return data;
   };
 
@@ -42,7 +43,7 @@ const Home = ({ socketRef }) => {
   } = useInfiniteQuery({
     queryKey: ['posts'],
     queryFn: fetchPostsGroup,
-    getNextPageParam: (lastPage, allPages) => lastPage.length === 10 ? allPages.length : undefined,
+    getNextPageParam: (lastPage, allPages) => lastPage.length === 5 ? allPages.length : undefined,
   });
 
   const allPosts = data?.pages?.flat() || [];
@@ -62,7 +63,44 @@ const Home = ({ socketRef }) => {
       const { data } = await axios.put(`${BASE_URL}/api/posts/${postId}/like`, { userId: userDetails.id });
       return data.post;
     },
+    onMutate: async (postId) => {
+      // Cancel ongoing refetches so they don't overwrite optimistic update
+      await queryClient.cancelQueries({ queryKey: ['posts'] });
+
+      // Snapshot the previous cache just in case we need to roll back
+      const previousPosts = queryClient.getQueryData(['posts']);
+
+      // Optimistically update the cache to show the like instantly
+      queryClient.setQueryData(['posts'], (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          pages: oldData.pages.map(page => page.map(post => {
+            if (post._id === postId) {
+              const hasLiked = post.likes.includes(userDetails.id);
+              return {
+                ...post,
+                likes: hasLiked
+                  ? post.likes.filter(id => id !== userDetails.id)
+                  : [...post.likes, userDetails.id]
+              };
+            }
+            return post;
+          }))
+        };
+      });
+
+      // Return context for potential rollback
+      return { previousPosts };
+    },
+    onError: (err, variables, context) => {
+      // If it fails, roll back to the previous snapshot
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['posts'], context.previousPosts);
+      }
+    },
     onSuccess: (updatedPost) => {
+      // When the server confirms, overwrite with exactly what the server gave back
       queryClient.setQueryData(['posts'], (oldData) => {
         if (!oldData) return oldData;
         return {
@@ -94,7 +132,30 @@ const Home = ({ socketRef }) => {
       const { data } = await axios.put(`${BASE_URL}/api/posts/${userDetails.id}/save`, { postId });
       return data.savedPosts;
     },
+    onMutate: async (postId) => {
+      // Store the previous array
+      const currentSaved = savedPosts || [];
+      const isSaved = currentSaved.includes(postId);
+      
+      // Optimistically toggle it
+      const optimisticSaved = isSaved 
+        ? currentSaved.filter(id => id !== postId)
+        : [...currentSaved, postId];
+        
+      dispatch(setSavedPosts(optimisticSaved));
+      
+      // Return previous state for potential rollback
+      return { previousSavedPosts: currentSaved };
+    },
+    onError: (err, variables, context) => {
+      // Undo the action if it fails
+      if (context?.previousSavedPosts) {
+        dispatch(setSavedPosts(context.previousSavedPosts));
+      }
+      console.error("Save failure, reverted optimistic UI", err);
+    },
     onSuccess: (savedPostsData) => {
+      // Replace with exactly what the server returns
       dispatch(setSavedPosts(savedPostsData));
     }
   });
@@ -177,8 +238,10 @@ const Home = ({ socketRef }) => {
 
   const getSavePosts = async () => {
     try {
-      const { data: { savedPosts } } = await axios.get(`${BASE_URL}/api/posts/${userDetails.id}/save`);
-      dispatch(setSavedPosts(savedPosts));
+      const { data } = await axios.get(`${BASE_URL}/api/posts/getSavedPosts/${userDetails.id}`);
+      // Extract IDs from populated objects so .includes() logic works in Post.jsx
+      const savedPostIds = Array.isArray(data) ? data.map(post => post._id || post) : [];
+      dispatch(setSavedPosts(savedPostIds));
     } catch (error) {
       console.error('Error fetching saved posts:', error);
     }
@@ -207,8 +270,7 @@ const Home = ({ socketRef }) => {
     };
   }, []);
 
-  return (<div className='dark:bg-neutral-950 dark:text-white'>
-    <div className="flex bg-white dark:bg-neutral-950 min-h-screen">
+  return (<div className='min-h-screen flex bg-background text-on-background'>
       <PostComment selectedMedia={selectedMedia} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
       <main className="flex-1 md:ml-[72px] lg:ml-60">
         <div className="max-w-screen-xl mt-14 md:mt-0 mx-auto py-2 md:px-6 lg:px-8">
@@ -240,7 +302,6 @@ const Home = ({ socketRef }) => {
         </div>
       </main>
     </div>
-  </div>
   );
 };
 

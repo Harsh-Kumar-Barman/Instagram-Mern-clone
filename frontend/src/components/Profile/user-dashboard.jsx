@@ -47,11 +47,11 @@ export default function Dashboard() {
   }));
 
   if (isLoading) {
-    return <div className="p-4 flex justify-center items-center dark:bg-neutral-950 min-h-screen text-white">Loading dashboard...</div>;
+    return <div className="p-4 flex justify-center items-center bg-background min-h-screen text-on-surface">Loading dashboard...</div>;
   }
 
   return (
-    (<div className="p-4 space-y-4 dark:bg-neutral-950">
+    (<div className="p-4 space-y-4 bg-background text-on-surface">
       <Card>
         <CardHeader className="flex flex-row items-center space-x-4 pb-2">
           <Link to={`/profile/${userDetails.username}`} className="flex flex-row items-center space-x-4 pb-2">
@@ -60,8 +60,8 @@ export default function Dashboard() {
             <AvatarFallback>{userDetails.username?.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>
-            <CardTitle className="text-2xl">{userDetails.username}</CardTitle>
-            <CardDescription>Dashboard Overview</CardDescription>
+            <CardTitle className="text-2xl font-display font-bold tracking-tight">{userDetails.username}</CardTitle>
+            <CardDescription className="text-on-surface-variant font-body">Dashboard Overview</CardDescription>
           </div>
           </Link>
         </CardHeader>
@@ -69,8 +69,8 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Likes</CardTitle>
-                <Heart className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                <CardTitle className="text-sm font-display font-semibold">Total Likes</CardTitle>
+                <Heart className="w-5 h-5 text-on-surface-variant" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalLikes}</div>
@@ -78,8 +78,8 @@ export default function Dashboard() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-                <Eye className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                <CardTitle className="text-sm font-display font-semibold">Total Views</CardTitle>
+                <Eye className="w-5 h-5 text-on-surface-variant" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalViews}</div>
@@ -87,8 +87,8 @@ export default function Dashboard() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Comments</CardTitle>
-                <MessageCircle className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
+                <CardTitle className="text-sm font-display font-semibold">Total Comments</CardTitle>
+                <MessageCircle className="w-5 h-5 text-on-surface-variant" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalComments}</div>
@@ -99,8 +99,8 @@ export default function Dashboard() {
       </Card>
        <Card>
         <CardHeader>
-          <CardTitle>Reel Performance Graph</CardTitle>
-          <CardDescription>Comparison of likes, comments, and views for each reel</CardDescription>
+          <CardTitle className="font-display font-bold text-on-surface">Reel Performance Graph</CardTitle>
+          <CardDescription className="text-on-surface-variant font-body">Comparison of likes, comments, and views for each reel</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer
@@ -133,8 +133,8 @@ export default function Dashboard() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Reel Performance</CardTitle>
-          <CardDescription>Individual statistics for your reels</CardDescription>
+          <CardTitle className="font-display font-bold text-on-surface">Reel Performance</CardTitle>
+          <CardDescription className="text-on-surface-variant font-body">Individual statistics for your reels</CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[300px]">
@@ -152,8 +152,8 @@ export default function Dashboard() {
                       }
                     
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">{reel?.caption}</p>
-                      <div className="flex space-x-4 text-sm text-neutral-500 dark:text-neutral-400">
+                      <p className="text-sm font-display font-semibold text-on-surface">{reel?.caption}</p>
+                      <div className="flex space-x-4 text-sm font-body text-on-surface-variant">
                         <span className="flex items-center">
                           <Heart className="w-4 h-4 mr-1" />
                           {reel.likes.length}

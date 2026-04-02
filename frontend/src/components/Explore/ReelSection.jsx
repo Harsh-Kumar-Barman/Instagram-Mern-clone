@@ -183,7 +183,7 @@ const ReelSection = () => {
 
     return (
         <>
-            <div className="flex-1 min-h-screen flex flex-col items-center py-4 md:ml-[72px] lg:ml-60 ml-auto dark:bg-neutral-950 dark:text-white">
+            <div className="flex-1 min-h-screen flex flex-col items-center py-4 md:ml-[72px] lg:ml-60 ml-auto bg-transparent text-on-surface">
     <div className="w-full flex justify-center mt-4">
         <Carousel
             opts={{
@@ -224,21 +224,21 @@ const ReelSection = () => {
                                                 />
                                                 <AvatarFallback>{post?.author?.username}</AvatarFallback>
                                             </Avatar>
-                                            <span className="ml-2 text-white text-sm">
+                                            <span className="ml-2 text-white text-sm font-display font-semibold drop-shadow-md">
                                                 {post?.author?.username}
                                             </span>
                                         </Link>
                                         <Button
                                             variant="outline"
-                                            className="ml-2 px-4 py-1 text-xs text-white bg-transparent border"
+                                            className="ml-2 px-4 py-1 text-xs text-on-surface bg-surface-container-highest border-none rounded-full font-display font-semibold hover:bg-surface-container-high transition"
                                         >
                                             Follow
                                         </Button>
                                     </div>
                                     {/* Caption */}
-                                    <p className="text-white text-sm mb-2">{post.caption}</p>
+                                    <p className="text-white text-sm mb-2 font-body drop-shadow-md">{post.caption}</p>
                                     {/* Song Info */}
-                                    <div className="flex items-center text-white">
+                                    <div className="flex items-center text-white font-body text-xs drop-shadow-md">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="20"
@@ -264,7 +264,7 @@ const ReelSection = () => {
                         </div>
 
                         {/* Controls */}
-                        <div className="absolute right-16 flex flex-col items-center justify-end gap-4">
+                        <div className="absolute right-16 flex flex-col items-center justify-end gap-4 text-white drop-shadow-md">
                             {/* Like Button */}
                             <div className="flex flex-col items-center">
                                 <button
@@ -272,12 +272,12 @@ const ReelSection = () => {
                                     className="transition-transform hover:scale-110"
                                 >
                                     {post?.likes?.includes(userDetails.id) ? (
-                                        <FaHeart className="text-red-500 w-6 h-6" />
+                                        <FaHeart className="text-primary w-6 h-6 drop-shadow-lg" />
                                     ) : (
                                         <Heart className="w-6 h-6" />
                                     )}
                                 </button>
-                                <p className="text-sm">{post?.likes?.length}</p>
+                                <p className="text-xs font-display font-semibold mt-1">{post?.likes?.length}</p>
                             </div>
 
                             {/* Comment Button */}
@@ -285,13 +285,13 @@ const ReelSection = () => {
                                 <button className="transition-transform hover:scale-110">
                                     <MessageCircle className="w-6 h-6 transform -scale-x-100" />
                                 </button>
-                                <p className="text-sm">{post?.comments?.length}</p>
+                                <p className="text-xs font-display font-semibold mt-1">{post?.comments?.length}</p>
                             </div>
 
                             {/* Share Button */}
                             <div className="flex flex-col items-center">
                                 <Send className="w-6 h-6 transition-transform hover:scale-110" />
-                                <p className="text-sm">0</p>
+                                <p className="text-xs font-display font-semibold mt-1">0</p>
                             </div>
 
                             {/* Save Button */}
@@ -301,7 +301,7 @@ const ReelSection = () => {
                                     className="transition-transform hover:scale-110"
                                 >
                                     {Array.isArray(savedPost) && savedPost.includes(post._id) ? (
-                                        <GoBookmarkFill className="w-6 h-6 text-white" />
+                                        <GoBookmarkFill className="w-6 h-6 text-white drop-shadow-lg" />
                                     ) : (
                                         <GoBookmark className="w-6 h-6" />
                                     )}
@@ -309,7 +309,7 @@ const ReelSection = () => {
                             </div>
 
                             {/* Options Button */}
-                            <div className="flex flex-col items-center">
+                            <div className="flex flex-col items-center mt-2">
                                 <BsThreeDots className="w-6 h-6 transition-transform hover:scale-110" />
                             </div>
                         </div>
@@ -320,12 +320,12 @@ const ReelSection = () => {
             {/* Carousel Navigation Arrows */}
             {allPosts.length > 0 && (
             <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col gap-4 h-14">
-                <CarouselPrevious className="w-12 h-12 p-2 rounded-full bg-neutral-800 text-white hover:bg-neutral-700 transition" />
-                <CarouselNext className="w-12 h-12 p-2 rounded-full bg-neutral-800 text-white hover:bg-neutral-700 transition" />
+                <CarouselPrevious className="w-12 h-12 p-2 rounded-full bg-surface-container/50 backdrop-blur-md text-on-surface hover:bg-surface-container transition shadow-ambient border-none" />
+                <CarouselNext className="w-12 h-12 p-2 rounded-full bg-surface-container/50 backdrop-blur-md text-on-surface hover:bg-surface-container transition shadow-ambient border-none" />
             </div>
             )}
         </Carousel>
-        {isFetchingNextPage && <div className="mt-4 text-center">Loading more reels...</div>}
+        {isFetchingNextPage && <div className="mt-4 text-center font-body text-on-surface-variant">Loading more reels...</div>}
     </div>
 </div>
         </>

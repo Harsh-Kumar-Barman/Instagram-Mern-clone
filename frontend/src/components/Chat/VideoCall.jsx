@@ -227,10 +227,10 @@ console.log('remoteUserId:', remoteUserId);
             <p className="text-zinc-400 text-xs mb-6">
               You can turn off your camera and mute your microphone at any time.
             </p>
-            <Button variant="link" className="w-full dark:text-blue-500 font-semibold py-0 rounded">
+            <Button variant="link" className="w-full text-primary hover:text-primary-container font-semibold py-0 rounded">
               Use camera and microphone
             </Button>
-            <Button variant="link" className="w-full dark:text-blue-500 hover:underline font-semibold py-0">
+            <Button variant="link" className="w-full text-primary hover:text-primary-container hover:underline font-semibold py-0">
               Use microphone only
             </Button>
           </div>
@@ -241,11 +241,11 @@ console.log('remoteUserId:', remoteUserId);
 
             {/* Show "Start Call" for caller and "Join Call" for receiver */}
             {isAnswer ? (
-            <Button onClick={() => handleVideoCallOffer(form, createOffer)} className="dark:bg-green-500 dark:hover:bg-green-600 dark:text-white px-4 py-0 rounded-full">
+            <Button onClick={() => handleVideoCallOffer(form, createOffer)} className="bg-primary hover:bg-primary-container text-background drop-shadow-sm px-4 py-0 rounded-full font-display">
               Join Call
             </Button>
             ) : (
-            <Button onClick={startCall} className="dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white px-4 py-0 rounded-full">
+            <Button onClick={startCall} className="bg-primary hover:bg-primary-container text-background drop-shadow-sm px-4 py-0 rounded-full font-display">
               Start Call
             </Button>
             )}

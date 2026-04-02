@@ -53,29 +53,29 @@ const CreatePost = () => {
   };
 
   return (
-    <section aria-labelledby="create-post-title" className="max-w-md mx-auto p-4 text-black bg-white rounded-lg shadow-lg">
-      <h1 id="create-post-title" className="text-2xl font-bold mb-4">Create a New Post</h1>
+    <section aria-labelledby="create-post-title" className="max-w-md mx-auto p-6 bg-surface-container rounded-xl shadow-ambient text-on-surface">
+      <h1 id="create-post-title" className="text-2xl font-display font-bold mb-6 text-on-surface">Create a New Post</h1>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="caption" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="caption" className="block text-xs font-display font-semibold uppercase tracking-wider text-on-surface mb-2">
           Caption
         </label>
         <Input
           id="caption"
           type="text"
           placeholder="Enter your caption here"
-          className="mb-4 w-full p-3 border rounded-lg text-black outline-none"
+          className="mb-4 w-full p-3 bg-surface-container-highest border-none rounded-md text-on-surface outline-none focus-visible:ring-1 focus-visible:ring-primary shadow-none font-body"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           required
         />
 
-        <label htmlFor="media" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="media" className="block text-xs font-display font-semibold uppercase tracking-wider text-on-surface mb-2 mt-4">
           Image or Video
         </label>
         <Input
           id="media"
           type="file"
-          className="mb-4 w-full border rounded-lg"
+          className="mb-6 w-full border-none bg-surface-container-highest rounded-md file:bg-primary file:text-on-primary file:border-none file:px-4 file:py-1 file:rounded-full file:mr-4 hover:file:opacity-90 shadow-none text-on-surface font-body"
           name="media"
           onChange={handleMediaChange}
           accept="image/*,video/*" // Accept both images and videos
@@ -85,7 +85,7 @@ const CreatePost = () => {
         {isResOk ? (
           <Button
             type="submit"
-            className="w-full bg-blue-500 dark:bg-blue-500 text-white dark:text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary border-none py-6 px-4 rounded-full font-display tracking-wide font-semibold hover:opacity-90 shadow-none"
           >
             Create Post
           </Button>
@@ -93,7 +93,7 @@ const CreatePost = () => {
           <Button
             disabled
             type="submit"
-            className="w-full bg-blue-500 dark:bg-blue-500 text-white dark:text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-600 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary border-none py-6 px-4 rounded-full font-display tracking-wide font-semibold opacity-80 shadow-none"
           >
             <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
             Create Post

@@ -119,102 +119,86 @@ function ChatBox() {
         <>
             {/* <VideoCall userId={userDetails?.id} socketRef={socketRef} remoteUserId={suggestedUser?._id}  /> */}
             {suggestedUser ?
-                (<div className={`flex-grow ${suggestedUser ? "w-[90vw] md:w-full" : "w-0"} flex flex-col max-h-screen bg-white dark:bg-neutral-950 dark:text-white`}>
-                    <div
-                        className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                        <div className="flex items-center space-x-3">
-                            <span onClick={removeSuggestedUser} className='text-3xl inline-block md:hidden '>←</span>
-                            <Avatar>
-                                <AvatarImage className="object-cover object-top" src={suggestedUser?.profilePicture} />
-                                <AvatarFallback>{suggestedUser && 'groupName' in suggestedUser ? suggestedUser?.groupName : suggestedUser?.username}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <Link to={`/profile/${suggestedUser?.username}`}>
-                                    <p className="font-semibold text-xs md:text-sm dark:text-white">{suggestedUser && 'groupName' in suggestedUser ? suggestedUser?.groupName : suggestedUser?.username}</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">Active 1h ago</p>
-                                </Link>
+                (<section className={`flex-1 flex flex-col bg-surface-container-lowest ${suggestedUser ? "w-[90vw] md:w-full" : "w-0"}`}>
+                    <header className="flex items-center justify-between px-6 py-4 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl sticky top-0 z-20 border-b border-outline-variant/10">
+                        <div className="flex items-center gap-4">
+                            <button onClick={removeSuggestedUser} className="md:hidden p-2 -ml-2 text-on-surface hover:bg-surface-container rounded-full transition-colors">
+                                <span className='text-xl inline-block'>←</span>
+                            </button>
+                            <div className="relative cursor-pointer" onClick={() => navigate(`/profile/${suggestedUser?.username}`)}>
+                                <Avatar className="w-10 h-10 border-none">
+                                    <AvatarImage className="object-cover object-top w-full h-full" src={suggestedUser?.profilePicture} />
+                                    <AvatarFallback className="font-headline font-bold text-primary">{suggestedUser && 'groupName' in suggestedUser ? suggestedUser?.groupName?.charAt(0) : suggestedUser?.username?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-surface-container-lowest rounded-full"></div>
+                            </div>
+                            <div className="cursor-pointer" onClick={() => navigate(`/profile/${suggestedUser?.username}`)}>
+                                <h2 className="font-headline font-bold text-base leading-tight text-on-surface">{suggestedUser && 'groupName' in suggestedUser ? suggestedUser?.groupName : suggestedUser?.username}</h2>
+                                <p className="text-[10px] font-label text-green-600 uppercase tracking-widest">Active Now</p>
                             </div>
                         </div>
-                        <div className="flex">
-                            <Button variant="ghost" size="sm" className="text-black dark:text-white">
-                                <Phone className="h-6 w-6" />
-                            </Button>
-                            {/* <Button onClick={()=>startCall(suggestedUser?._id)} variant="ghost" size="sm" className="text-black dark:text-white"> */}
-                            <Button onClick={() => navigate(`/call/${suggestedUser?._id}`)} variant="ghost" size="sm" className="text-black dark:text-white">
-                                <Video className="h-7 w-7" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-black dark:text-white hidden md:block ">
-                                <Info className="h-6 w-6" />
-                            </Button>
+                        <div className="flex items-center gap-2">
+                            <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+                                <Phone className="h-5 w-5" />
+                            </button>
+                            <button onClick={() => navigate(`/call/${suggestedUser?._id}`)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+                                <Video className="h-5 w-5" />
+                            </button>
+                            <button className="hidden md:flex w-10 h-10 items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+                                <Info className="h-5 w-5" />
+                            </button>
                         </div>
-                    </div>
-                    <ScrollArea className="flex-grow py-1 px-2 md:px-6">
-                        <div className="flex justify-center">
-                            <Avatar className="w-20 h-20">
-                                <AvatarImage className="object-cover object-top w-full h-full" src={suggestedUser?.profilePicture} />
-                                <AvatarFallback>{suggestedUser?.username}</AvatarFallback>
-                            </Avatar>
+                    </header>
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-surface-container-low/30">
+                        <div className="flex flex-col items-center gap-4 mb-4">
+                            <div className="flex justify-center mb-2">
+                                <Avatar className="w-20 h-20 shadow-sm border-none">
+                                    <AvatarImage className="object-cover object-top w-full h-full" src={suggestedUser?.profilePicture} />
+                                    <AvatarFallback className="font-headline font-bold text-xl">{suggestedUser?.username?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                            </div>
+                            <span className="px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-bold text-on-surface-variant tracking-wider uppercase">{suggestedUser?.fullName}</span>
                         </div>
-                        <div className='flex flex-col justify-center items-center mb-10 md:mb-0'>
-                            <p className="text-center mt-2 font-semibold">{suggestedUser && 'groupName' in suggestedUser ? suggestedUser?.groupName : suggestedUser?.username}</p>
-                            <p className="text-center mb-2">{suggestedUser?.fullName}</p>
-                            <Link to={`/profile/${suggestedUser?.username}`}>
-                                <Button className='text-sm'>View profile</Button>
-                            </Link>
-                        </div>
-                        {messages && Array.isArray(messages) && messages?.map((message, index) => (
-                            <div
-                                key={index}
-                                className={`flex ${message.senderId?._id === userDetails.id || message.senderId === userDetails.id
-                                    ? "justify-end"
-                                    : "justify-start"
-                                    } my-0`}
-                            >
-                                <div className="messagebox flex gap-0 items-center">
-                                    {!(message.senderId?._id === userDetails.id || message.senderId === userDetails.id) && (
-                                        <div className="image">
-                                            <Avatar className="w-5 h-5 bg-red-400">
+                        {messages && Array.isArray(messages) && messages?.map((message, index) => {
+                            const isSender = message.senderId?._id === userDetails.id || message.senderId === userDetails.id;
+                            return (
+                                <div key={index} className={`flex gap-3 max-w-[85%] ${isSender ? 'flex-row-reverse ml-auto' : ''}`}>
+                                    {!isSender && (
+                                        <div className="flex-shrink-0 self-end mb-1">
+                                            <Avatar className="w-8 h-8">
                                                 <AvatarImage
-                                                    src={message?.senderId?.profilePicture}
-                                                    className="w-full h-full rounded-full object-top object-cover"
+                                                    src={message?.senderId?.profilePicture || suggestedUser?.profilePicture}
+                                                    className="w-full h-full object-top object-cover"
                                                 />
-                                                <AvatarFallback className="text-xs">{message?.senderId?.username}</AvatarFallback>
+                                                <AvatarFallback className="text-xs font-headline font-bold">{message?.senderId?.username?.charAt(0) || "U"}</AvatarFallback>
                                             </Avatar>
                                         </div>
                                     )}
-
-                                    <div className="px-2 py-2 rounded-full break-words max-w-sm text-sm">
-                                        {message.messageType === "image" && (
-                                            <img
-                                                src={message.mediaUrl}
-                                                alt="Image message"
-                                                className="w-36 h-52 md:w-56 md:h-96 rounded-xl object-cover cursor-pointer"
-                                                onClick={() => handleMediaClick(message.mediaUrl)} // Open dialog on click
-                                            />
-                                        )}
-
-                                        {message.messageType === "video" && (
-                                            <video
-                                                src={message.mediaUrl}
-                                                className="w-56 h-80 rounded-xl bg-black object-cover cursor-pointer"
-                                                onClick={() => handleMediaClick(message.mediaUrl)} // Open dialog on click
-                                            />
-                                        )}
-
-                                        {message.messageType === "text" && (
-                                            <p
-                                                className={`px-3 py-2 rounded-full break-words max-w-sm text-sm ${message.senderId?._id === userDetails.id || message.senderId === userDetails.id
-                                                    ? "bg-blue-400 text-white"
-                                                    : "bg-neutral-100 dark:bg-zinc-800 dark:text-white"
-                                                    }`}
-                                            >
-                                                {message.message}
-                                            </p>
-                                        )}
+                                    <div className={`${isSender ? 'items-end' : 'items-start'} flex flex-col`}>
+                                        <div className={`${isSender ? 'bg-gradient-to-br from-primary to-primary-container text-white rounded-br-none' : 'bg-surface-container text-on-surface rounded-bl-none'} px-5 py-3 rounded-2xl shadow-sm leading-relaxed text-sm`}>
+                                            {message.messageType === "image" && (
+                                                <img
+                                                    src={message.mediaUrl}
+                                                    alt="Image message"
+                                                    className="w-48 object-cover rounded-xl cursor-pointer mb-2"
+                                                    onClick={() => handleMediaClick(message.mediaUrl)}
+                                                />
+                                            )}
+                                            {message.messageType === "video" && (
+                                                <video
+                                                    src={message.mediaUrl}
+                                                    className="w-48 object-cover rounded-xl bg-black cursor-pointer mb-2"
+                                                    onClick={() => handleMediaClick(message.mediaUrl)}
+                                                />
+                                            )}
+                                            {message.messageType === "text" && (
+                                                <span>{message.message}</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                         <div ref={messagesEndRef} />
                         {/* Dialog for displaying media */}
                         {selectedMedia && (
@@ -234,88 +218,61 @@ function ChatBox() {
                                 </DialogContent>
                             </Dialog>
                         )}
-                    </ScrollArea >
-                    <div className="px-0 md:px-4 pb-2">
-                        <div className="message-form p-2 dark:bg-neutral-950 rounded-lg space-y-2">
-                            {/* Media Preview Section */}
-                            {filePreview && (
-                                <div className="relative w-20 h-20">
-                                    {file?.type?.startsWith('image/') ? (
-                                        <img
-                                            src={filePreview}
-                                            alt="Selected"
-                                            className="w-full h-full object-cover rounded-md"
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <video
-                                            src={filePreview}
-                                            controls
-                                            className="w-full h-full object-cover rounded-md"
-                                        />
-                                    )}
-                                    {/* Clear Icon to remove file */}
-                                    <div
-                                        onClick={clearFile}
-                                        className='absolute right-1 top-1 p-1 bg-zinc-500/50 rounded-full '>
-                                        <X
-                                            className="dark:text-white rounded-full h-3 w-3 cursor-pointer"
-                                        />
-                                    </div>
+                    </div>
+
+                    <footer className="p-4 md:p-6 bg-surface-container-lowest border-t border-outline-variant/5">
+                        {filePreview && (
+                            <div className="relative w-16 h-16 mb-2">
+                                {file?.type?.startsWith('image/') ? (
+                                    <img src={filePreview} alt="Selected" className="w-full h-full object-cover rounded-md" loading="lazy" />
+                                ) : (
+                                    <video src={filePreview} controls className="w-full h-full object-cover rounded-md" />
+                                )}
+                                <div onClick={clearFile} className='absolute -top-2 -right-2 p-1 bg-surface-container-highest rounded-full cursor-pointer editorial-shadow'>
+                                    <X className="dark:text-white h-3 w-3" />
                                 </div>
-                            )}
-
-                            {/* Form Input Section */}
-                            <form
-                                onSubmit={(e) => sendMessageHandle(e, suggestedUser._id)}
-                                className="flex items-center space-x-2 md:space-x-4 border border-zinc-800 bg-transparent rounded-full px-4 py-2"
-                            >
-                                <Smile className="h-6 w-6 text-black dark:text-white" />
-                                <input
-                                    value={textMessage}
-                                    onChange={(e) => setTextMessage(e.target.value)}
-                                    className="flex-grow bg-transparent border-none outline-none text-sm dark:text-white placeholder-gray-400"
-                                    placeholder="Message..."
-                                />
-                                <input
-                                    type="file"
-                                    accept="image/*,video/*"
-                                    onChange={handleFileChange}
-                                    className="hidden"
-                                    id="fileInput"
-                                />
-                                <label htmlFor="fileInput">
-                                    <Camera className="h-6 w-6 text-black dark:text-white cursor-pointer" />
-                                </label>
-                                {isresOk ?
-
-                                    <Button variant="outline" type="submit" className="text-sm font-semibold text-blue-400 hover:text-blue-400 hover:bg-white border-none dark:hover:bg-neutral-950 dark:hover:text-blue-400 p-0">
-                                        Send
-                                    </Button> :
-                                    <Button disabled variant="outline" type="submit" className="text-sm font-semibold text-blue-400 hover:text-blue-400 hover:bg-white border-none dark:hover:bg-neutral-950 dark:hover:text-blue-400 p-0">
-                                        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                                        Send
-                                    </Button>
-                                }
-                            </form>
-                        </div>
-                    </div>
-                </div >)
+                            </div>
+                        )}
+                        <form onSubmit={(e) => sendMessageHandle(e, suggestedUser._id)} className="flex items-center gap-2 bg-surface-container-low p-2 rounded-3xl transition-all focus-within:ring-2 focus-within:ring-primary/20">
+                            <label htmlFor="fileInput">
+                                <button type="button" onClick={() => document.getElementById('fileInput').click()} className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+                                    <Camera className="h-5 w-5" />
+                                </button>
+                            </label>
+                            <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="hidden" id="fileInput" />
+                            <input
+                                value={textMessage}
+                                onChange={(e) => setTextMessage(e.target.value)}
+                                className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2 placeholder:text-on-surface-variant/50 outline-none text-on-surface"
+                                placeholder="Type a message..."
+                            />
+                            <button disabled={!isresOk} type="submit" className="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-transform active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed">
+                                {isresOk ? (
+                                    <span className="material-symbols-outlined text-[16px] pl-[1px] pt-[2px]" style={{fontVariationSettings: "'FILL' 1"}}>send</span>
+                                ) : (
+                                    <ReloadIcon className="h-4 w-4 animate-spin" />
+                                )}
+                            </button>
+                        </form>
+                    </footer>
+                </section>)
                 : (
-                    <div className="flex-grow hidden md:flex flex-col justify-center items-center bg-white dark:bg-neutral-950 dark:text-white">
-                        <div className="emptyField flex flex-col justify-center items-center">
-                            <div>
-                                <AiOutlineMessage size={100} />
+                    <section className="hidden md:flex flex-1 flex-col items-center justify-center bg-surface-container-lowest p-12 text-center">
+                        <div className="mb-8 relative">
+                            <div className="w-24 h-24 rounded-full bg-surface-container-low flex items-center justify-center">
+                                <AiOutlineMessage size={40} className="text-primary/40 -rotate-[25deg]" />
                             </div>
-                            <div className="flex flex-col justify-center items-center my-2">
-                                <p className='text-xl'>Your messages</p>
-                                <p className='text-zinc-500 text-sm'>Send a message to start a chat.</p>
-                            </div>
-                            <div className="flex justify-center items-center my-2">
-                                <button className='bg-blue-500 text-sm font-semibold text-white px-3 py-2 rounded-md'> send message</button>
-                            </div>
+                            <div className="absolute -top-4 -right-4 w-12 h-12 bg-tertiary/10 rounded-full blur-xl"></div>
+                            <div className="absolute -bottom-2 -left-6 w-16 h-16 bg-primary/10 rounded-full blur-xl"></div>
                         </div>
-                    </div>
+                        <h2 className="text-3xl font-black text-on-surface mb-3 font-headline tracking-tighter">Your Messages</h2>
+                        <p className="text-on-surface-variant max-w-xs mb-10 font-body leading-relaxed text-balance">
+                            Connect with other users, share media, and discuss your latest ideas.
+                        </p>
+                        <button className="bg-gradient-to-r from-primary to-primary-container text-white font-bold px-8 py-4 rounded-full flex items-center gap-3 editorial-shadow hover:scale-[1.02] active:scale-95 transition-all duration-200">
+                            <span>Send Message</span>
+                        </button>
+                    </section>
                 )
             }
         </>

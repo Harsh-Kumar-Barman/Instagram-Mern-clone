@@ -10,9 +10,9 @@ router.get('/getPosts', getAllPosts);
 router.put('/:id/like', like);
 router.get('/:id/comment', getComment);
 router.put('/:id/save', savePost);
-router.get('/:id/save', getSavedPosts);
+router.get('/getSavedPosts/:id', getSavedPosts);
 router.post('/:id/comment', writeComment);
 router.delete('/:postId/comment/:commentId', removeComment);
-router.delete('/delete/:postId/:userId', deletePost);
+router.delete('/delete/:postId', authMiddleware, deletePost);
 
 module.exports = router;

@@ -138,45 +138,39 @@ export function ChatComponent({ socketRef }) {
 
 
   return (
-    (<div className="flex h-screen">
-      <div className="flex-1 flex dark:bg-neutral-950 dark:text-white">
+    (<div className="flex h-screen bg-surface font-body overflow-hidden">
+      <div className="flex-1 flex text-on-surface bg-surface">
         {/* Sidebar */}
-        <div className="h-screen w-[5.3%] hidden md:flex flex-col gap-7 items-center border-r-[.1px] border-zinc-800">
+        <div className="h-screen w-[5.3%] hidden md:flex flex-col gap-7 items-center border-r border-outline-variant/10 bg-surface-container-lowest">
           <div className="instaIcon my-8">
             <Link to="/">
-              <FaInstagram size={26} />
+              <FaInstagram size={26} className="text-on-surface" />
             </Link>
           </div>
           {links.map((link) => (
-            <Link to={link.link} key={link.id} className="flex items-center justify-between">
+            <Link to={link.link} key={link.id} className="flex items-center justify-between text-on-surface hover:text-primary transition-colors">
               {link.icon}
             </Link>
           ))}
         </div>
-        <div
-          className={` ${suggestedUser?"w-0":'w-full'}  md:w-80 border-r border-gray-200 dark:border-zinc-800 flex flex-col bg-white dark:bg-neutral-950 dark:text-white`}>
-          <div
-            className="p-4 border-gray-200 dark:border-zinc-800 dark:bg-neutral-950 dark:text-white flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold flex items-center gap-2 cursor-pointer dark:bg-neutral-950 dark:text-white">{userDetails.username} <IoIosArrowDown/></span>
+        <section
+          className={` ${suggestedUser?"w-0 overflow-hidden border-none md:border-r":"w-full"} md:w-80 lg:w-96 border-r border-outline-variant/10 flex flex-col bg-surface-container-lowest text-on-surface transition-all duration-300`}>
+          <header className="p-4 md:p-6 pb-2">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="font-headline text-2xl md:text-3xl font-extrabold tracking-tight text-on-surface flex items-center gap-2 cursor-pointer">{userDetails.username} <IoIosArrowDown size={18} className="text-on-surface-variant" /></h1>
+              <SearchDialogWithCheckboxesComponent socketRef={socketRef} />
             </div>
-            <div className="flex space-x-2">
-            <SearchDialogWithCheckboxesComponent socketRef={socketRef} />
-              {/* <Button
-                variant="ghost"
-                size="sm"
-                className="px-2 text-black dark:bg-neutral-950 dark:text-white">
-                <FaRegEdit size={20} />
-              </Button> */}
+            <div className="relative mb-2">
+              <IoSearchOutline className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg" />
+              <input className="w-full bg-surface-container-high border-none rounded-xl py-3 pl-12 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/60 outline-none text-on-surface font-body" placeholder="Search messages" type="text"/>
             </div>
-          </div>
-          <div
-            className="flex justify-between items-center px-4 py-2 border-gray-200 dark:border-gray-700">
-            <span className="font-semibold text-black dark:bg-neutral-950 dark:text-white">Messages</span>
-            <span className="text-black dark:bg-neutral-950 dark:text-white text-sm">Requests</span>
+          </header>
+          <div className="flex justify-between items-center px-4 md:px-6 py-2">
+              <span className="font-headline font-bold text-on-surface">Messages</span>
+              <span className="text-on-surface-variant font-body text-sm font-medium cursor-pointer hover:text-on-surface transition-colors">Requests</span>
           </div>
           <MessagesMember socketRef={socketRef} />
-        </div>
+        </section>
 
         {/* Main Chat Area */}
         <ChatBox socketRef={socketRef}/>

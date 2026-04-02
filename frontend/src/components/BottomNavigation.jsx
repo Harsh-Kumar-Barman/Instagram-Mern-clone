@@ -32,13 +32,13 @@ function BottomNavigation() {
     ];
 
     return (
-        <aside className="fixed  hidden bottom-0 w-full h-10 bg-black border-r border-zinc-800">
+        <aside className="fixed  hidden bottom-0 w-full h-10 border-r bg-surface border-outline-variant/30">
             <div className="flex w-full items-center">
                 <nav className="flex gap-1 w-full items-center">
                     {links.map((link) => (
                         <Link key={link.id} to={link.link} className="w-[90%] ">
                             <div className="flex items-center gap-4 p-3 rounded-md cursor-pointer ">
-                                <span className="text-white">{link.icon}</span> 
+                                <span className="text-on-surface">{link.icon}</span> 
                             </div>
                         </Link>
                     ))}

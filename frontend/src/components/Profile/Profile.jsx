@@ -55,6 +55,16 @@ const Profile = () => {
     }
   }, [followingUserss, dispatch]);
 
+  // Fetch Saved Posts
+  // const { data: savedPosts } = useQuery({
+  //   queryKey: ['savedPosts', userDetails.id],
+  //   queryFn: async () => {
+  //     const { data } = await axios.get(`${BASE_URL}/api/posts/getSavedPosts/${userDetails.id}`);
+  //     return data;
+  //   },
+  //   enabled: !!userDetails.id && userDetails.id === userID
+  // });
+
   // 2. Fetch Profile Data (useInfiniteQuery)
   const {
     data,
@@ -65,6 +75,7 @@ const Profile = () => {
   } = useInfiniteQuery({
     queryKey: ['profile', username],
     queryFn: async ({ pageParam = 0 }) => {
+      console.log(BASE_URL, username, pageParam);
       const { data } = await axios.get(`${BASE_URL}/api/users/${username}?page=${pageParam}&limit=10`);
       return data;
     },
@@ -80,6 +91,15 @@ const Profile = () => {
   const watched = postsArr.filter(post =>
     watchHistoryy[0]?.some(savepost => savepost.postId === post?._id)
   );
+
+  const { data: savedPosts } = useQuery({
+    queryKey: ['savedPosts', userDetails.id],
+    queryFn: async () => {
+      const { data } = await axios.get(`${BASE_URL}/api/posts/getSavedPosts/${userDetails.id}`);
+      return data;
+    },
+    enabled: !!userDetails.id && userDetails.id === userID
+  });
 
   const handleLogout = async () => {
     try {
@@ -163,59 +183,77 @@ const Profile = () => {
   if (isLoading || !user) return <InstagramProfileSkeletonComponent />;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:text-white dark:bg-neutral-950">
+    <div className="flex flex-col min-h-screen bg-transparent text-on-surface">
       <PostComment selectedMedia={selectedMedia} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
       {/* Main content */}
-      <main className="profile flex-grow sm:px-8 lg:px-[72px] py-[60px] lg:ml-[14.5%] dark:bg-neutral-950 dark:text-white">
+      <main className="profile flex-grow sm:px-8 lg:px-[72px] py-[60px] lg:ml-[14.5%]">
         <div className="w-full mx-auto">
           {/* Profile info */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 md:gap-6 mb-6">
-            <Avatar className="w-20 h-20 sm:w-32 sm:h-32">
-              <AvatarImage src={profilePicture || "/placeholder.svg?height=128&width=128"} alt={`${user.username}`} className="object-cover object-top" />
-              <AvatarFallback>{user.username}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col items-center sm:items-start gap-4 flex-grow">
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <h2 className="text-xl font-semibold">{user.username}</h2>
-                <div className="flex gap-1">
+          <section className="flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-16 mb-12 sm:px-4 md:px-0">
+            <div className="relative flex-shrink-0 group">
+              <div className="w-24 h-24 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-tr from-tertiary to-primary">
+                <div className="w-full h-full rounded-full border-4 border-surface overflow-hidden">
+                  <img src={profilePicture || "/placeholder.svg?height=128&width=128"} alt={`${user.username}`} className="w-full h-full object-cover object-top" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex-1 space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <h2 className="text-2xl font-display font-extrabold tracking-tight text-on-surface">@{user.username}</h2>
+                <div className="flex gap-2">
                   {userDetails?.id === userID ? (
                     <>
                       <Link to={`/accounts/edit/${user?._id}`}>
-                        <Button variant="secondary" className="mr-2 rounded-lg px-4" size="sm">Edit profile</Button>
+                        <button className="px-6 py-2 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-bold text-sm shadow-sm hover:opacity-90 transition-all active:scale-95">Edit profile</button>
                       </Link>
-                      <Button variant="secondary" className="rounded-lg px-4 mr-2" size="sm">View archive</Button>
+                      <button className="hidden sm:block px-6 py-2 rounded-full bg-surface-container-high text-on-surface font-bold text-sm hover:bg-surface-container-highest transition-colors active:scale-95">Archive</button>
                       <Link to={`/admindashboard`}>
-                        <Button variant="secondary" className="mr-2 rounded-lg px-4" size="sm">Admin Panel</Button>
+                        <button className="px-6 py-2 rounded-full bg-surface-container-high text-on-surface font-bold text-sm hover:bg-surface-container-highest transition-colors active:scale-95">Admin</button>
                       </Link>
-                      <Button onClick={handleLogout} variant="ghost" size="icon" className="md:ml-2">
-                        <SettingsIcon className="h-6 w-6" />
-                      </Button>
+                      <button onClick={handleLogout} className="p-2 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors active:scale-95">
+                        <SettingsIcon className="h-5 w-5" />
+                      </button>
                     </>
                   ) : (
                     <>
-                      <Button onClick={(e) => handleFollowing(e, userID)} variant="secondary" className="mr-2 rounded-lg px-4" size="sm">{followingUserss?.includes(userID) ? "Following" : "follow"}</Button>
+                      <button onClick={(e) => handleFollowing(e, userID)} className="px-6 py-2 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-bold text-sm shadow-sm hover:opacity-90 transition-all active:scale-95">{followingUserss?.includes(userID) ? "Following" : "Follow"}</button>
                       <Link to="/direct/inbox">
-                        <Button variant="secondary" className="rounded-lg px-4" size="sm">Message</Button>
+                        <button className="px-6 py-2 rounded-full bg-surface-container-high text-on-surface font-bold text-sm hover:bg-surface-container-highest transition-colors active:scale-95">Message</button>
                       </Link>
                     </>
                   )}
                 </div>
               </div>
-              <div className="flex justify-center md:justify-start space-x-8 sm:space-x-16 mb-4">
-                <span><strong>{postsArr.length}</strong> posts</span>
+
+              <div className="flex gap-8 md:gap-12 border-y md:border-none border-surface-container py-4 md:py-0">
+                <div className="flex flex-col md:flex-row md:gap-2 items-baseline">
+                  <span className="text-lg font-bold text-on-surface">{postsArr.length}</span>
+                  <span className="text-sm text-secondary">posts</span>
+                </div>
                 {userDetails?.id === userID ?
-                  <span><strong>{user.followers?.length || 0}</strong> followers</span>
+                  <div className="flex flex-col md:flex-row md:gap-2 items-baseline">
+                    <span className="text-lg font-bold text-on-surface">{user.followers?.length || 0}</span>
+                    <span className="text-sm text-secondary">followers</span>
+                  </div>
                   :
-                  <span><strong>{following?.length || 0}</strong> followers</span>
+                  <div className="flex flex-col md:flex-row md:gap-2 items-baseline">
+                    <span className="text-lg font-bold text-on-surface">{following?.length || 0}</span>
+                    <span className="text-sm text-secondary">followers</span>
+                  </div>
                 }
-                <span><strong>{user.following?.length || 0}</strong> following</span>
+                <div className="flex flex-col md:flex-row md:gap-2 items-baseline">
+                  <span className="text-lg font-bold text-on-surface">{user.following?.length || 0}</span>
+                  <span className="text-sm text-secondary">following</span>
+                </div>
               </div>
-              <div className="text-sm text-center sm:text-left">
-                <p className="font-medium">{user.fullName}</p>
-                <p className='text-zinc-700 dark:text-white'>{user.bio || "No bio available"}</p>
+
+              <div className="space-y-1">
+                <h3 className="font-display font-bold text-on-surface">{user.fullName}</h3>
+                <p className='text-secondary max-w-md leading-relaxed'>{user.bio || "No bio available"}</p>
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Story highlights */}
           <div className="mb-6 overflow-x-auto">
@@ -231,44 +269,55 @@ const Profile = () => {
           {/* Post Tabs */}
           <section className="mt-10 w-full h-auto">
             <Tabs defaultValue="posts" className="w-full h-full">
-              <TabsList className="w-full justify-center">
-                <TabsTrigger value="posts" className="flex-1 text-sm"><GridIcon className="w-4 h-4 mr-2" />Posts</TabsTrigger>
+              <TabsList className="w-full justify-center bg-transparent border-t border-surface-container h-14 md:gap-20 gap-8">
+                <TabsTrigger value="posts" className="flex items-center gap-2 py-4 border-t-2 border-transparent data-[state=active]:border-on-surface data-[state=active]:text-on-surface -mt-[1px] text-secondary hover:text-on-surface transition-all rounded-none bg-transparent shadow-none">
+                  <GridIcon className="w-4 h-4 hidden md:block" />
+                  <span className="text-[10px] font-label font-bold uppercase tracking-[0.2em]">Posts</span>
+                </TabsTrigger>
                 {userDetails.id === userID ? (
-                  <TabsTrigger value="saved" className="flex-1 text-sm"><BookmarkIcon className="w-4 h-4 mr-2" />Saved</TabsTrigger>
+                  <TabsTrigger value="saved" className="flex items-center gap-2 py-4 border-t-2 border-transparent data-[state=active]:border-on-surface data-[state=active]:text-on-surface -mt-[1px] text-secondary hover:text-on-surface transition-all rounded-none bg-transparent shadow-none">
+                    <BookmarkIcon className="w-4 h-4 hidden md:block" />
+                    <span className="text-[10px] font-label font-bold uppercase tracking-[0.2em]">Saved</span>
+                  </TabsTrigger>
                 ) : (
-                  <TabsTrigger value="saved" className="flex-1 text-sm"><Clapperboard className="w-4 h-4 mr-2" />Reels</TabsTrigger>
+                  <TabsTrigger value="saved" className="flex items-center gap-2 py-4 border-t-2 border-transparent data-[state=active]:border-on-surface data-[state=active]:text-on-surface -mt-[1px] text-secondary hover:text-on-surface transition-all rounded-none bg-transparent shadow-none">
+                    <Clapperboard className="w-4 h-4 hidden md:block" />
+                    <span className="text-[10px] font-label font-bold uppercase tracking-[0.2em]">Reels</span>
+                  </TabsTrigger>
                 )}
-                <TabsTrigger value="tagged" className="flex-1 text-sm"><UserIcon className="w-4 h-4 mr-2" />Tagged</TabsTrigger>
+                <TabsTrigger value="tagged" className="flex items-center gap-2 py-4 border-t-2 border-transparent data-[state=active]:border-on-surface data-[state=active]:text-on-surface -mt-[1px] text-secondary hover:text-on-surface transition-all rounded-none bg-transparent shadow-none">
+                  <UserIcon className="w-4 h-4 hidden md:block" />
+                  <span className="text-[10px] font-label font-bold uppercase tracking-[0.2em]">Tagged</span>
+                </TabsTrigger>
                 {userDetails.id !== userID && (
-                  <TabsTrigger value="watched" className="flex-1 text-sm"><UserIcon className="w-4 h-4 mr-2" />Watched</TabsTrigger>
+                  <TabsTrigger value="watched" className="flex items-center gap-2 py-4 border-t-2 border-transparent data-[state=active]:border-on-surface data-[state=active]:text-on-surface -mt-[1px] text-secondary hover:text-on-surface transition-all rounded-none bg-transparent shadow-none">
+                    <EyeIcon className="w-4 h-4 hidden md:block" />
+                    <span className="text-[10px] font-label font-bold uppercase tracking-[0.2em]">Watched</span>
+                  </TabsTrigger>
                 )}
               </TabsList>
 
               {/* Posts Tab Content */}
               <TabsContent value="posts" className="w-full h-full">
-                <div className="grid grid-cols-3 sm:grid-cols-3 gap-1 mb-20 w-full h-full">
-                  {postsArr.map((post) => (
-                    <div onClick={e => showComments(e, post)} key={post._id} className="relative w-full h-48 sm:h-64 md:h-72 group">
-                      <Card id={post?.caption} className="rounded-none border-none w-full h-full">
-                        <CardContent className="p-0 w-full h-full">
-                          {post?.media[0]?.mediaType === 'image' ? (
-                            <img src={`${post?.media[0]?.mediaPath}`} alt={post.caption} className="w-full h-full object-cover object-top" loading="lazy" />
-                          ) : (
-                            <video src={`${post?.media[0]?.mediaPath}`} className="w-full h-full aspect-square object-cover" />
-                          )}
-                        </CardContent>
-                      </Card>
+                <div className="grid grid-cols-3 gap-1 md:gap-8 mt-4 md:mt-8 mb-20 w-full h-full px-2 md:px-0">
+                  {postsArr.map((post, index) => (
+                    <div onClick={e => showComments(e, post)} key={post._id} className={`group relative overflow-hidden rounded-xl bg-surface-container-low cursor-pointer aspect-square ${index === 0 ? 'col-span-2 row-span-2' : 'col-span-1'}`}>
+                      {post?.media[0]?.mediaType === 'image' ? (
+                        <img src={`${post?.media[0]?.mediaPath}`} alt={post.caption} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                      ) : (
+                        <video src={`${post?.media[0]?.mediaPath}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      )}
 
                       {/* Dropdown menu positioned at top-right */}
                       <div className="absolute top-2 right-2 z-20">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" className="text-white hover:bg-black/20">
                               <MoreHorizontal className="w-5 h-5" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40 md:w-80">
-                            <DropdownMenuItem onClick={e => handleDeletePost(e, post?._id)} className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={e => handleDeletePost(e, post?._id)} className="text-error justify-center font-bold focus:text-error cursor-pointer">Delete</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="justify-center cursor-pointer">Add to favorites</DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -281,14 +330,9 @@ const Profile = () => {
                         </DropdownMenu>
                       </div>
 
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <div className="flex flex-col justify-center items-center gap-5">
-                          <p className="text-white flex gap-5">
-                            <div className="likes flex gap-2 justify-center items-center"><FaHeart className='w-6 h-6' /> {post?.likes?.length}</div>
-                            <div className="comments flex gap-2 justify-center items-center"><IoChatbubbleSharp className="w-6 h-6 -rotate-90" /> {post?.comments?.length}</div>
-                          </p>
-                          <p className='text-white'>caption : <span className='font-semibold'>{post?.caption}</span></p>
-                        </div>
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white font-bold pointer-events-none">
+                        <div className="flex items-center gap-2"><FaHeart className='w-6 h-6' /> {post?.likes?.length || 0}</div>
+                        <div className="flex items-center gap-2"><IoChatbubbleSharp className="w-6 h-6 -rotate-90" /> {post?.comments?.length || 0}</div>
                       </div>
                     </div>
                   ))}
@@ -297,48 +341,71 @@ const Profile = () => {
               </TabsContent>
 
               {/* Other Tabs Content (saved, tagged, watched) */}
-              <TabsContent value="saved">
-                <div className="text-center py-8 text-gray-500">No saved posts yet.</div>
-              </TabsContent>
-              <TabsContent value="tagged">
-                <div className="text-center py-8 text-gray-500">No tagged posts yet.</div>
-              </TabsContent>
-              <TabsContent value="watched">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 mb-20 w-full h-full">
-                  {watched.map((watch) => (
-                    <div key={watch._id}>
-                      <div onClick={e => showComments(e, watch)} key={watch._id} className="relative w-full h-48 sm:h-64 md:h-72 group">
-                        <Card id={watch?.caption} className="rounded-none border-none w-full h-full">
-                          <CardContent className="p-0 w-full h-full">
-                            {watch?.media[0]?.mediaType === 'image' ? (
-                              <img src={`${watch?.media[0]?.mediaPath}`} alt={watch.caption} className="w-full h-full object-cover object-top" loading="lazy" />
-                            ) : (
-                              <video src={`${watch?.media[0]?.mediaPath}`} className="w-full h-full aspect-square object-cover" />
-                            )}
-                          </CardContent>
-                        </Card>
+              <TabsContent value="saved" className="w-full h-full">
+                {savedPosts && savedPosts.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-1 md:gap-8 mt-4 md:mt-8 mb-20 w-full h-full px-2 md:px-0">
+                    {savedPosts.map((post, index) => (
+                      <div onClick={e => showComments(e, post)} key={post._id} className={`group relative overflow-hidden rounded-xl bg-surface-container-low cursor-pointer aspect-square ${index === 0 ? 'col-span-2 row-span-2' : 'col-span-1'}`}>
+                        {post?.media[0]?.mediaType === 'image' ? (
+                          <img src={`${post?.media[0]?.mediaPath}`} alt={post.caption} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                        ) : (
+                          <video src={`${post?.media[0]?.mediaPath}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        )}
 
                         <div className="absolute top-2 right-2 z-20">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
+                              <Button variant="ghost" size="icon" className="text-white hover:bg-black/20">
                                 <MoreHorizontal className="w-5 h-5" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-40 md:w-80">
-                              <DropdownMenuItem onClick={e => handleDeletePost(e, watch?._id)} className="text-red-600 justify-center font-bold focus:text-red-600 cursor-pointer">Delete</DropdownMenuItem>
+                              <DropdownMenuItem className="justify-center cursor-pointer text-error font-bold focus:text-error">Remove from saved</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
 
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <div className="flex flex-col justify-center items-center gap-5">
-                            <p className="text-white flex gap-5">
-                              <div className="likes flex gap-2 justify-center items-center"><FaHeart className='w-6 h-6' /> {watch?.likes?.length}</div>
-                              <div className="comments flex gap-2 justify-center items-center"><IoChatbubbleSharp className="w-6 h-6 -rotate-90" /> {watch?.comments?.length}</div>
-                            </p>
-                            <p className='text-white'>caption : <span className='font-semibold'>{watch?.caption}</span></p>
-                          </div>
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white font-bold pointer-events-none">
+                          <div className="flex items-center gap-2"><FaHeart className='w-6 h-6' /> {post?.likes?.length || 0}</div>
+                          <div className="flex items-center gap-2"><IoChatbubbleSharp className="w-6 h-6 -rotate-90" /> {post?.comments?.length || 0}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-on-surface-variant">No saved posts yet.</div>
+                )}
+              </TabsContent>
+              <TabsContent value="tagged">
+                <div className="text-center py-8 text-on-surface-variant">No tagged posts yet.</div>
+              </TabsContent>
+              <TabsContent value="watched">
+                <div className="grid grid-cols-3 gap-1 md:gap-8 mt-4 md:mt-8 mb-20 w-full h-full px-2 md:px-0">
+                  {watched.map((watch, index) => (
+                    <div key={watch._id}>
+                      <div onClick={e => showComments(e, watch)} className={`group relative overflow-hidden rounded-xl bg-surface-container-low cursor-pointer aspect-square ${index === 0 ? 'col-span-2 row-span-2' : 'col-span-1'}`}>
+                        {watch?.media[0]?.mediaType === 'image' ? (
+                          <img src={`${watch?.media[0]?.mediaPath}`} alt={watch.caption} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                        ) : (
+                          <video src={`${watch?.media[0]?.mediaPath}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        )}
+
+                        <div className="absolute top-2 right-2 z-20">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="text-white hover:bg-black/20">
+                                <MoreHorizontal className="w-5 h-5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40 md:w-80">
+                              <DropdownMenuItem onClick={e => handleDeletePost(e, watch?._id)} className="text-error justify-center font-bold focus:text-error cursor-pointer">Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6 text-white font-bold pointer-events-none">
+                          <div className="flex items-center gap-2"><FaHeart className='w-6 h-6' /> {watch?.likes?.length || 0}</div>
+                          <div className="flex items-center gap-2"><IoChatbubbleSharp className="w-6 h-6 -rotate-90" /> {watch?.comments?.length || 0}</div>
                         </div>
                       </div>
                     </div>

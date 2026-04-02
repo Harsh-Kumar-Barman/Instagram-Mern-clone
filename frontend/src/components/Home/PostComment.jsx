@@ -140,16 +140,16 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
             {selectedMedia && (
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger className="sr-only">Open post details</DialogTrigger>
-                    <DialogContent className="p-0 border-none shadow-none min-w-[80vw] max-w-[85vw] h-[90vh] flex justify-center overflow-hidden items-center sm:rounded-sm">
+                    <DialogContent className="p-0 border-none shadow-none min-w-[80vw] max-w-[85vw] h-[90vh] flex justify-center overflow-hidden items-center sm:rounded-sm bg-surface text-on-surface">
                         <div className="flex w-full h-full">
-                            <div className="multimedia w-full h-full bg-neutral-950">
+                            <div className="multimedia w-full h-full bg-surface-container-highest">
                                 {selectedMedia?.media?.length > 1 ? (
                                     <Carousel className="w-full h-full">
                                         <CarouselContent>
                                             {selectedMedia?.media.map((mediaItem, index) => (
                                                 <CarouselItem key={index} className="h-full">
                                                     <Card className="rounded-sm h-full flex justify-center items-center">
-                                                        <CardContent onDoubleClick={(e) => handleLike(e, PostDetails._id)} className="p-0 relative border-[.1px] h-full w-full border-zinc-300 dark:border-zinc-800 rounded-sm overflow-hidden flex justify-center items-center">
+                                                        <CardContent onDoubleClick={(e) => handleLike(e, PostDetails._id)} className="p-0 relative border-[.1px] h-full w-full border-outline-variant/30 rounded-sm overflow-hidden flex justify-center items-center">
                                                             {mediaItem?.mediaType === 'video' ? (
                                                                 <>
                                                                     <video
@@ -188,8 +188,8 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                                 </CarouselItem>
                                             ))}
                                         </CarouselContent>
-                                        <CarouselPrevious className="left-1 dark:text-white" />
-                                        <CarouselNext className="right-1 dark:text-white" />
+                                        <CarouselPrevious className="left-1 text-on-surface bg-surface/80 hover:bg-surface border-none shadow-ambient backdrop-blur-sm w-8 h-8" />
+                                        <CarouselNext className="right-1 text-on-surface bg-surface/80 hover:bg-surface border-none shadow-ambient backdrop-blur-sm w-8 h-8" />
                                     </Carousel>
                                 ) : (
                                     selectedMedia?.media[0]?.mediaPath?.endsWith(".mp4") || selectedMedia?.mediaPath?.endsWith(".webm") ? (
@@ -203,8 +203,8 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                     )
                                 )}
                             </div>
-                            <div className="w-full h-full rounded-sm dark:bg-neutral-950 dark:text-white flex flex-col justify-between">
-                                <div className="author border-b-[.1px] border-zinc-800 w-full h-[70px] flex items-center px-4">
+                            <div className="w-full h-full rounded-sm bg-surface text-on-surface flex flex-col justify-between">
+                                <div className="author border-b-[.1px] border-outline-variant/30 w-full h-[70px] flex items-center px-4">
                                     <div className="flex items-center gap-2">
                                         <Avatar>
                                             <AvatarImage className="object-cover object-top" src={PostDetails?.author?.profilePicture} alt={`${PostDetails?.author?.username}'s profile`} />
@@ -235,13 +235,13 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                                         </Link>
                                                         <div className="flex flex-col">
                                                             <p className='flex items-center gap-2'>
-                                                                <strong className='hover:text-zinc-400 text-sm duration-150'>{comment?.user?.username}</strong>
+                                                                <strong className='hover:text-on-surface-variant text-sm duration-150'>{comment?.user?.username}</strong>
                                                                 <span className='font-light text-sm'>{comment.text}</span>
                                                             </p>
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <Button variant="ghost" size="icon" className="hover:text-zinc-500 transition-colors duration-100">
+                                                        <Button variant="ghost" size="icon" className="hover:text-on-surface-variant transition-colors duration-100">
                                                             <FaRegHeart size={10} />
                                                             <span className="sr-only">Like comment</span>
                                                         </Button>
@@ -268,31 +268,31 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                         <p className="text-center">No comments yet. Be the first to comment!</p>
                                     )}
                                 </div>
-                                <div className="actions border-t-[.1px] border-zinc-800 w-full px-4 py-3">
+                                <div className="actions border-t-[.1px] border-outline-variant/30 w-full px-4 py-3">
                                     <div className="flex justify-between items-center">
                                         <div className="flex gap-3">
                                             <Button variant="ghost" size="icon" onClick={(e) => handleLike(e, PostDetails?._id)}>
                                                 {liked.includes(userDetails.id) ? (
-                                                    <FaHeart size={25} className="text-red-500" />
+                                                    <FaHeart size={25} className="text-error" />
                                                 ) : (
-                                                    <FaRegHeart size={25} className="hover:text-zinc-500 transition-colors duration-100" />
+                                                    <FaRegHeart size={25} className="hover:text-on-surface-variant transition-colors duration-100" />
                                                 )}
                                                 <span className="sr-only">{liked.includes(userDetails.id) ? 'Unlike' : 'Like'}</span>
                                             </Button>
                                             <Button variant="ghost" size="icon">
-                                                <IoChatbubbleOutline size={25} className="hover:text-zinc-500 transition-colors duration-100" style={{ transform: 'scaleX(-1)' }} />
+                                                <IoChatbubbleOutline size={25} className="hover:text-on-surface-variant transition-colors duration-100" style={{ transform: 'scaleX(-1)' }} />
                                                 <span className="sr-only">Comment</span>
                                             </Button>
                                             <Button variant="ghost" size="icon">
-                                                <FiSend size={25} className="hover:text-zinc-500 transition-colors duration-100" />
+                                                <FiSend size={25} className="hover:text-on-surface-variant transition-colors duration-100" />
                                                 <span className="sr-only">Share</span>
                                             </Button>
                                         </div>
                                         <Button variant="ghost" size="icon" onClick={(e) => handleSavePost(e, PostDetails?._id)}>
                                             {Array.isArray(savedPosts) && savedPosts?.includes(PostDetails?._id) ? (
-                                                <GoBookmarkFill size={25} className="text-white" />
+                                                <GoBookmarkFill size={25} className="text-on-surface" />
                                             ) : (
-                                                <GoBookmark size={25} className="hover:text-zinc-500 transition-colors duration-100" />
+                                                <GoBookmark size={25} className="hover:text-on-surface-variant transition-colors duration-100" />
                                             )}
                                             <span className="sr-only">{Array.isArray(savedPosts) && savedPosts?.includes(PostDetails?._id) ? 'Unsave' : 'Save'}</span>
                                         </Button>
@@ -302,7 +302,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                     </div>
                                 </div>
 
-                                <div className="comment-input border-t-[.1px] border-zinc-800 w-full px-4 py-3">
+                                <div className="comment-input border-t-[.1px] border-outline-variant/30 w-full px-4 py-3">
                                     <form onSubmit={(e) => handleCommentSubmit(e, PostDetails._id)} className="flex items-center">
                                         <input
                                             type="text"
@@ -315,7 +315,7 @@ function PostComment({ selectedMedia, isDialogOpen, setIsDialogOpen }) {
                                         <Button
                                             type="submit"
                                             variant="ghost"
-                                            className={`text-blue-500 font-bold text-sm ${!comment.trim() && 'text-zinc-600'}`}
+                                            className={`text-primary font-bold text-sm ${!comment.trim() && 'text-on-surface-variant/50'}`}
                                             disabled={!comment.trim()}
                                         >
                                             Post

@@ -261,7 +261,7 @@ function Sidebar({ compact }) {
     return (
         <>
             <aside
-                className={`fixed left-0 top-0 bottom-0 z-30 hidden md:flex flex-col w-[72px] lg:w-60 p-3 border-r border-zinc-300 dark:border-zinc-800 bg-white dark:text-white dark:bg-neutral-950`}>
+                className={`fixed left-0 top-0 bottom-0 z-30 hidden md:flex flex-col w-[72px] lg:w-60 p-3 bg-surface text-on-surface border-r border-surface-container-highest`}>
                 <Link to='/'>
                     <h1 className="text-xl font-semibold mb-8 mt-8 ml-4 flex gap-2">
                         <Instagram />
@@ -284,9 +284,9 @@ function Sidebar({ compact }) {
                                     </Button>
                                     <Sheet open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
                                         <SheetTrigger asChild>
-                                            <div className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-neutral-950 z-20 transition-transform duration-300 ${isNotificationOpen ? 'transform-none' : '-translate-x-full'}`} />
+                                            <div className={`fixed top-0 left-0 h-full w-64 bg-surface-container z-20 transition-transform duration-300 ${isNotificationOpen ? 'transform-none' : '-translate-x-full'}`} />
                                         </SheetTrigger>
-                                        <SheetContent side="left" className="w-full p-4 bg-white dark:bg-neutral-950 dark:text-white border-r-[.2px] border-zinc-800 rounded-tr-2xl rounded-br-2xl transition-transform duration-300">
+                                        <SheetContent side="left" className="w-full p-4 bg-surface-container text-on-surface border-none shadow-ambient rounded-tr-2xl rounded-br-2xl transition-transform duration-300">
                                             <h2 className="font-semibold text-lg mb-4">Notifications</h2>
                                             <ScrollArea className="h-48 p-4">
                                                 {RTMNotification && Array.isArray(RTMNotification) && RTMNotification.map((user) => (
@@ -299,7 +299,7 @@ function Sidebar({ compact }) {
                                                                 </Avatar>
                                                                 <div className="flex flex-col items-start">
                                                                     <p className="font-medium text-sm">{user.username}</p>
-                                                                    <p className="text-sm text-gray-500">Liked your post</p>
+                                                                    <p className="text-sm text-on-surface-variant">Liked your post</p>
                                                                 </div>
                                                             </Link>
                                                         </div>
@@ -317,27 +317,27 @@ function Sidebar({ compact }) {
                                     </Button>
                                     <Sheet open={isSearchOpen} onOpenChange={setIsSearchOpen}>
                                         <SheetTrigger asChild>
-                                            <div className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-neutral-950 z-20 transition-transform duration-300 ${isSearchOpen ? 'transform-none' : '-translate-x-full'}`} />
+                                            <div className={`fixed top-0 left-0 h-full w-64 bg-surface-container z-20 transition-transform duration-300 ${isSearchOpen ? 'transform-none' : '-translate-x-full'}`} />
                                         </SheetTrigger>
-                                        <SheetContent side="left" className="w-full p-4 bg-white dark:bg-neutral-950 dark:text-white border-r-[.2px] border-zinc-800 rounded-tr-3xl rounded-br-3xl transition-transform duration-300">
+                                        <SheetContent side="left" className="w-full p-4 bg-surface-container text-on-surface border-none shadow-ambient rounded-tr-3xl rounded-br-3xl transition-transform duration-300">
                                             <h2 className="font-semibold text-lg mb-4">Search</h2>
                                             <input
                                                 type="text"
                                                 value={query}
                                                 onChange={handleSearchChange}
                                                 placeholder="Search users"
-                                                className="w-full p-2 rounded-md border dark:border-zinc-800 bg-white dark:bg-neutral-950"
+                                                className="w-full p-2 rounded-md border-none bg-surface-container-highest text-on-surface shadow-sm focus:ring-1 focus:ring-primary outline-none inline-flex"
                                             />
                                             <ScrollArea className="h-48 py-4">
                                                 {results.length > 0 && results.map((user) => (
-                                                    <Link to={`/profile/${user.username}`} key={user._id} className="flex items-center gap-2 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-2">
+                                                    <Link to={`/profile/${user.username}`} key={user._id} className="flex items-center gap-2 py-2 hover:bg-surface-container-high px-2 rounded-md transition-colors">
                                                         <Avatar className="w-10 h-10">
                                                             <AvatarImage src={user.profilePicture} alt={user.username} className="object-cover object-top" />
                                                             <AvatarFallback>{user.username}</AvatarFallback>
                                                         </Avatar>
                                                         <div className="flex flex-col">
                                                             <p className="font-medium text-sm">{user.username}</p>
-                                                            <p className="text-sm text-gray-500">{user.fullName}</p>
+                                                            <p className="text-sm text-on-surface-variant">{user.fullName}</p>
                                                         </div>
                                                     </Link>
                                                 ))}
@@ -357,9 +357,9 @@ function Sidebar({ compact }) {
                                     <DialogContent className="sm:max-w-[800px] h-auto">
                                         <DialogHeader>
                                             {!selectedOption ? (
-                                                <DialogTitle className="dark:text-white">Select an Option</DialogTitle>
+                                                <DialogTitle className="text-on-surface font-display">Select an Option</DialogTitle>
                                             ) : selectedOption === "post" ? (
-                                                <DialogTitle className="dark:text-white">{step === 1 ? "Create Post" : "Add Caption"}</DialogTitle>
+                                                <DialogTitle className="text-on-surface font-display">{step === 1 ? "Create Post" : "Add Caption"}</DialogTitle>
                                             ) : (
                                                 <DialogTitle>Upload Story</DialogTitle>
                                             )}
@@ -555,7 +555,7 @@ function Sidebar({ compact }) {
             </aside>
 
             {/* Bottom navigation bar for small screens */}
-            <nav className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-around border-t border-zinc-300 dark:border-zinc-800 bg-white dark:text-white dark:bg-neutral-950 md:hidden p-2">
+            <nav className="fixed bottom-0 left-0 right-0 z-20 flex items-center justify-around border-t-0 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] bg-surface text-on-surface md:hidden p-2">
                 {smLinks.map((link) => (
                     <Button variant="ghost" className="w-full justify-center" asChild key={link.id}>
                         {link.onClick ?
@@ -580,25 +580,25 @@ function Sidebar({ compact }) {
                 <SheetTrigger asChild>
                     <div />
                 </SheetTrigger>
-                <SheetContent side="bottom" className="w-full p-4 bg-white dark:bg-neutral-950 dark:text-white border-t-[.2px] border-zinc-800 rounded-tr-3xl rounded-tl-3xl transition-transform duration-300">
-                    <h2 className="font-semibold text-lg mb-4">Search</h2>
+                <SheetContent side="bottom" className="w-full p-4 bg-surface-container text-on-surface border-none shadow-ambient rounded-tr-3xl rounded-tl-3xl transition-transform duration-300">
+                    <h2 className="font-semibold text-lg mb-4 font-display">Search</h2>
                     <input
                         type="text"
                         value={query}
                         onChange={handleSearchChange}
                         placeholder="Search users"
-                        className="w-full p-2 rounded-md border dark:border-zinc-800 bg-white dark:bg-neutral-950"
+                        className="w-full p-2 text-on-surface rounded-md border-none bg-surface-container-highest shadow-sm focus:ring-1 focus:ring-primary outline-none"
                     />
                     <ScrollArea className="h-48 py-4">
                         {results.length > 0 && results.map((user) => (
-                            <Link to={`/profile/${user.username}`} key={user._id} className="flex items-center gap-2 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-2">
+                            <Link to={`/profile/${user.username}`} key={user._id} className="flex items-center gap-2 py-2 hover:bg-surface-container-high px-2 rounded-md transition-colors">
                                 <Avatar className="w-10 h-10">
                                     <AvatarImage src={user.profilePicture} alt={user.username} className="object-cover object-top" />
                                     <AvatarFallback>{user.username}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex flex-col">
                                     <p className="font-medium text-sm">{user.username}</p>
-                                    <p className="text-sm text-gray-500">{user.fullName}</p>
+                                    <p className="text-sm text-on-surface-variant">{user.fullName}</p>
                                 </div>
                             </Link>
                         ))}

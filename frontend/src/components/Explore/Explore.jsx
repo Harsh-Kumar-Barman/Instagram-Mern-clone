@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import { setSelectedPost } from '@/features/userDetail/userDetailsSlice';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { ExploreSkeleton } from '../Home/instagram-skeleton';
 
 const BASE_URL =
 import.meta.env.VITE_NODE_ENV === "development"
@@ -77,44 +78,66 @@ const ExploreGrid = () => {
         );
     };
 
-    if (isLoading) return <div className="flex justify-center items-center h-screen md:ml-[72px] lg:ml-60 dark:bg-neutral-950 dark:text-white">Loading...</div>;
+    if (isLoading) return <ExploreSkeleton />;
 
     return (
         <>
             <PostComment selectedMedia={selectedMedia} isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
-            <div className="flex-1 md:ml-[72px] lg:ml-60 dark:bg-neutral-950 min-h-screen grid grid-cols-3 gap-1 md:px-12 py-5 md:py-12 ml-auto">
-                {allPosts?.map((post, index) => {
-                    if (index === 2) {
-                        // The third item will span both rows
+            <div className="flex-1 md:ml-[72px] lg:ml-60 bg-transparent min-h-screen flex flex-col pt-8 lg:px-12 ml-auto">
+                {/* Search & Filters */}
+                <div className="w-full max-w-3xl mx-auto mb-6 px-4 lg:px-0">
+                    <div className="relative mb-4">
+                        <input 
+                            type="text" 
+                            placeholder="Search the gallery..." 
+                            className="w-full bg-surface-container border-none text-on-surface py-3.5 pl-12 pr-4 rounded-2xl font-body outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                        />
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        {["All", "Minimalism", "Architecture", "Nature", "Abstract", "Portraits"].map((filter, i) => (
+                            <button key={i} className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-display font-medium transition-colors ${i === 0 ? 'bg-on-surface text-background drop-shadow-sm' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'}`}>
+                                {filter}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="w-full grid grid-cols-3 gap-[4px] sm:gap-2 auto-rows-[120px] sm:auto-rows-[200px] md:auto-rows-[300px] px-1 lg:px-0 pb-12">
+                    {allPosts?.map((post, index) => {
+                        const normalizedIndex = index % 10;
+                        let gridClass = "col-span-1 row-span-1";
+                        
+                        // Instagram-style mosaic pattern
+                        if (normalizedIndex === 0) {
+                            gridClass = "col-span-2 row-span-2";
+                        } else if (normalizedIndex === 7) {
+                            // Reverse the layout for the next block
+                            gridClass = "col-span-2 row-span-2 col-start-2";
+                        }
+
                         return (
                             <div onClick={(e) => showComments(e, post)}
                                 key={post?._id}
-                                className="relative h-full col-span-1 row-span-2 group cursor-pointer"
+                                className={`relative w-full h-full rounded-md sm:rounded-xl overflow-hidden bg-surface-container group cursor-pointer ${gridClass}`}
                             >
                                 {renderMedia(post)}
                                 {post?.media[0]?.mediaType === 'video' && (
-                                    <div className="absolute top-5 right-5 text-white">
-                                        <BiSolidMoviePlay size={25} />
+                                    <div className="absolute top-3 right-3 text-white drop-shadow-md">
+                                        <BiSolidMoviePlay size={24} />
                                     </div>
                                 )}
-                                <p className="absolute bottom-0 left-0 p-5 w-full bg-gradient-to-t from-black/50 to-transparent text-white truncate">{post?.caption}</p>
+                                <p className="absolute bottom-0 left-0 p-4 w-full bg-gradient-to-t from-black/60 to-transparent text-white truncate font-body opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    {post?.caption}
+                                </p>
                             </div>
                         );
-                    }
-
-                    // Render all other posts
-                    return (
-                        <div onClick={(e) => showComments(e, post)} key={post?._id} className="w-full relative h-80 bg-gray-800 col-span-1 group cursor-pointer">
-                            {renderMedia(post)}
-                            {post?.media[0]?.mediaType === 'video' && (
-                                <div className="absolute top-5 right-5 text-white">
-                                    <BiSolidMoviePlay size={25} />
-                                </div>
-                            )}
-                            <p className="absolute bottom-0 left-0 p-5 bg-gradient-to-t from-black/50 to-transparent w-full text-white truncate">{post?.caption}</p>
-                        </div>
-                    );
-                })}
+                    })}
+                </div>
             </div>
         </>
     );

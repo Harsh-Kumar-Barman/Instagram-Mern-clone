@@ -290,7 +290,7 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
                   filteredResults.map((result) => (
                     <div
                       key={result._id}
-                      className="flex items-center space-x-2 p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                      className="flex items-center space-x-2 p-2 rounded-lg hover:bg-surface-container-high transition cursor-pointer">
                       <Checkbox
                         id={`checkbox-${result._id}`}
                         // checked={members.includes(result.id)}
@@ -299,14 +299,14 @@ export function SearchDialogWithCheckboxesComponent({ socketRef }) {
                       <div>
                         <label
                           htmlFor={`checkbox-${result._id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                          className="text-sm font-medium font-body leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-on-surface">
                           {result?.username}
                         </label>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-neutral-500 dark:text-neutral-400">No results found</p>
+                  <p className="text-sm text-on-surface-variant font-body">No results found</p>
                 )}
               </div>
             </ScrollArea>
