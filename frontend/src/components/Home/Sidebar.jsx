@@ -136,7 +136,7 @@ function Sidebar({ compact }) {
 
         formData.append('caption', caption);
         formData.append('author', userDetails.id); // Assuming you have author/user info
-        console.log(caption, filePreview)
+        // console.log(caption, filePreview)
 
         try {
             setIsSubmitting(true);
@@ -186,7 +186,7 @@ function Sidebar({ compact }) {
             const response = await axios.post(`${BASE_URL}/api/story/uploadStory`, formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
-            console.log("Story uploaded:", response.data);
+            // console.log("Story uploaded:", response.data);
         } catch (error) {
             console.error("Error uploading story:", error.message);
         }
@@ -224,7 +224,7 @@ function Sidebar({ compact }) {
         if (searchQuery) {
             try {
                 const response = await axios.get(`${BASE_URL}/api/search/users?query=${searchQuery}`);
-                console.log(response.data)
+                // console.log(response.data)
                 setResults(response.data);
             } catch (error) {
                 console.error('Error fetching search results:', error);

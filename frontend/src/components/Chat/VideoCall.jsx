@@ -23,8 +23,8 @@ const VideoCall = ({ userId, socketRef }) => {
   const [isAnswer, setIsAnswer] = useState(false);
   const [showVideoCall, setshowVideoCall] = useState(false)
   const navigate = useNavigate();
-console.log('socketRef.current:', socketRef.current);
-console.log('remoteUserId:', remoteUserId);
+// console.log('socketRef.current:', socketRef.current);
+// console.log('remoteUserId:', remoteUserId);
 
   useEffect(() => {
     // Ensure that the socket listeners are set up when the component mounts
@@ -58,7 +58,7 @@ console.log('remoteUserId:', remoteUserId);
 
 
     socketRef.current?.on('endCall', ({ from }) => {
-      console.log('Call ended by user:', from);
+      // console.log('Call ended by user:', from);
 
       // Close the peer connection and stop the local stream
       if (peerConnection.current) {
@@ -88,7 +88,7 @@ console.log('remoteUserId:', remoteUserId);
   useEffect(() => {
   const interval = setInterval(() => {
     if (socketRef.current) {
-      console.log("Socket initialized, setting up listeners...");
+      // console.log("Socket initialized, setting up listeners...");
       
       socketRef.current.on('videoCallOffer', async ({ from, offer }) => {
         setCreateOffer(offer);
@@ -114,7 +114,7 @@ console.log('remoteUserId:', remoteUserId);
       });
 
       socketRef.current.on('endCall', ({ from }) => {
-        console.log('Call ended by', from);
+        // console.log('Call ended by', from);
         if (peerConnection.current) peerConnection.current.close();
         if (localStreamRef.current) localStreamRef.current.getTracks().forEach(track => track.stop());
         setshowVideoCall(false);

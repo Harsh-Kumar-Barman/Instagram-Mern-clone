@@ -14,7 +14,7 @@ export const VideoCallProvider = ({ children, socketRef }) => {
 
         // Listen for incoming video call offer
         socketRef.current?.on('videoCallOffer', async ({ from, offer }) => {
-            console.log(from, offer)
+            // console.log(from, offer)
             await handleVideoCallOffer(from, offer);
         });
 
@@ -26,14 +26,14 @@ export const VideoCallProvider = ({ children, socketRef }) => {
         // Listen for ICE candidates
         socketRef.current?.on('iceCandidate', async ({ from, candidate }) => {
             // await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-            console.log(candidate)
+            // console.log(candidate)
         if (!peerConnection.current) {
             console.error("Peer connection is not initialized");
             return;
           }
           try {
             await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-            console.log("ICE candidate added successfully");
+            // console.log("ICE candidate added successfully");
           } catch (error) {
             console.error("Error adding ICE candidate:", error);
           }

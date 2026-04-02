@@ -30,7 +30,7 @@ const Home = ({ socketRef }) => {
   // 1. Fetch Posts with useInfiniteQuery
   const fetchPostsGroup = async ({ pageParam = 0 }) => {
     const { data } = await axios.get(`${BASE_URL}/api/posts/getPosts?page=${pageParam}&limit=5`);
-    console.log(data);
+    // console.log(data);
     return data;
   };
 

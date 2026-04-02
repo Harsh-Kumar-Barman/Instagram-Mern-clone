@@ -37,7 +37,7 @@ function ChildApp() {
   import.meta.env.VITE_NODE_ENV === "development"
     ? import.meta.env.VITE_API_BASE_URL_DEV
     : import.meta.env.VITE_API_BASE_URL_PROD;
-console.log(BASE_URL)
+// console.log(BASE_URL)
 // Initialize the socket connection once user details are available.
 useEffect(() => {
   if (userDetails?.id) {
