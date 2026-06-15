@@ -12,6 +12,21 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      localStorage.removeItem('user-info');
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
