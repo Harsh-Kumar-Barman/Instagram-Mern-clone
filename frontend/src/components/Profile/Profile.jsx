@@ -105,6 +105,8 @@ const Profile = () => {
     try {
       const { status } = await axios.get(`${BASE_URL}/api/auth/logout`);
       if (status === 200) {
+        localStorage.removeItem('user-info');
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Strict';
         navigate('/login');
       }
     } catch (error) {

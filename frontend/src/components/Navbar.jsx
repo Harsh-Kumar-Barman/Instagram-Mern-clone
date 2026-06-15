@@ -76,7 +76,7 @@ function Navbar() {
                                 <h2 className="font-semibold text-lg mb-4">Notifications</h2>
                                 <ScrollArea className="h-48 p-4">
                                     {RTMNotification && Array.isArray(RTMNotification) && RTMNotification.map((user) => (
-                                        <div className="flex flex-col gap-5 justify-center " key={user.id}>dsca
+                                        <div className="flex flex-col gap-5 justify-center " key={user.id}>
                                             <div className="flex items-center space-x-4 p-0 my-2">
                                                 <Link to={`/profile/${user.username}`} className='flex items-center gap-4'>
                                                     <Avatar className="w-10 h-10">
@@ -85,7 +85,9 @@ function Navbar() {
                                                     </Avatar>
                                                     <div className="flex flex-col items-start">
                                                         <p className="font-medium text-sm">{user.username}</p>
-                                                        <p className="text-sm text-on-surface-variant">Liked your post</p>
+                                                        <p className="text-sm text-on-surface-variant">
+                                                            {user.likeType === 'follow' ? 'Started following you' : 'Liked your post'}
+                                                        </p>
                                                     </div>
                                                 </Link>
                                             </div>

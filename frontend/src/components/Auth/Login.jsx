@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addUser } from '@/features/userDetail/userDetailsSlice';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { GoogleLogin } from '@react-oauth/google';
 
 const BASE_URL =
 import.meta.env.VITE_NODE_ENV === "development"
@@ -34,15 +34,12 @@ const Login = () => {
       }));
       localStorage.setItem('user-info', JSON.stringify({ token }));
 
-      // Store token in cookies (expires in 7 days)
       if (token) {
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 7); // Expires in 7 days
-
         document.cookie = `token=${token}; path=/; expires=${expiryDate.toUTCString()}; SameSite=Strict`;
       }
       toast.success('Login Successfull');
-      // navigate(`/profile/${response?.data?.user?.username}`);
       navigate(`/`);
 
     } catch (err) {
@@ -51,64 +48,98 @@ const Login = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/api/auth/google`, { token: credentialResponse.credential });
+      const token = response.data.token;
+      const profilePic = response?.data?.user?.profilePicture;
+      
+      dispatch(addUser({
+        fullName: response?.data?.user?.fullName,
+        username: response?.data?.user?.username,
+        email: response?.data?.user?.email,
+        id: response?.data?.user?._id,
+        profilePic: profilePic
+      }));
+      
+      localStorage.setItem('user-info', JSON.stringify({ token }));
+
+      if (token) {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 7);
+        document.cookie = `token=${token}; path=/; expires=${expiryDate.toUTCString()}; SameSite=Strict`;
+      }
+      
+      toast.success('Login Successfull');
+      navigate(`/`);
+    } catch (err) {
+      toast.error('Google Login Failed');
+      console.error('Google Login error:', err);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error('Google Login Failed');
+    console.error('Google Login Failed');
+  };
+
   return (
-    <div className="flex justify-center items-center flex-col p-3 min-h-screen bg-gray-100">
-      <div className="bg-white rounded-sm p-8 w-[350px] flex flex-col border border-gray-200 shadow-md">
-        <div className="flex justify-center mb-4">
-          <span
-            className="w-[175px] h-[51px] cursor-pointer"
-            role="img"
-            aria-label="Instagram logo"
-            style={{
-              backgroundImage: 'url(https://static.cdninstagram.com/rsrc.php/v3/yM/r/8n91YnfPq0s.png)',
-              backgroundPosition: '0px -52px',
-              backgroundSize: 'auto',
-              backgroundRepeat: 'no-repeat',
-              display: 'inline-block',
-            }}
-          ></span>
+    <div className="flex justify-center items-center flex-col p-4 min-h-screen bg-background">
+      <div className="bg-surface-container-lowest rounded-2xl p-8 w-full max-w-sm flex flex-col border border-outline-variant/30 shadow-ambient transition-all">
+        <div className="flex justify-center mb-8">
+          <h1 className="text-4xl font-display font-extrabold bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent">
+            InstaClone
+          </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border rounded-sm text-sm outline-none bg-gray-50"
-            placeholder="Email"
+            className="w-full px-4 py-3 border border-outline-variant/50 rounded-xl text-sm outline-none bg-surface-container-low text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+            placeholder="Email address"
             aria-label="Email"
+            required
           />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded-sm text-sm mt-2 outline-none bg-gray-50"
+            className="w-full px-4 py-3 border border-outline-variant/50 rounded-xl text-sm outline-none bg-surface-container-low text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
             placeholder="Password"
             aria-label="Password"
+            required
           />
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-sm text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4 w-full"
+            className="bg-[#1a73e8] hover:opacity-90 text-sm text-white font-bold py-3 px-4 rounded-xl focus:outline-none transition-opacity mt-2 w-full shadow-md"
           >
-            Login
+            Log in
           </button>
         </form>
-        <p className="text-center text-gray-600 mt-4">OR</p>
-        <button
-          className="flex justify-center gap-1 text-sm font-semibold items-center text-blue-600 py-2 px-4 border border-blue-600 rounded"
-          aria-label="Log in with Facebook"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" viewBox="0 0 48 48" className="mr-1">
-            <rect width="80" height="80" rx="8" fill="#1877F2" />
-            <path fill="#FFF" d="M29 15h-4c-2.2 0-4 1.8-4 4v3h-3v4h3v12h5V26h4l1-4h-5v-3c0-.6.4-1 1-1h4v-4z" />
-          </svg>
-          <span>Log in with Facebook</span>
-        </button>
+
+        <div className="flex items-center my-6">
+          <div className="flex-1 border-t border-outline-variant/30"></div>
+          <span className="px-4 text-sm text-outline font-semibold uppercase tracking-wider">or</span>
+          <div className="flex-1 border-t border-outline-variant/30"></div>
+        </div>
+
+        <div className="flex justify-center w-full">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            useOneTap
+            shape="pill"
+            theme="filled_blue"
+          />
+        </div>
       </div>
-      <div className="bg-white mt-4 rounded-sm p-8 w-[350px] flex justify-center items-center border border-gray-200 shadow-md">
-        <p className="text-center">
+
+      <div className="bg-surface-container-lowest mt-6 rounded-2xl p-6 w-full max-w-sm flex justify-center items-center border border-outline-variant/30 shadow-ambient transition-all">
+        <p className="text-on-surface">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 font-semibold">
+          <Link to="/register" className="text-primary hover:text-primary-container font-bold transition-colors">
             Sign up
           </Link>
         </p>

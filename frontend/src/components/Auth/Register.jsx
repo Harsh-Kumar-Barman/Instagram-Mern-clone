@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addUser } from '@/features/userDetail/userDetailsSlice';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { GoogleLogin } from '@react-oauth/google';
 
 const BASE_URL =
 import.meta.env.VITE_NODE_ENV === "development"
@@ -35,124 +35,137 @@ const Register = () => {
                 id: response?.data?.newUser?._id,
                 profilePic: profilePic
             }));
-            // navigate(`/profile/${username}`);
             toast.success('Account Created Successfully');
             navigate(`/profile/${response?.data?.newUser?.username}`);
 
         } catch (err) {
-            if (err.response.statusText === "Unauthorized") navigate('/login')
+            if (err.response && err.response.statusText === "Unauthorized") navigate('/login')
             toast.error('Please check details');
             console.error(err);
         }
     };
 
-    return (
-        <>
-            <div className="flex justify-center items-center flex-col p-3 bg-white">
-                <div className="bg-white rounded-sm p-8 w-[350px] flex flex-col border-[.1px] border-gray-200">
-                    <div className="flex flex-col justify-center items-center">
-                        {/* <h1 className="text-3xl font-bold mb-4 text-center">Instagram</h1> */}
-                        <span
-                            className="w-[175px] h-[51px] cursor-pointer mb-4"
-                            role="img"
-                            style={{
-                                backgroundImage: 'url(https://static.cdninstagram.com/rsrc.php/v3/yM/r/8n91YnfPq0s.png)',
-                                backgroundPosition: '0px -52px',
-                                backgroundSize: 'auto',
-                                width: '175px',
-                                height: '51px',
-                                backgroundRepeat: 'no-repeat',
-                                display: 'inline-block',
-                            }}
-                        ></span>
+    const handleGoogleSuccess = async (credentialResponse) => {
+        try {
+            const response = await axios.post(`${BASE_URL}/api/auth/google`, { token: credentialResponse.credential });
+            const token = response.data.token;
+            const profilePic = response?.data?.user?.profilePicture;
+            
+            dispatch(addUser({
+                fullName: response?.data?.user?.fullName,
+                username: response?.data?.user?.username,
+                email: response?.data?.user?.email,
+                id: response?.data?.user?._id,
+                profilePic: profilePic
+            }));
+            
+            localStorage.setItem('user-info', JSON.stringify({ token }));
 
-                        <p className="text-gray-600 font-semibold text-center mb-6 w-64">
-                            Sign up to see photos and videos from your friends.
-                        </p>
-                    </div>
-                    <button className="bg-[#44a0f5] hover:bg-[#1877f2] flex justify-center gap-2 items-center text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline">
-                        <div className="svg">
-                            <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="white"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"
-                                />
-                            </svg>
-                        </div>
-                        <p>Log in with Facebook</p>
+            if (token) {
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + 7);
+                document.cookie = `token=${token}; path=/; expires=${expiryDate.toUTCString()}; SameSite=Strict`;
+            }
+            
+            toast.success('Account Created/Logged in Successfully');
+            navigate(`/profile/${response?.data?.user?.username}`);
+        } catch (err) {
+            toast.error('Google Login Failed');
+            console.error('Google Login error:', err);
+        }
+    };
+
+    const handleGoogleError = () => {
+        toast.error('Google Login Failed');
+        console.error('Google Login Failed');
+    };
+
+    return (
+        <div className="flex justify-center items-center flex-col p-4 min-h-screen bg-background">
+            <div className="bg-surface-container-lowest rounded-2xl p-8 w-full max-w-sm flex flex-col border border-outline-variant/30 shadow-ambient transition-all">
+                <div className="flex flex-col justify-center items-center mb-6">
+                    <h1 className="text-4xl font-display font-extrabold bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent mb-4">
+                        InstaClone
+                    </h1>
+                    <p className="text-outline font-medium text-center text-sm">
+                        Sign up to see photos and videos from your friends.
+                    </p>
+                </div>
+
+                <div className="flex justify-center w-full mb-6">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        useOneTap
+                        shape="pill"
+                        theme="filled_blue"
+                    />
+                </div>
+
+                <div className="flex items-center mb-6">
+                    <div className="flex-1 border-t border-outline-variant/30"></div>
+                    <span className="px-4 text-sm text-outline font-semibold uppercase tracking-wider">or</span>
+                    <div className="flex-1 border-t border-outline-variant/30"></div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-4 py-3 border border-outline-variant/50 rounded-xl text-sm outline-none bg-surface-container-low text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                        placeholder="Email address"
+                        required
+                    />
+                    <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="w-full px-4 py-3 border border-outline-variant/50 rounded-xl text-sm outline-none bg-surface-container-low text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                        placeholder="Full Name"
+                        required
+                    />
+                    <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full px-4 py-3 border border-outline-variant/50 rounded-xl text-sm outline-none bg-surface-container-low text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                        placeholder="Username"
+                        required
+                    />
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-4 py-3 border border-outline-variant/50 rounded-xl text-sm outline-none bg-surface-container-low text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                        placeholder="Password"
+                        required
+                    />
+                    <button
+                        type="submit"
+                        className="bg-[#1a73e8] hover:opacity-90 text-sm text-white font-bold py-3 px-4 rounded-xl focus:outline-none transition-opacity mt-2 w-full shadow-md"
+                    >
+                        Sign up
                     </button>
-                    <p className="text-center text-gray-600 mt-4">OR</p>
-                    <form onSubmit={handleSubmit} className="mt-4">
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-sm text-[12px] outline-none bg-[#fafafa]"
-                            placeholder="Email"
-                        />
-                        <input
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-sm text-[12px] mt-2 outline-none bg-[#fafafa]"
-                            placeholder="Full Name"
-                        />
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-sm text-[12px] mt-2 outline-none bg-[#fafafa]"
-                            placeholder="Username"
-                        />
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-sm text-[12px] mt-2 outline-none bg-[#fafafa]"
-                            placeholder="Password"
-                        />
-                        <button
-                            type="submit"
-                            className="bg-[#44a0f5] hover:bg-[#1877f2] text-sm text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline mt-4 w-full"
-                        >
-                            Sign up
-                        </button>
-                    </form>
-                    <p className="text-gray-600 text-center text-[13px] mt-4">
-                        People who use our service may have uploaded your contact information to Instagram.{' '}
-                        <Link to="#" className="text-blue-500">
-                            Learn More
-                        </Link>
-                    </p>
-                    <p className="text-center text-[13px] text-gray-600 mt-4">
-                        By signing up, you agree to our{' '}
-                        <Link to="#" className="text-blue-500">
-                            Terms
-                        </Link>
-                        ,{' '}
-                        <Link to="#" className="text-blue-500">
-                            Privacy Policy
-                        </Link>{' '}
-                        and{' '}
-                        <Link to="#" className="text-blue-500">
-                            Cookies Policy
-                        </Link>
-                        .
-                    </p>
-                </div>
-                <div className="bg-white mt-4 rounded-sm p-8 justify-center items-center w-[350px] flex flex-col border-[.1px] border-gray-200">
-                    <p className='text-center'>Have an account? <span className='text-blue-600 font-semibold'><Link to='/login'>Log in</Link></span></p>
-                </div>
+                </form>
+
+                <p className="text-outline text-center text-xs mt-6 leading-relaxed">
+                    By signing up, you agree to our{' '}
+                    <Link to="#" className="text-primary font-medium hover:underline">Terms</Link>,{' '}
+                    <Link to="#" className="text-primary font-medium hover:underline">Privacy Policy</Link> and{' '}
+                    <Link to="#" className="text-primary font-medium hover:underline">Cookies Policy</Link>.
+                </p>
             </div>
-        </>
+
+            <div className="bg-surface-container-lowest mt-6 rounded-2xl p-6 w-full max-w-sm flex justify-center items-center border border-outline-variant/30 shadow-ambient transition-all">
+                <p className="text-on-surface">
+                    Have an account?{' '}
+                    <Link to="/login" className="text-primary hover:text-primary-container font-bold transition-colors">
+                        Log in
+                    </Link>
+                </p>
+            </div>
+        </div>
     );
 };
 

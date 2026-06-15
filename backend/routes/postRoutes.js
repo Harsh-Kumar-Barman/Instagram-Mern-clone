@@ -6,13 +6,13 @@ const router = express.Router();
 
 router.post('/create', upload.array('media', 10), createPost); // Handle up to 10 files
 
-router.get('/getPosts', getAllPosts);
-router.put('/:id/like', like);
-router.get('/:id/comment', getComment);
-router.put('/:id/save', savePost);
-router.get('/getSavedPosts/:id', getSavedPosts);
-router.post('/:id/comment', writeComment);
-router.delete('/:postId/comment/:commentId', removeComment);
+router.get('/getPosts', authMiddleware, getAllPosts);
+router.put('/:id/like', authMiddleware, like);
+router.get('/:id/comment', authMiddleware, getComment);
+router.put('/:id/save', authMiddleware, savePost);
+router.get('/getSavedPosts/:id', authMiddleware, getSavedPosts);
+router.post('/:id/comment', authMiddleware, writeComment);
+router.delete('/:postId/comment/:commentId', authMiddleware, removeComment);
 router.delete('/delete/:postId', authMiddleware, deletePost);
 
 module.exports = router;

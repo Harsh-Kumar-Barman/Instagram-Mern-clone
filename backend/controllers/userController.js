@@ -2,6 +2,7 @@ const User = require('../models/userSchema');
 const Post = require('../models/postSchema');
 const Story = require('../models/storySchema');
 const cloudinary = require('../config/cloudinary'); // Import Cloudinary
+const { getReciverSocketId, io } = require('../socket/socket');
 
 
 const getUserAndPosts = async (req, res) => {
@@ -56,8 +57,11 @@ const following = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     const followingUser = await User.findById(req.body.followingID);
+    
+    let isFollowing = false;
     if (!user.following.includes(req.body.followingID)) {
       user.following.push(req.body.followingID);
+      isFollowing = true;
     } else {
       user.following.pull(req.body.followingID);
     }
@@ -68,6 +72,20 @@ const following = async (req, res) => {
     }
     await user.save();
     await followingUser.save();
+    
+    if (isFollowing) {
+      const receiverSocketId = getReciverSocketId(followingUser._id);
+      if (receiverSocketId) {
+        const newObj = {
+          likeType: 'follow',
+          id: user._id,
+          username: user.username,
+          userPic: user.profilePicture
+        };
+        io.to(receiverSocketId).emit('rtmNotification', newObj);
+      }
+    }
+    
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
