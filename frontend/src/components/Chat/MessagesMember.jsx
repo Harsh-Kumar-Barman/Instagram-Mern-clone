@@ -10,8 +10,8 @@ const BASE_URL =
     import.meta.env.VITE_NODE_ENV === "development"
         ? import.meta.env.VITE_API_BASE_URL_DEV
         : import.meta.env.VITE_API_BASE_URL_PROD;
-// console.log(BASE_URL)
-function MessagesMember({ socketRef }) {
+console.log(BASE_URL)
+function MessagesMember({ socketRef, typingUsers }) {
     const followingUsers = useSelector((state) => state.counter.followingUsers);
     const onlineUsers = useSelector((state) => state.counter.onlineUsers);
     const dispatch = useDispatch()
@@ -40,10 +40,17 @@ function MessagesMember({ socketRef }) {
                                         <span className="text-[10px] font-medium text-secondary tracking-wider uppercase text-green-500">Active</span>
                                     ) : (
                                         ""
-                                        // <span className="text-[10px] text-secondary tracking-wider uppercase">2h</span>
                                     )}
                                 </div>
-                                <p className={`text-sm truncate leading-tight ${onlineUsers?.includes(suggestedUser?._id) ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}` }>Start chatting...</p>
+                                <p className={`text-sm truncate leading-tight ${onlineUsers?.includes(suggestedUser?._id) ? 'text-on-surface font-semibold' : 'text-on-surface-variant'}`}>
+                                    {typingUsers?.has(suggestedUser?._id) ? (
+                                        <span className="text-primary italic font-bold">Typing...</span>
+                                    ) : (
+                                        suggestedUser?.lastMessage ? (
+                                            suggestedUser.lastMessage.messageType === 'text' ? suggestedUser.lastMessage.message : 'Sent an attachment'
+                                        ) : 'Start chatting...'
+                                    )}
+                                </p>
                             </div>
                         </div>
                     ))) : (

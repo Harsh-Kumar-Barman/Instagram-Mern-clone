@@ -59,7 +59,6 @@ const sendMessage = async (req, res) => {
 };
 
 
-// For getting friends of a user
 const getFriends = async (req, res) => {
   try {
     const { username } = req.params;
@@ -73,7 +72,44 @@ const getFriends = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(user.following);
+    // Find all conversations where this user is a participant
+    const conversations = await Conversation.find({
+      participants: user._id
+    }).populate({
+      path: 'participants',
+      select: '-password'
+    }).populate({
+      path: 'messages',
+      options: { sort: { 'createdAt': -1 } }
+    });
+
+    // Extract other participants and last message
+    const conversationPartners = [];
+    conversations.forEach(conv => {
+      const lastMessage = conv.messages && conv.messages.length > 0 ? conv.messages[conv.messages.length - 1] : null;
+      conv.participants.forEach(p => {
+        if (p._id.toString() !== user._id.toString()) {
+          const pObj = p.toObject();
+          pObj.lastMessage = lastMessage;
+          conversationPartners.push(pObj);
+        }
+      });
+    });
+
+    // Merge following and conversationPartners, removing duplicates
+    const combinedMap = new Map();
+    user.following.forEach(u => {
+      const uObj = u.toObject();
+      uObj.lastMessage = null;
+      combinedMap.set(u._id.toString(), uObj);
+    });
+
+    conversationPartners.forEach(u => {
+      // If the user is already in the map (from following), update it so it gets the lastMessage
+      combinedMap.set(u._id.toString(), u);
+    });
+
+    res.json(Array.from(combinedMap.values()));
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -95,7 +131,7 @@ const getAllMessages = async (req, res) => {
       ]
     });
 
-    
+
     if (!conversation) {
       return res.status(201).json({ success: true, messages: [] });
     }
@@ -192,6 +228,7 @@ const sendGroupMessage = async (req, res) => {
       message: messageType === 'text' ? message : undefined,
       mediaUrl: messageType !== 'text' ? mediaUrl : undefined,
       messageType,
+      groupId,
     };
 
     groupChat.messages.push(newMessage);

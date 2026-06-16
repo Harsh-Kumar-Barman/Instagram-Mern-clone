@@ -19,9 +19,9 @@ import { IoIosArrowDown } from "react-icons/io";
 
 
 const BASE_URL =
-import.meta.env.VITE_NODE_ENV === "development"
-  ? import.meta.env.VITE_API_BASE_URL_DEV
-  : import.meta.env.VITE_API_BASE_URL_PROD;
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_API_BASE_URL_DEV
+    : import.meta.env.VITE_API_BASE_URL_PROD;
 
 export function ChatComponent({ socketRef }) {
   const links = [
@@ -42,6 +42,8 @@ export function ChatComponent({ socketRef }) {
   const navigate = useNavigate()
 
 
+  const [typingUsers, setTypingUsers] = useState(new Set());
+
   const getFollowingUsers = async (username) => {
     try {
       const response = await axios.get(`${BASE_URL}/api/conversations/followingUsers/${username}`);
@@ -51,7 +53,7 @@ export function ChatComponent({ socketRef }) {
       return response.data;
     } catch (error) {
       console.error('Error fetching following users:', error);
-      if (error.response.statusText === "Unauthorized"||error.response?.status===403) navigate('/login')
+      if (error.response.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login')
 
     }
   };
@@ -60,14 +62,32 @@ export function ChatComponent({ socketRef }) {
 
   const getRealTimeMessages = () => {
     socketRef.current?.on('newMessage', (newMessage) => {
-      Array.isArray(messages) ?
-        dispatch(setMessages([...messages, newMessage])) : "no"
+      if (suggestedUser && (newMessage?.senderId?._id === suggestedUser?._id || newMessage?.reciverId?._id === suggestedUser?._id)) {
+        if (Array.isArray(messages)) {
+          dispatch(setMessages([...messages, newMessage]));
+        }
+      }
     });
     socketRef.current?.on('sendGroupMessage', (newMessage) => {
-      Array.isArray(messages) ?
-        dispatch(setMessages([...messages, newMessage])) : "no"
+      if (suggestedUser && newMessage?.groupId === suggestedUser?._id) {
+        // Skip appending if I am the sender, since the API response already appends it
+        if (newMessage?.senderId !== userDetails?.id && newMessage?.senderId?._id !== userDetails?.id) {
+          if (Array.isArray(messages)) {
+            dispatch(setMessages([...messages, newMessage]));
+          }
+        }
+      }
     });
-    
+    socketRef.current?.on('typing', ({ from }) => {
+      setTypingUsers(prev => new Set(prev).add(from));
+    });
+    socketRef.current?.on('stopTyping', ({ from }) => {
+      setTypingUsers(prev => {
+        const next = new Set(prev);
+        next.delete(from);
+        return next;
+      });
+    });
   }
 
 
@@ -77,15 +97,17 @@ export function ChatComponent({ socketRef }) {
     getRealTimeMessages()
 
     return () => {
-      socketRef.current.off('newMessage')
+      socketRef.current?.off('newMessage')
+      socketRef.current?.off('sendGroupMessage')
+      socketRef.current?.off('typing')
+      socketRef.current?.off('stopTyping')
     }
-  }, [messages, setMessages])
+  }, [messages, setMessages, dispatch, suggestedUser, userDetails])
 
 
 
   useEffect(() => {
     if (userDetails?.username) {
-      dispatch(setSuggestedUser(null))
       getFollowingUsers(userDetails.username);
     }
     return () => {
@@ -131,7 +153,7 @@ export function ChatComponent({ socketRef }) {
       }
     } catch (error) {
       console.log(error.message);
-      if (error?.response?.statusText === "Unauthorized"||error.response?.status===403) navigate('/login')
+      if (error?.response?.statusText === "Unauthorized" || error.response?.status === 403) navigate('/login')
 
     }
   };
@@ -154,7 +176,7 @@ export function ChatComponent({ socketRef }) {
           ))}
         </div>
         <section
-          className={` ${suggestedUser?"w-0 overflow-hidden border-none md:border-r":"w-full"} md:w-80 lg:w-96 border-r border-outline-variant/10 flex flex-col bg-surface-container-lowest text-on-surface transition-all duration-300`}>
+          className={` ${suggestedUser ? "w-0 overflow-hidden border-none md:border-r" : "w-full"} md:w-80 lg:w-96 border-r border-outline-variant/10 flex flex-col bg-surface-container-lowest text-on-surface transition-all duration-300`}>
           <header className="p-4 md:p-6 pb-2">
             <div className="flex justify-between items-center mb-6">
               <h1 className="font-headline text-2xl md:text-3xl font-extrabold tracking-tight text-on-surface flex items-center gap-2 cursor-pointer">{userDetails.username} <IoIosArrowDown size={18} className="text-on-surface-variant" /></h1>
@@ -162,18 +184,18 @@ export function ChatComponent({ socketRef }) {
             </div>
             <div className="relative mb-2">
               <IoSearchOutline className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg" />
-              <input className="w-full bg-surface-container-high border-none rounded-xl py-3 pl-12 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/60 outline-none text-on-surface font-body" placeholder="Search messages" type="text"/>
+              <input className="w-full bg-surface-container-high border-none rounded-xl py-3 pl-12 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/60 outline-none text-on-surface font-body" placeholder="Search messages" type="text" />
             </div>
           </header>
           <div className="flex justify-between items-center px-4 md:px-6 py-2">
-              <span className="font-headline font-bold text-on-surface">Messages</span>
-              <span className="text-on-surface-variant font-body text-sm font-medium cursor-pointer hover:text-on-surface transition-colors">Requests</span>
+            <span className="font-headline font-bold text-on-surface">Messages</span>
+            <span className="text-on-surface-variant font-body text-sm font-medium cursor-pointer hover:text-on-surface transition-colors">Requests</span>
           </div>
-          <MessagesMember socketRef={socketRef} />
+          <MessagesMember socketRef={socketRef} typingUsers={typingUsers} />
         </section>
 
         {/* Main Chat Area */}
-        <ChatBox socketRef={socketRef}/>
+        <ChatBox socketRef={socketRef} typingUsers={typingUsers} />
       </div>
     </div>)
   );

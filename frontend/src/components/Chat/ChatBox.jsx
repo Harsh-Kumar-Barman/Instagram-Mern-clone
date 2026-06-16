@@ -15,12 +15,14 @@ import VideoCall from './VideoCall';
 
 
 const BASE_URL =
-import.meta.env.VITE_NODE_ENV === "development"
-  ? import.meta.env.VITE_API_BASE_URL_DEV
-  : import.meta.env.VITE_API_BASE_URL_PROD;
+    import.meta.env.VITE_NODE_ENV === "development"
+        ? import.meta.env.VITE_API_BASE_URL_DEV
+        : import.meta.env.VITE_API_BASE_URL_PROD;
 
-function ChatBox() {
+function ChatBox({ socketRef, typingUsers }) {
     // const { startCall, localVideoRef, remoteVideoRef } = useVideoCall();
+    const [isTyping, setIsTyping] = useState(false);
+    const typingTimeoutRef = useRef(null);
     const suggestedUser = useSelector((state) => state.counter.suggestedUser);
     const userDetails = useSelector((state) => state.counter.userDetails);
     const messages = useSelector((state) => state.counter.messages);
@@ -40,6 +42,21 @@ function ChatBox() {
         e.preventDefault()
         dispatch(setSuggestedUser(null))
     }
+
+    const handleTyping = (e) => {
+        setTextMessage(e.target.value);
+        if (suggestedUser && 'username' in suggestedUser) {
+            if (!isTyping) {
+                setIsTyping(true);
+                socketRef.current?.emit('typing', { to: suggestedUser._id });
+            }
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = setTimeout(() => {
+                setIsTyping(false);
+                socketRef.current?.emit('stopTyping', { to: suggestedUser._id });
+            }, 2000);
+        }
+    };
 
 
     const handleMediaClick = (mediaUrl) => {
@@ -114,11 +131,13 @@ function ChatBox() {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     };
+    console.log(suggestedUser);
+
 
     return (
         <>
             {/* <VideoCall userId={userDetails?.id} socketRef={socketRef} remoteUserId={suggestedUser?._id}  /> */}
-            {suggestedUser ?
+            {suggestedUser && Object.keys(suggestedUser).length > 0 ?
                 (<section className={`flex-1 flex flex-col bg-surface-container-lowest ${suggestedUser ? "w-[90vw] md:w-full" : "w-0"}`}>
                     <header className="flex items-center justify-between px-6 py-4 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl sticky top-0 z-20 border-b border-outline-variant/10">
                         <div className="flex items-center gap-4">
@@ -199,6 +218,23 @@ function ChatBox() {
                                 </div>
                             );
                         })}
+                        {typingUsers?.has(suggestedUser?._id) && (
+                            <div className="flex gap-3 max-w-[85%] items-end">
+                                <div className="flex-shrink-0 self-end mb-1">
+                                    <Avatar className="w-8 h-8">
+                                        <AvatarImage src={suggestedUser?.profilePicture} className="w-full h-full object-top object-cover" />
+                                        <AvatarFallback className="text-xs font-headline font-bold">{suggestedUser?.username?.charAt(0) || "U"}</AvatarFallback>
+                                    </Avatar>
+                                </div>
+                                <div className="flex flex-col items-start">
+                                    <div className="bg-surface-container text-on-surface rounded-bl-none px-5 py-4 rounded-2xl shadow-sm flex items-center gap-1.5">
+                                        <span className="w-2 h-2 bg-on-surface-variant rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                        <span className="w-2 h-2 bg-on-surface-variant rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                        <span className="w-2 h-2 bg-on-surface-variant rounded-full animate-bounce"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div ref={messagesEndRef} />
                         {/* Dialog for displaying media */}
                         {selectedMedia && (
@@ -242,13 +278,13 @@ function ChatBox() {
                             <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="hidden" id="fileInput" />
                             <input
                                 value={textMessage}
-                                onChange={(e) => setTextMessage(e.target.value)}
+                                onChange={handleTyping}
                                 className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2 placeholder:text-on-surface-variant/50 outline-none text-on-surface"
                                 placeholder="Type a message..."
                             />
                             <button disabled={!isresOk} type="submit" className="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-transform active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed">
                                 {isresOk ? (
-                                    <span className="material-symbols-outlined text-[16px] pl-[1px] pt-[2px]" style={{fontVariationSettings: "'FILL' 1"}}>send</span>
+                                    <span className="material-symbols-outlined text-[16px] pl-[1px] pt-[2px]" style={{ fontVariationSettings: "'FILL' 1" }}>send</span>
                                 ) : (
                                     <ReloadIcon className="h-4 w-4 animate-spin" />
                                 )}

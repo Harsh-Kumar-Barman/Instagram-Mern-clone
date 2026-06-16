@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
   if (userId) {
     userSocketMap[userId] = socket.id;
   }
-console.log('new user connect ', userId , socket.id)
+  console.log('new user connect ', userId, socket.id)
 
   // Emit online users to all clients
   io.emit('getOnlineUsers', Object.keys(userSocketMap));
@@ -37,6 +37,16 @@ console.log('new user connect ', userId , socket.id)
   });
 
   // Handle WebRTC signaling data
+  socket.on('typing', ({ to }) => {
+    const receiverSocketId = getReciverSocketId(to);
+    if (receiverSocketId) io.to(receiverSocketId).emit('typing', { from: userId });
+  });
+
+  socket.on('stopTyping', ({ to }) => {
+    const receiverSocketId = getReciverSocketId(to);
+    if (receiverSocketId) io.to(receiverSocketId).emit('stopTyping', { from: userId });
+  });
+
   socket.on('videoCallOffer', ({ to, offer }) => {
     const receiverSocketId = getReciverSocketId(to);
     if (receiverSocketId) {

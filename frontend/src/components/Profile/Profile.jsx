@@ -2,14 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFollower, setFollowing, setSelectedPost } from '../../features/userDetail/userDetailsSlice';
-import Sidebar from '../Home/Sidebar';
-import CreatePost from './CreatePost';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { setFollower, setFollowing, setSelectedPost, setSuggestedUser } from '@/features/userDetail/userDetailsSlice';
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BookmarkIcon, Clapperboard, EyeIcon, GridIcon, MessageCircle, MoreHorizontal, Settings, SettingsIcon, UserIcon } from "lucide-react"
+import { BookmarkIcon, Clapperboard, EyeIcon, GridIcon, MoreHorizontal, SettingsIcon, UserIcon } from "lucide-react"
 import { FaHeart } from 'react-icons/fa';
 import { InstagramProfileSkeletonComponent } from './instagram-profile-skeleton';
 import { IoChatbubbleSharp } from 'react-icons/io5';
@@ -20,9 +16,9 @@ import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tansta
 
 
 const BASE_URL =
-import.meta.env.VITE_NODE_ENV === "development"
-  ? import.meta.env.VITE_API_BASE_URL_DEV
-  : import.meta.env.VITE_API_BASE_URL_PROD;
+  import.meta.env.VITE_NODE_ENV === "development"
+    ? import.meta.env.VITE_API_BASE_URL_DEV
+    : import.meta.env.VITE_API_BASE_URL_PROD;
 
 
 const Profile = () => {
@@ -30,10 +26,10 @@ const Profile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { username, reelId } = useParams();
-  
-  const [selectedMedia, setSelectedMedia] = useState(null); 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);  
-  
+
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const userDetails = useSelector((state) => state.counter.userDetails);
   const following = useSelector((state) => state.counter.following);
   const watchHistory = useSelector((state) => state.counter.watchHistory);
@@ -84,6 +80,8 @@ const Profile = () => {
   });
 
   const user = data?.pages[0]?.user;
+  console.log(user);
+
   const userID = user?._id;
   const profilePicture = user?.profilePicture;
   const postsArr = data?.pages.flatMap(page => page.posts) || [];
@@ -113,6 +111,14 @@ const Profile = () => {
       console.error('Error during logout:', error);
     }
   };
+
+  const handleSetUser = (e) => {
+    e.preventDefault()
+    console.log(user);
+    const suggestedUser = user
+    dispatch(setSuggestedUser(suggestedUser));
+    navigate(`/direct/inbox`);
+  }
 
   const showComments = (e, post) => {
     e.preventDefault();
@@ -199,7 +205,7 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex-1 space-y-6">
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <h2 className="text-2xl font-display font-extrabold tracking-tight text-on-surface">@{user.username}</h2>
@@ -220,9 +226,9 @@ const Profile = () => {
                   ) : (
                     <>
                       <button onClick={(e) => handleFollowing(e, userID)} className="px-6 py-2 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-bold text-sm shadow-sm hover:opacity-90 transition-all active:scale-95">{followingUserss?.includes(userID) ? "Following" : "Follow"}</button>
-                      <Link to="/direct/inbox">
-                        <button className="px-6 py-2 rounded-full bg-surface-container-high text-on-surface font-bold text-sm hover:bg-surface-container-highest transition-colors active:scale-95">Message</button>
-                      </Link>
+                      {/* <Link to="/direct/inbox" onClick={() => dispatch(setSuggestedUser(user))}> */}
+                      <button onClick={handleSetUser} className="px-6 py-2 rounded-full bg-surface-container-high text-on-surface font-bold text-sm hover:bg-surface-container-highest transition-colors active:scale-95">Message</button>
+                      {/* </Link> */}
                     </>
                   )}
                 </div>
